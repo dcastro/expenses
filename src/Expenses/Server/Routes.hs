@@ -80,7 +80,7 @@ data PrivateAPI mode = PrivateAPI
         :- "search"
           :> ReqBody '[JSON] Search.RawSearchParams
           :> Post '[JSON] (Vector GetTransactions.TransactionItem)
-  , allTags :: mode :- "tags" :> Get '[JSON] [TagName]
+  , allTags :: mode :- "tags" :> Get '[JSON] (Set TagName)
   , allAccounts :: mode :- "accounts" :> Get '[JSON] [Text]
   , getAvailableDateRange :: mode :- "dates" :> Get '[JSON] DateRange
   }
