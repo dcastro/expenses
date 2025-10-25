@@ -14,7 +14,7 @@ import Types (Username (..), mkUsername)
 
 data RawServerOptions = RawServerOptions
   { port :: Int
-  , appDir :: Maybe FilePath
+  , appDir :: FilePath
   , runCron :: Bool
   , user :: Maybe Username
   , isVerbose :: Bool
@@ -41,14 +41,12 @@ mkServerOptions = do
   nordigenSecretKey <- liftIO $ getEnv "EXPENSES_NORDIGEN_SECRET_KEY"
   RawServerOptions{port, appDir, runCron, user, isVerbose} <- liftIO parseRawServerOptions
 
-  let
-    dbPath = appDir <&> (</> "expenses.db") & fromMaybe "db/db"
-    eventLogPath = appDir <&> (</> "eventlog.jsonl") & fromMaybe "logs/eventlog.jsonl"
-    logsDir = appDir <&> (</> "logs") & fromMaybe "logs"
+  appDir <- liftIO $ Dir.canonicalizePath appDir
 
-  dbPath <- liftIO $ Dir.canonicalizePath dbPath
-  eventLogPath <- liftIO $ Dir.canonicalizePath eventLogPath
-  logsDir <- liftIO $ Dir.canonicalizePath logsDir
+  let
+    dbPath = appDir </> "expenses.db"
+    eventLogPath = appDir </> "eventlog.jsonl"
+    logsDir = appDir </> "logs"
 
   liftIO $ Dir.createDirectoryIfMissing True logsDir
 
@@ -102,12 +100,12 @@ parseRawServerOptions = execParser opts
             <> showDefault
             <> value 8081
         )
-      <*> optional
-        ( strOption
-            ( long "app-dir"
-                <> metavar "DIR"
-                <> help "Base directory for the application data files"
-            )
+      <*> strOption
+        ( long "app-dir"
+            <> metavar "DIR"
+            <> help "Base directory for the application data files"
+            <> showDefault
+            <> value "./resources/test-app-dir/"
         )
       <*> switch
         ( long "cron"

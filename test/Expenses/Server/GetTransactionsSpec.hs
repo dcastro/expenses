@@ -108,7 +108,7 @@ spec_mkGroupStats = it "calculates group and tag stats" do
 test_getTransactionsHandler :: TestTree
 test_getTransactionsHandler = do
   goldenVsString "mkGroupStats golden test" "test/golden/getTransactionsHandler.json" do
-    let dbPath = "db/test.db"
+    let dbPath = "./resources/test-app-dir/expenses.db"
     dbConn <- liftIO $ SQL.open dbPath >>= M.newMVar
     let env =
           Env

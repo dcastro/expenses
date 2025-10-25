@@ -7,11 +7,10 @@ dist-newstyle/
 .ghc.environment.*
 cabal.project.local
 
-logs/
+resources/test-app-dir/logs/
+resources/test-app-dir/eventlog.jsonl
 
 # nix artifacts
 result
-
-db/db
 
 .psc-ide-port
