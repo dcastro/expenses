@@ -1,0 +1,86 @@
+
+package:
+  name: expenses-manager
+  dependencies:
+    - aff
+    - aff-promise
+    - arrays
+    - console
+    - datetime
+    - debug
+    - effect
+    - either
+    - halogen
+    - halogen-subscriptions
+    - lists
+    - maybe
+    - newtype
+    - now
+    - ordered-collections
+    - parsing
+    - prelude
+    - random
+    - record
+    - strings
+    - stringutils
+    - tailrec
+    - tuples
+    - unsafe-coerce
+    - web-events
+    - web-html
+    - web-storage
+    - yoga-json
+    - affjax
+    - affjax-web
+    - argonaut
+    - argonaut-generic
+    - js-date
+    - formatters
+    - untagged-union
+    - halogen-router
+    - routing-duplex
+    - web-clipboard
+    - js-promise-aff
+    - b64
+    - validation
+
+  test:
+    main: Test.Main
+    dependencies:
+      - node-execa
+      - nullable
+      - spec
+      - spec-discovery
+    censorTestWarnings:
+      - ImplicitImport
+      - ImplicitQualifiedImport
+      - ShadowedName
+  build:
+    censorProjectWarnings:
+      - ImplicitImport
+      - ImplicitQualifiedImport
+      - ShadowedName
+
+workspace:
+  packageSet:
+    registry: 66.3.0
+  extraPackages:
+    halogen-router:
+      git: https://github.com/katsujukou/purescript-halogen-router.git
+      ref: e25e7bbb7a32011c3f8c48c04612d5909455b035
+      dependencies:
+        - aff
+        - effect
+        - either
+        - foreign
+        - halogen
+        - halogen-hooks
+        - halogen-store
+        - halogen-subscriptions
+        - maybe
+        - prelude
+        - routing
+        - routing-duplex
+        - safe-coerce
+        - transformers
+        - tuples

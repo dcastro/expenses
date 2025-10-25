@@ -1,0 +1,66 @@
+
+# Just list all recipes by default
+default:
+  just --list
+
+install-deps:
+	npm install -g esbuild spago@next parcel purescript purs-tidy
+
+build:
+	npm i
+	just build-ts
+	spago build
+
+build-out:
+	rm -rf out && mkdir -p out
+	cp dev/* out/
+	npm i
+	just build-ts
+	spago bundle --outfile out/index.js
+
+
+build-prod:
+	just build-out
+	rm -rf prod && mkdir -p prod
+	npm run parcel-build -- out/index.html --dist-dir prod
+	# Copy zoomchart's assets to the `dist` folder, so the app can find them.
+	cp -r node_modules/@dvsl/zoomcharts/lib/assets/ prod
+
+run:
+	# NOTE: sometimes `just run` hangs, I think it's when file watchers are exhausted.
+	# Closing GitKraken and VSCode might help.
+	just build
+	# Copy zoomchart's assets to the `dist` folder, so the app can find them.
+	rm -rf dist && mkdir dist
+	cp -r node_modules/@dvsl/zoomcharts/lib/assets/ dist
+	npm run serve
+
+test:
+	just build-ts
+	spago test
+
+# Usage:
+#  * just test-filter "MyTest"
+test-filter filter:
+	just build-ts
+	watchexec --clear --exts purs,js,yaml -- spago test -- --example "{{filter}}"
+
+build-ts: ## Build TypeScript files
+	# uncommment this when we have TypeScript files to build
+	# npm run ts
+
+format:
+	purs-tidy format-in-place "src/**/*.purs" "test/**/*.purs"
+
+clean: ## Clean all artifacts
+	rm -rf output/*
+
+full-clean:
+	rm -rf output/*
+	rm -rf node_modules/*
+	rm -rf .spago/*
+	rm -rf .psci_modules/*
+	rm -rf .parcel-cache/*
+
+repl:
+	spago repl

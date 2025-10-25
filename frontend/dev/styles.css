@@ -1,0 +1,25 @@
+.table {
+  --bulma-table-head-cell-border-width: 0 0 3px 0 ;
+}
+
+.table tbody tr.last_in_group td {
+  border-bottom-width: 3px;
+}
+
+.button.is-small {
+  /* defaults to 0.75rem */
+    --bulma-control-size: 0.6rem;
+}
+
+/* When bulma's panel blocks are :hover, bulma changes their background color to a tone of grey.
+   I also want them to have that background color when they have `.is-active`.
+   These rules are used in the `SelectTag` modal.
+*/
+a.panel-block.is-active, label.panel-block.is-active {
+    background-color: var(--bulma-panel-block-hover-background-color);
+}
+
+/* By default, bulma styles visited links with white text. We want to disable that for the links in the navbar */
+a.navbar-item:visited {
+  color: inherit;
+}

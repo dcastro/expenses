@@ -1,0 +1,1929 @@
+{
+    "Right": {
+        "groupsStats": [
+            {
+                "groupPercentage": 52,
+                "groupTotalAmountCents": 308881,
+                "name": "Other",
+                "tags": [
+                    {
+                        "name": "rent",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                70000
+                            ],
+                            [
+                                "2025-09",
+                                70000
+                            ]
+                        ],
+                        "tagPercentage": 45,
+                        "tagPercentageOfTotal": 23,
+                        "tagTotalAmountCents": 140000
+                    },
+                    {
+                        "name": "clothes",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                2810
+                            ],
+                            [
+                                "2025-09",
+                                34044
+                            ]
+                        ],
+                        "tagPercentage": 11,
+                        "tagPercentageOfTotal": 6,
+                        "tagTotalAmountCents": 36854
+                    },
+                    {
+                        "name": "health insurance",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                18188
+                            ],
+                            [
+                                "2025-09",
+                                18188
+                            ]
+                        ],
+                        "tagPercentage": 11,
+                        "tagPercentageOfTotal": 6,
+                        "tagTotalAmountCents": 36376
+                    },
+                    {
+                        "name": "water bill",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                7157
+                            ],
+                            [
+                                "2025-09",
+                                9953
+                            ]
+                        ],
+                        "tagPercentage": 5,
+                        "tagPercentageOfTotal": 2,
+                        "tagTotalAmountCents": 17110
+                    },
+                    {
+                        "name": "electricity bill",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                5374
+                            ],
+                            [
+                                "2025-09",
+                                6291
+                            ]
+                        ],
+                        "tagPercentage": 3,
+                        "tagPercentageOfTotal": 1,
+                        "tagTotalAmountCents": 11665
+                    },
+                    {
+                        "name": "fuel",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                5479
+                            ],
+                            [
+                                "2025-09",
+                                5128
+                            ]
+                        ],
+                        "tagPercentage": 3,
+                        "tagPercentageOfTotal": 1,
+                        "tagTotalAmountCents": 10607
+                    },
+                    {
+                        "name": "appointments",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-09",
+                                8575
+                            ]
+                        ],
+                        "tagPercentage": 2,
+                        "tagPercentageOfTotal": 1,
+                        "tagTotalAmountCents": 8575
+                    },
+                    {
+                        "name": "pharmacy",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                3364
+                            ],
+                            [
+                                "2025-09",
+                                4559
+                            ]
+                        ],
+                        "tagPercentage": 2,
+                        "tagPercentageOfTotal": 1,
+                        "tagTotalAmountCents": 7923
+                    },
+                    {
+                        "name": "lentes",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                7680
+                            ]
+                        ],
+                        "tagPercentage": 2,
+                        "tagPercentageOfTotal": 1,
+                        "tagTotalAmountCents": 7680
+                    },
+                    {
+                        "name": "internet bill",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                3248
+                            ],
+                            [
+                                "2025-09",
+                                3248
+                            ]
+                        ],
+                        "tagPercentage": 2,
+                        "tagPercentageOfTotal": 1,
+                        "tagTotalAmountCents": 6496
+                    },
+                    {
+                        "name": "haircut",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                2800
+                            ],
+                            [
+                                "2025-09",
+                                2200
+                            ]
+                        ],
+                        "tagPercentage": 1,
+                        "tagPercentageOfTotal": 0,
+                        "tagTotalAmountCents": 5000
+                    },
+                    {
+                        "name": "electronics",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                4763
+                            ]
+                        ],
+                        "tagPercentage": 1,
+                        "tagPercentageOfTotal": 0,
+                        "tagTotalAmountCents": 4763
+                    },
+                    {
+                        "name": "school stuff",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-09",
+                                4585
+                            ]
+                        ],
+                        "tagPercentage": 1,
+                        "tagPercentageOfTotal": 0,
+                        "tagTotalAmountCents": 4585
+                    },
+                    {
+                        "name": "gas bill",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-09",
+                                4224
+                            ]
+                        ],
+                        "tagPercentage": 1,
+                        "tagPercentageOfTotal": 0,
+                        "tagTotalAmountCents": 4224
+                    },
+                    {
+                        "name": "life insurance",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                1608
+                            ],
+                            [
+                                "2025-09",
+                                1608
+                            ]
+                        ],
+                        "tagPercentage": 1,
+                        "tagPercentageOfTotal": 0,
+                        "tagTotalAmountCents": 3216
+                    },
+                    {
+                        "name": "phone bill",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                1400
+                            ],
+                            [
+                                "2025-09",
+                                1400
+                            ]
+                        ],
+                        "tagPercentage": 0,
+                        "tagPercentageOfTotal": 0,
+                        "tagTotalAmountCents": 2800
+                    },
+                    {
+                        "name": "home",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                1703
+                            ],
+                            [
+                                "2025-09",
+                                -995
+                            ]
+                        ],
+                        "tagPercentage": 0,
+                        "tagPercentageOfTotal": 0,
+                        "tagTotalAmountCents": 708
+                    },
+                    {
+                        "name": "games",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                299
+                            ]
+                        ],
+                        "tagPercentage": 0,
+                        "tagPercentageOfTotal": 0,
+                        "tagTotalAmountCents": 299
+                    }
+                ]
+            },
+            {
+                "groupPercentage": 23,
+                "groupTotalAmountCents": 140984,
+                "name": "Groceries",
+                "tags": [
+                    {
+                        "name": "groceries",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                82033
+                            ],
+                            [
+                                "2025-09",
+                                58951
+                            ]
+                        ],
+                        "tagPercentage": 100,
+                        "tagPercentageOfTotal": 23,
+                        "tagTotalAmountCents": 140984
+                    }
+                ]
+            },
+            {
+                "groupPercentage": 11,
+                "groupTotalAmountCents": 70162,
+                "name": "Contas",
+                "tags": [
+                    {
+                        "name": "school",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-09",
+                                38500
+                            ]
+                        ],
+                        "tagPercentage": 54,
+                        "tagPercentageOfTotal": 6,
+                        "tagTotalAmountCents": 38500
+                    },
+                    {
+                        "name": "gym",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                9032
+                            ],
+                            [
+                                "2025-09",
+                                9032
+                            ]
+                        ],
+                        "tagPercentage": 25,
+                        "tagPercentageOfTotal": 3,
+                        "tagTotalAmountCents": 18064
+                    },
+                    {
+                        "name": "charity",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                5000
+                            ],
+                            [
+                                "2025-09",
+                                5000
+                            ]
+                        ],
+                        "tagPercentage": 14,
+                        "tagPercentageOfTotal": 1,
+                        "tagTotalAmountCents": 10000
+                    },
+                    {
+                        "name": "netflix",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                1799
+                            ],
+                            [
+                                "2025-09",
+                                1799
+                            ]
+                        ],
+                        "tagPercentage": 5,
+                        "tagPercentageOfTotal": 0,
+                        "tagTotalAmountCents": 3598
+                    }
+                ]
+            },
+            {
+                "groupPercentage": 4,
+                "groupTotalAmountCents": 27495,
+                "name": "Baby",
+                "tags": [
+                    {
+                        "name": "toys",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                10855
+                            ],
+                            [
+                                "2025-09",
+                                16640
+                            ]
+                        ],
+                        "tagPercentage": 100,
+                        "tagPercentageOfTotal": 4,
+                        "tagTotalAmountCents": 27495
+                    }
+                ]
+            },
+            {
+                "groupPercentage": 3,
+                "groupTotalAmountCents": 18075,
+                "name": "Go out",
+                "tags": [
+                    {
+                        "name": "go out",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                17275
+                            ],
+                            [
+                                "2025-09",
+                                800
+                            ]
+                        ],
+                        "tagPercentage": 100,
+                        "tagPercentageOfTotal": 3,
+                        "tagTotalAmountCents": 18075
+                    }
+                ]
+            },
+            {
+                "groupPercentage": 2,
+                "groupTotalAmountCents": 16252,
+                "name": "Takeaway",
+                "tags": [
+                    {
+                        "name": "takeaway",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                9643
+                            ],
+                            [
+                                "2025-09",
+                                6609
+                            ]
+                        ],
+                        "tagPercentage": 100,
+                        "tagPercentageOfTotal": 2,
+                        "tagTotalAmountCents": 16252
+                    }
+                ]
+            },
+            {
+                "groupPercentage": 0,
+                "groupTotalAmountCents": 5615,
+                "name": "Gifts",
+                "tags": [
+                    {
+                        "name": "gifts",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                5615
+                            ]
+                        ],
+                        "tagPercentage": 100,
+                        "tagPercentageOfTotal": 0,
+                        "tagTotalAmountCents": 5615
+                    }
+                ]
+            },
+            {
+                "groupPercentage": 0,
+                "groupTotalAmountCents": 602,
+                "name": "Carro",
+                "tags": [
+                    {
+                        "name": "car repairs",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-09",
+                                602
+                            ]
+                        ],
+                        "tagPercentage": 100,
+                        "tagPercentageOfTotal": 0,
+                        "tagTotalAmountCents": 602
+                    }
+                ]
+            }
+        ],
+        "totalAmountCents": 588066,
+        "transactions": [
+            {
+                "account": "Millennium",
+                "date": "2025-08-04",
+                "desc": "TRF MB WAY P  CELIA TERESA MARTINS SOUSA LIMA",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 860,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 860,
+                "transactionId": "2025080402025-08-02-10.55.59.346992"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-04",
+                "desc": "COMPRA 7765 BIODIVERSUS,LDA ARCOZELO",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 3894,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 3894,
+                "transactionId": "2025080402025-08-02-11.21.17.047823"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-04",
+                "desc": "COMPRA 7765 ALE-HOP GAIA VILA NOVA DE GAIA",
+                "details": "headphones for Clara",
+                "isExpense": true,
+                "itemAmountCents": 2820,
+                "itemIndex": 0,
+                "tag": "gifts",
+                "totalAmountCents": 2820,
+                "transactionId": "2025080402025-08-02-18.45.05.866785"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-04",
+                "desc": "COMPRA 5447 AUCHAN GONDOMAR RIO TINTO",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 1992,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 1992,
+                "transactionId": "2025080402025-08-03-10.49.23.324217"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-04",
+                "desc": "COMPRA 5447 CENTRO PORTO 4350-414 PORTO",
+                "details": "hotwheels track for Benji",
+                "isExpense": true,
+                "itemAmountCents": 2795,
+                "itemIndex": 0,
+                "tag": "gifts",
+                "totalAmountCents": 2795,
+                "transactionId": "2025080402025-08-03-11.39.52.749972"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-04",
+                "desc": "COMPRA 7765 MERCADONA GONDOMAR",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 692,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 692,
+                "transactionId": "2025080402025-08-03-14.29.26.107769"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-04",
+                "desc": "DD COMPANHIA DE S 00681327982    PT79100587",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 6674,
+                "itemIndex": 0,
+                "tag": "health insurance",
+                "totalAmountCents": 6674,
+                "transactionId": "2025080412025-08-04-00.20.43.640133"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-05",
+                "desc": "DD APRIL PORTUGAL 00717087687-01 PT28826381",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 1608,
+                "itemIndex": 0,
+                "tag": "life insurance",
+                "totalAmountCents": 1608,
+                "transactionId": "2025080512025-08-05-04.56.52.996133"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-05",
+                "desc": "COMPRA 5447 UBER EATS HELP.UBER.COMNH",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 2709,
+                "itemIndex": 0,
+                "tag": "takeaway",
+                "totalAmountCents": 2709,
+                "transactionId": "2025080512025-08-05-04.56.52.996192"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-05",
+                "desc": "COMPRA 7765 Google Play Apps Dublin IE",
+                "details": "andoku 3",
+                "isExpense": true,
+                "itemAmountCents": 299,
+                "itemIndex": 0,
+                "tag": "games",
+                "totalAmountCents": 299,
+                "transactionId": "2025080512025-08-05-04.56.52.999115"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-05",
+                "desc": "TRF P  Joana Galhardo",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 70000,
+                "itemIndex": 0,
+                "tag": "rent",
+                "totalAmountCents": 70000,
+                "transactionId": "2025080532025-08-05-08.01.44.498767"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-05",
+                "desc": "COMPRA 5447 MO 0000-000 FANZERES",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 2810,
+                "itemIndex": 0,
+                "tag": "clothes",
+                "totalAmountCents": 2810,
+                "transactionId": "2025080532025-08-05-10.43.59.675156"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-05",
+                "desc": "COMPRA 5447 CONTINENTE FANZERES 4420-570 GONDOM",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 2189,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 2189,
+                "transactionId": "2025080532025-08-05-11.03.35.331632"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-05",
+                "desc": "COMPRA 5447 MERCADONA GONDOMAR",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 12595,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 12595,
+                "transactionId": "2025080532025-08-05-19.05.45.441110"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-07",
+                "desc": "DD Aguas de Gondo 00276742459    PT92187571",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 7157,
+                "itemIndex": 0,
+                "tag": "water bill",
+                "totalAmountCents": 7157,
+                "transactionId": "2025080712025-08-07-04.22.55.435591"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-07",
+                "desc": "COMPRA 7765 AMAZON RV3S742Z4 LUXEMBOURG LU",
+                "details": "Sawyer bike",
+                "isExpense": true,
+                "itemAmountCents": 6610,
+                "itemIndex": 0,
+                "tag": "toys",
+                "totalAmountCents": 6610,
+                "transactionId": "2025080712025-08-07-04.22.55.436494"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-07",
+                "desc": "TRF P  Carlos Gomes",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 500,
+                "itemIndex": 0,
+                "tag": "netflix",
+                "totalAmountCents": 500,
+                "transactionId": "2025080732025-08-07-08.01.05.771039"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-07",
+                "desc": "COMPRA 5447 PINGO DOCE RIO TINTORIO CONTACTLESS",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 1196,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 1196,
+                "transactionId": "2025080732025-08-07-11.34.50.930245"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-07",
+                "desc": "COMPRA 5447 MERCADONA GONDOMAR",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 825,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 825,
+                "transactionId": "2025080732025-08-07-20.20.21.508903"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-08",
+                "desc": "COMPRA 7765 NOS CINEMAS PQ NASCERIO TINTO",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 835,
+                "itemIndex": 0,
+                "tag": "go out",
+                "totalAmountCents": 835,
+                "transactionId": "2025080802025-08-07-21.54.37.277321"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-08",
+                "desc": "DD Amnistia Inter 00046364722    Amnistia Inter",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 5000,
+                "itemIndex": 0,
+                "tag": "charity",
+                "totalAmountCents": 5000,
+                "transactionId": "2025080812025-08-08-04.06.05.628092"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-08",
+                "desc": "COMPRA 7765 AMZN Mktp ES RV9YK2Y14 800-279-6620",
+                "details": "hose adapter",
+                "isExpense": true,
+                "itemAmountCents": 1129,
+                "itemIndex": 0,
+                "tag": "home",
+                "totalAmountCents": 1129,
+                "transactionId": "2025080812025-08-08-04.06.05.628161"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-11",
+                "desc": "COMPRA 7765 ALDI RIO TINTO RIO TINTO",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 492,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 492,
+                "transactionId": "2025081102025-08-09-14.31.03.108616"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-11",
+                "desc": "DD SOLINCA CLASSI 00029752649    PT40100528",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 2258,
+                "itemIndex": 0,
+                "tag": "gym",
+                "totalAmountCents": 2258,
+                "transactionId": "2025081112025-08-11-00.21.53.088625"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-11",
+                "desc": "DD SOLINCA CLASSI 00029752649    PT40100528",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 2258,
+                "itemIndex": 0,
+                "tag": "gym",
+                "totalAmountCents": 2258,
+                "transactionId": "2025081112025-08-11-00.21.53.088688"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-11",
+                "desc": "COMPRA 5447 MERCADONA GONDOMAR",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 5490,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 5490,
+                "transactionId": "2025081132025-08-11-17.52.08.315605"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-13",
+                "desc": "COMPRA 7765 UBER EATS HELP.UBER.COMNL",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 1279,
+                "itemIndex": 0,
+                "tag": "takeaway",
+                "totalAmountCents": 1279,
+                "transactionId": "2025081312025-08-13-04.35.03.802310"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-13",
+                "desc": "COMPRA 7765 WELLS.PT SRA DA HORA",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 7680,
+                "itemIndex": 0,
+                "tag": "lentes",
+                "totalAmountCents": 7680,
+                "transactionId": "2025081332025-08-13-10.00.11.482609"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-14",
+                "desc": "COMPRA 5447 FARMACIA MAGALHAES FANZERES",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 760,
+                "itemIndex": 0,
+                "tag": "pharmacy",
+                "totalAmountCents": 760,
+                "transactionId": "2025081432025-08-14-11.40.50.544365"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-14",
+                "desc": "COMPRA 5447 MERCADONA GONDOMAR",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 11720,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 11720,
+                "transactionId": "2025081432025-08-14-19.05.59.383064"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-15",
+                "desc": "COMPRA 7765 EUPAGO- INST PAG LDAPORTO",
+                "details": "Raspberry Pi Zero 2WH, SC0721, mauser.pt",
+                "isExpense": true,
+                "itemAmountCents": 4064,
+                "itemIndex": 0,
+                "tag": "electronics",
+                "totalAmountCents": 4064,
+                "transactionId": "2025081502025-08-15-00.04.27.272700"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-15",
+                "desc": "DD MEDIS     SAUDE    DI56118629 02173395474AGO",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 11514,
+                "itemIndex": 0,
+                "tag": "health insurance",
+                "totalAmountCents": 11514,
+                "transactionId": "2025081512025-08-15-04.15.28.686525"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-18",
+                "desc": "TRF MB WAY P  ISABEL MARIA GONCALVES FERREIRA R",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 600,
+                "itemIndex": 0,
+                "tag": "haircut",
+                "totalAmountCents": 600,
+                "transactionId": "2025081802025-08-16-18.05.00.953843"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-18",
+                "desc": "DD LUZBOA         30005168943    PT98111652",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 5374,
+                "itemIndex": 0,
+                "tag": "electricity bill",
+                "totalAmountCents": 5374,
+                "transactionId": "2025081812025-08-18-00.19.06.780806"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-18",
+                "desc": "COMPRA 7765 CHURRASQ PRESTIGE S COSME",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 1225,
+                "itemIndex": 0,
+                "tag": "takeaway",
+                "totalAmountCents": 1225,
+                "transactionId": "2025081832025-08-18-12.18.32.830171"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-19",
+                "desc": "COMPRA 7765 AMZN Mktp ES RM2HF72P4 800-279-6620",
+                "details": "super glue loctite",
+                "isExpense": true,
+                "itemAmountCents": 574,
+                "itemIndex": 0,
+                "tag": "home",
+                "totalAmountCents": 574,
+                "transactionId": "2025081912025-08-19-04.19.54.976745"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-19",
+                "desc": "COMPRA 7765 PAVILHAO DA AGUA PORTO",
+                "details": "Pavilhão da água, Parque da Cidade",
+                "isExpense": true,
+                "itemAmountCents": 1600,
+                "itemIndex": 0,
+                "tag": "go out",
+                "totalAmountCents": 1600,
+                "transactionId": "2025081932025-08-19-11.04.46.074423"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-19",
+                "desc": "COMPRA 7765 CENTRAL RIO NIF 514817879",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 2830,
+                "itemIndex": 0,
+                "tag": "takeaway",
+                "totalAmountCents": 2830,
+                "transactionId": "2025081932025-08-19-12.50.15.510394"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-19",
+                "desc": "COMPRA 7765 MERCADONA GONDOMAR",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 5714,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 5714,
+                "transactionId": "2025081932025-08-19-18.20.44.036284"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-20",
+                "desc": "DD SOLINCA CLASSI 00029752649    PT40100528",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 2258,
+                "itemIndex": 0,
+                "tag": "gym",
+                "totalAmountCents": 2258,
+                "transactionId": "2025082012025-08-20-04.07.34.581579"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-20",
+                "desc": "DD SOLINCA CLASSI 00029752649    PT40100528",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 2258,
+                "itemIndex": 0,
+                "tag": "gym",
+                "totalAmountCents": 2258,
+                "transactionId": "2025082012025-08-20-04.07.34.582040"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-20",
+                "desc": "COMPRA 7765 CONTINENTE PAY Portugal PT",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 2024,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 2024,
+                "transactionId": "2025082012025-08-20-04.07.34.586016"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-20",
+                "desc": "COMPRA 7765 NETFLIX.COM 866-579-7172 NL",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 1299,
+                "itemIndex": 0,
+                "tag": "netflix",
+                "totalAmountCents": 1299,
+                "transactionId": "2025082012025-08-20-04.07.34.588636"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-20",
+                "desc": "COMPRA 7765 REST AVO ARNALDO MATOSINHOS",
+                "details": "restaurant Avô Arnaldo",
+                "isExpense": true,
+                "itemAmountCents": 6130,
+                "itemIndex": 0,
+                "tag": "go out",
+                "totalAmountCents": 6130,
+                "transactionId": "2025082032025-08-20-13.13.14.447812"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-21",
+                "desc": "COMPRA 7765 CNT PAY CONTINENTE Portugal PT",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 885,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 885,
+                "transactionId": "2025082112025-08-21-03.56.51.071981"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-21",
+                "desc": "COMPRA 7765 WOO LISBOA PT",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 700,
+                "itemIndex": 0,
+                "tag": "phone bill",
+                "totalAmountCents": 700,
+                "transactionId": "2025082112025-08-21-03.56.51.073375"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-21",
+                "desc": "COMPRA 7765 PAO CLUB FANZERES",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 200,
+                "itemIndex": 0,
+                "tag": "go out",
+                "totalAmountCents": 200,
+                "transactionId": "2025082132025-08-21-15.35.24.206174"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-21",
+                "desc": "COMPRA 7765 CONFEITARIA DEL RIO RIO TINTO",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 1500,
+                "itemIndex": 0,
+                "tag": "go out",
+                "totalAmountCents": 1500,
+                "transactionId": "2025082132025-08-21-15.50.42.493518"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-21",
+                "desc": "COMPRA 5447 MERCADONA GONDOMAR",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 4190,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 4190,
+                "transactionId": "2025082132025-08-21-18.35.40.666821"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-22",
+                "desc": "DD VODAFONE PORTU 07863903358    PT10100649",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 3248,
+                "itemIndex": 0,
+                "tag": "internet bill",
+                "totalAmountCents": 3248,
+                "transactionId": "2025082212025-08-22-04.15.25.833348"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-22",
+                "desc": "COMPRA 7765 NEONIA PORTO",
+                "details": "Museum Neónia",
+                "isExpense": true,
+                "itemAmountCents": 1800,
+                "itemIndex": 0,
+                "tag": "go out",
+                "totalAmountCents": 1800,
+                "transactionId": "2025082232025-08-22-10.53.46.125094"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-22",
+                "desc": "COMPRA 7765 EUPAGO - INST DE PORTO",
+                "details": "case for the raspberry pi",
+                "isExpense": true,
+                "itemAmountCents": 699,
+                "itemIndex": 0,
+                "tag": "electronics",
+                "totalAmountCents": 699,
+                "transactionId": "2025082232025-08-22-13.31.18.961593"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-25",
+                "desc": "COMPRA 7765 SEA LIFE PORTO QUEIJO-OCEAN.PORTO",
+                "details": "sea life",
+                "isExpense": true,
+                "itemAmountCents": 5050,
+                "itemIndex": 0,
+                "tag": "go out",
+                "totalAmountCents": 5050,
+                "transactionId": "2025082502025-08-23-10.55.34.327224"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-25",
+                "desc": "COMPRA 7765 SEA LIFE PORTO QUEIJO-OCEAN.PORTO",
+                "details": "sea life",
+                "isExpense": true,
+                "itemAmountCents": 160,
+                "itemIndex": 0,
+                "tag": "go out",
+                "totalAmountCents": 160,
+                "transactionId": "2025082502025-08-23-11.19.11.847392"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-25",
+                "desc": "COMPRA 7765 MERLIN ENTERTAINMENT4100-237 PORTO",
+                "details": "stuffed penguin and turtle from Sea Life",
+                "isExpense": true,
+                "itemAmountCents": 4245,
+                "itemIndex": 0,
+                "tag": "toys",
+                "totalAmountCents": 4245,
+                "transactionId": "2025082502025-08-23-12.13.05.743861"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-25",
+                "desc": "TRF MB WAY P  M INES P FONSECA",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 2200,
+                "itemIndex": 0,
+                "tag": "haircut",
+                "totalAmountCents": 2200,
+                "transactionId": "2025082502025-08-23-14.13.27.769255"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-25",
+                "desc": "COMPRA 7765 DISA GONDOMAR BAGUIM DO MONTE",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 5479,
+                "itemIndex": 0,
+                "tag": "fuel",
+                "totalAmountCents": 5479,
+                "transactionId": "2025082502025-08-23-14.30.39.330842"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-25",
+                "desc": "COMPRA 7765 LIDL AGRADECE 4435-030 RIO TINTO",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 3827,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 3827,
+                "transactionId": "2025082502025-08-24-11.54.23.103954"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-25",
+                "desc": "COMPRA 5447 MERCADONA GONDOMAR",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 813,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 813,
+                "transactionId": "2025082532025-08-25-11.49.01.631176"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-25",
+                "desc": "COMPRA 5447 WELL S VALBON VALBON",
+                "details": "fenistil, bepanthene, isdin baby naturals",
+                "isExpense": true,
+                "itemAmountCents": 2604,
+                "itemIndex": 0,
+                "tag": "pharmacy",
+                "totalAmountCents": 2604,
+                "transactionId": "2025082532025-08-25-17.34.39.566144"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-25",
+                "desc": "COMPRA 5447 CONTINENTE GONDOMAR 0000-000 GONDOM",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 7141,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 7141,
+                "transactionId": "2025082532025-08-25-18.19.01.220679"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-25",
+                "desc": "COMPRA 5447 MERCADONA GONDOMAR",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 12842,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 12842,
+                "transactionId": "2025082532025-08-25-18.58.49.578320"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-27",
+                "desc": "COMPRA 7765 LIDL AGRADECE 4435-000-BAGUIM MON",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 2652,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 2652,
+                "transactionId": "2025082732025-08-27-18.45.28.038298"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-29",
+                "desc": "COMPRA 5447 CONFEITARIA PRIMAZIAPORTO",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 1600,
+                "itemIndex": 0,
+                "tag": "takeaway",
+                "totalAmountCents": 1600,
+                "transactionId": "2025082932025-08-29-17.43.30.468778"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-08-29",
+                "desc": "COMPRA 7765 WOO LISBOA PT",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 700,
+                "itemIndex": 0,
+                "tag": "phone bill",
+                "totalAmountCents": 700,
+                "transactionId": "2025082952025-08-30-02.03.07.121008"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-01",
+                "desc": "DD COMPANHIA DE S 00681327982    PT79100587",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 6674,
+                "itemIndex": 0,
+                "tag": "health insurance",
+                "totalAmountCents": 6674,
+                "transactionId": "2025090112025-09-01-00.25.02.461243"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-01",
+                "desc": "DD EDP GAS SERVI. 99765159381    PT64116976",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 4224,
+                "itemIndex": 0,
+                "tag": "gas bill",
+                "totalAmountCents": 4224,
+                "transactionId": "2025090112025-09-01-00.25.02.461305"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-02",
+                "desc": "CRED. 7765 AMAZON RS8NA53U4 LUXEMBOURG",
+                "details": "refund: hose adapter",
+                "isExpense": true,
+                "itemAmountCents": -995,
+                "itemIndex": 0,
+                "tag": "home",
+                "totalAmountCents": -995,
+                "transactionId": "2025090212025-09-02-04.44.21.065028"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-02",
+                "desc": "DD APRIL PORTUGAL 00717087687-01 PT28826381",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 1608,
+                "itemIndex": 0,
+                "tag": "life insurance",
+                "totalAmountCents": 1608,
+                "transactionId": "2025090212025-09-02-04.44.21.065098"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-02",
+                "desc": "COMPRA 7765 AMZN Mktp ES R49VS7IN4 800-279-6620",
+                "details": "backpack",
+                "isExpense": true,
+                "itemAmountCents": 3117,
+                "itemIndex": 0,
+                "tag": "school stuff",
+                "totalAmountCents": 3117,
+                "transactionId": "2025090212025-09-02-04.44.21.065157"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-03",
+                "desc": "DD SOLINCA CLASSI 00029752649    PT40100528",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 2258,
+                "itemIndex": 0,
+                "tag": "gym",
+                "totalAmountCents": 2258,
+                "transactionId": "2025090312025-09-03-04.54.27.007417"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-03",
+                "desc": "DD SOLINCA CLASSI 00029752649    PT40100528",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 2258,
+                "itemIndex": 0,
+                "tag": "gym",
+                "totalAmountCents": 2258,
+                "transactionId": "2025090312025-09-03-04.54.27.007487"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-03",
+                "desc": "COMPRA 7765 ALDI RIO TINTO RIO TINTO",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 2061,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 2061,
+                "transactionId": "2025090332025-09-03-11.31.40.548922"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-04",
+                "desc": "COMPRA 7765 UBER EATS HELP.UBER.COMNL",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 1319,
+                "itemIndex": 0,
+                "tag": "takeaway",
+                "totalAmountCents": 1319,
+                "transactionId": "2025090412025-09-04-04.45.41.561589"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-04",
+                "desc": "COMPRA 5447 AUCHAN GONDOMAR RIO TINTO",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 9083,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 9083,
+                "transactionId": "2025090432025-09-04-18.10.00.337304"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-05",
+                "desc": "COMPRA 7765 AMZN Mktp ES RK29G09Q4 800-279-6620",
+                "details": "name tags",
+                "isExpense": true,
+                "itemAmountCents": 1468,
+                "itemIndex": 0,
+                "tag": "school stuff",
+                "totalAmountCents": 1468,
+                "transactionId": "2025090512025-09-05-04.28.17.828113"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-05",
+                "desc": "TRF P  Joana Galhardo",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 70000,
+                "itemIndex": 0,
+                "tag": "rent",
+                "totalAmountCents": 70000,
+                "transactionId": "2025090532025-09-05-08.02.15.851329"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-05",
+                "desc": "TRF P  Carlos Gomes",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 500,
+                "itemIndex": 0,
+                "tag": "netflix",
+                "totalAmountCents": 500,
+                "transactionId": "2025090532025-09-05-08.02.57.537180"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-05",
+                "desc": "COMPRA 5447 PINGO DOCE RIO TINTORIO TINTO",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 1107,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 1107,
+                "transactionId": "2025090532025-09-05-11.25.28.898721"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-08",
+                "desc": "TRF P  O CAMINHAR JARDIM INFANCIA LDA",
+                "details": "school insurance",
+                "isExpense": true,
+                "itemAmountCents": 2000,
+                "itemIndex": 0,
+                "tag": "school",
+                "totalAmountCents": 2000,
+                "transactionId": "2025090802025-09-05-22.27.42.977358"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-08",
+                "desc": "COMPRA 7765 MERCADONA GONDOMAR",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 1715,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 1715,
+                "transactionId": "2025090802025-09-06-18.53.26.598835"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-08",
+                "desc": "DD Amnistia Inter 00046364722    Amnistia Inter",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 5000,
+                "itemIndex": 0,
+                "tag": "charity",
+                "totalAmountCents": 5000,
+                "transactionId": "2025090812025-09-08-00.22.50.392589"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-08",
+                "desc": "DD Aguas de Gondo 00276742459    PT92187571",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 9953,
+                "itemIndex": 0,
+                "tag": "water bill",
+                "totalAmountCents": 9953,
+                "transactionId": "2025090812025-09-08-00.22.50.392746"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-09",
+                "desc": "TRF P  O CAMINHAR JARDIM INFANCIA LDA",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 36500,
+                "itemIndex": 0,
+                "tag": "school",
+                "totalAmountCents": 36500,
+                "transactionId": "2025090902025-09-08-23.06.51.578583"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-09",
+                "desc": "COMPRA 7765 Restaurante O Cardeal B CONTACTLESS",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 3635,
+                "itemIndex": 0,
+                "tag": "takeaway",
+                "totalAmountCents": 3635,
+                "transactionId": "2025090912025-09-09-05.14.37.413665"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-10",
+                "desc": "COMPRA 5447 E LECLERC VALONGO VALONGO",
+                "details": "Lego Duplo, Mickey set",
+                "isExpense": true,
+                "itemAmountCents": 3250,
+                "itemIndex": 0,
+                "tag": "toys",
+                "totalAmountCents": 3250,
+                "transactionId": "2025091032025-09-10-10.45.45.247685"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-11",
+                "desc": "COMPRA 7765 PROJETOS DE GENTE 4470-139 MAIA",
+                "details": "pediatrician",
+                "isExpense": true,
+                "itemAmountCents": 5500,
+                "itemIndex": 0,
+                "tag": "appointments",
+                "totalAmountCents": 5500,
+                "transactionId": "2025091132025-09-11-11.04.53.901442"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-11",
+                "desc": "COMPRA 5447 LIDL AGRADECE 4435-000-BAGUIM MON",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 5570,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 5570,
+                "transactionId": "2025091132025-09-11-17.49.55.032892"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-12",
+                "desc": "COMPRA 7765 UBER TRIP HELP.UBER.COMNL",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 602,
+                "itemIndex": 0,
+                "tag": "car repairs",
+                "totalAmountCents": 602,
+                "transactionId": "2025091212025-09-12-03.57.15.721252"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-12",
+                "desc": "COMPRA 5447 FARMACIA MAGALHAES FANZERES",
+                "details": "shampoo",
+                "isExpense": true,
+                "itemAmountCents": 4559,
+                "itemIndex": 0,
+                "tag": "pharmacy",
+                "totalAmountCents": 4559,
+                "transactionId": "2025091232025-09-12-09.59.47.298531"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-12",
+                "desc": "MEDIS-PAG SERVICOS 25254B1003861826",
+                "details": "pediatrician",
+                "isExpense": true,
+                "itemAmountCents": -1925,
+                "itemIndex": 0,
+                "tag": "appointments",
+                "totalAmountCents": -1925,
+                "transactionId": "2025091232025-09-12-12.30.44.473308"
+            },
+            {
+                "account": "Cash",
+                "date": "2025-09-13",
+                "desc": "",
+                "details": "medieval fair",
+                "isExpense": true,
+                "itemAmountCents": 800,
+                "itemIndex": 0,
+                "tag": "go out",
+                "totalAmountCents": 800,
+                "transactionId": "EXP-6a5cbc6a-cf3b-4eef-894d-480f8e7e4760"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-15",
+                "desc": "DD MEDIS     SAUDE    DI56118629 02173395474SET",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 11514,
+                "itemIndex": 0,
+                "tag": "health insurance",
+                "totalAmountCents": 11514,
+                "transactionId": "2025091512025-09-15-00.19.59.376637"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-17",
+                "desc": "DD SOLINCA CLASSI 00029752649    PT40100528",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 2258,
+                "itemIndex": 0,
+                "tag": "gym",
+                "totalAmountCents": 2258,
+                "transactionId": "2025091712025-09-17-04.21.45.639391"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-17",
+                "desc": "DD SOLINCA CLASSI 00029752649    PT40100528",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 2258,
+                "itemIndex": 0,
+                "tag": "gym",
+                "totalAmountCents": 2258,
+                "transactionId": "2025091712025-09-17-04.21.45.639507"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-17",
+                "desc": "DD LUZBOA         30005168943    PT98111652",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 6291,
+                "itemIndex": 0,
+                "tag": "electricity bill",
+                "totalAmountCents": 6291,
+                "transactionId": "2025091712025-09-17-04.21.45.639568"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-17",
+                "desc": "COMPRA 5447 ADIDASPT WWW.ADIDAS.PT LISBON",
+                "details": "trainers for Sónia",
+                "isExpense": true,
+                "itemAmountCents": 11000,
+                "itemIndex": 0,
+                "tag": "clothes",
+                "totalAmountCents": 11000,
+                "transactionId": "2025091712025-09-17-04.21.45.639622"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-17",
+                "desc": "COMPRA 5447 EU.LOVEVERY.COM AMSTERDAM NH",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 13390,
+                "itemIndex": 0,
+                "tag": "toys",
+                "totalAmountCents": 13390,
+                "transactionId": "2025091712025-09-17-04.21.45.641357"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-17",
+                "desc": "COMPRA 5447 O GORDO DA FRUTA - FBAGUIM DO MONTE",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 1571,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 1571,
+                "transactionId": "2025091732025-09-17-10.00.15.111063"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-17",
+                "desc": "COMPRA 5447 ESTRELAS E VIOLETAS DESCONOCIDO",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 424,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 424,
+                "transactionId": "2025091732025-09-17-10.06.53.530944"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-17",
+                "desc": "COMPRA 5447 CONTINENTE FANZERES 4420-570 GONDOM",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 1192,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 1192,
+                "transactionId": "2025091732025-09-17-11.05.19.529197"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-17",
+                "desc": "COMPRA 5447 WELLS SAUDE 3800-042 GONDOMAR",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 1916,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 1916,
+                "transactionId": "2025091732025-09-17-11.07.54.163276"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-18",
+                "desc": "COMPRA 5447 WELL S RIO TINTO RIO TINTO",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 1218,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 1218,
+                "transactionId": "2025091832025-09-18-10.06.09.755300"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-18",
+                "desc": "COMPRA 5447 CONTINENTE RIO TINTO4435-096 RIO TI",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 3914,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 3914,
+                "transactionId": "2025091832025-09-18-10.17.59.249340"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-19",
+                "desc": "COMPRA 7765 NETFLIX.COM 866-579-7172 NL",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 1299,
+                "itemIndex": 0,
+                "tag": "netflix",
+                "totalAmountCents": 1299,
+                "transactionId": "2025091952025-09-20-00.42.16.651963"
+            },
+            {
+                "account": "Universo",
+                "date": "2025-09-20",
+                "desc": "",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 5128,
+                "itemIndex": 0,
+                "tag": "fuel",
+                "totalAmountCents": 5128,
+                "transactionId": "EXP-ebe827a6-cbd6-4f7b-9fe7-59004bde5440"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-22",
+                "desc": "COMPRA 7765 HOSPITAL CUF PORTO SPORTO",
+                "details": "emergency care for David",
+                "isExpense": true,
+                "itemAmountCents": 5000,
+                "itemIndex": 0,
+                "tag": "appointments",
+                "totalAmountCents": 5000,
+                "transactionId": "2025092202025-09-20-00.47.07.966051"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-22",
+                "desc": "TRF MB WAY P  ALICE PINTO U LDA",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 2200,
+                "itemIndex": 0,
+                "tag": "haircut",
+                "totalAmountCents": 2200,
+                "transactionId": "2025092202025-09-20-13.51.57.526217"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-22",
+                "desc": "COMPRA 5447 LIDL AGRADECE 4435-000-BAGUIM MON",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 4895,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 4895,
+                "transactionId": "2025092202025-09-20-19.02.39.572888"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-23",
+                "desc": "COMPRA 7765 WOO LISBOA PT",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 700,
+                "itemIndex": 0,
+                "tag": "phone bill",
+                "totalAmountCents": 700,
+                "transactionId": "2025092312025-09-23-04.08.00.143071"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-23",
+                "desc": "COMPRA 5447 CONTINENTE 4435-665 BAG MONTE",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 5127,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 5127,
+                "transactionId": "2025092332025-09-23-11.09.18.996855"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-24",
+                "desc": "DD VODAFONE PORTU 07863903358    PT10100649",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 3248,
+                "itemIndex": 0,
+                "tag": "internet bill",
+                "totalAmountCents": 3248,
+                "transactionId": "2025092412025-09-24-04.01.37.371065"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-24",
+                "desc": "COMPRA 5447 LIDL AGRADECE 4435-000-BAGUIM MON",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 1448,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 1448,
+                "transactionId": "2025092432025-09-24-10.29.23.063052"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-25",
+                "desc": "COMPRA 5447 NEXT LEICESTER",
+                "details": "clothes for David",
+                "isExpense": true,
+                "itemAmountCents": 18195,
+                "itemIndex": 0,
+                "tag": "clothes",
+                "totalAmountCents": 18195,
+                "transactionId": "2025092512025-09-25-04.00.39.535068"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-25",
+                "desc": "COMPRA 5447 AUCHAN GONDOMAR RIO TINTO",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 8179,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 8179,
+                "transactionId": "2025092532025-09-25-10.57.49.513925"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-26",
+                "desc": "COMPRA 7765 AMZN Mktp ES B72LR3BH5 800-279-6620",
+                "details": "leggings, tshirts",
+                "isExpense": true,
+                "itemAmountCents": 4849,
+                "itemIndex": 0,
+                "tag": "clothes",
+                "totalAmountCents": 4849,
+                "transactionId": "2025092612025-09-26-04.17.19.900167"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-29",
+                "desc": "COMPRA 7765 MERCADONA GONDOMAR",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 1515,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 1515,
+                "transactionId": "2025092902025-09-27-11.24.44.270887"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-29",
+                "desc": "COMPRA 7765 MERCADONA GONDOMAR",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 2570,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 2570,
+                "transactionId": "2025092902025-09-28-11.31.42.935960"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-29",
+                "desc": "COMPRA 5447 LIDL AGRADECE 4435-000-BAGUIM MON",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 5446,
+                "itemIndex": 0,
+                "tag": "groceries",
+                "totalAmountCents": 5446,
+                "transactionId": "2025092932025-09-29-10.04.00.238914"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-30",
+                "desc": "COMPRA 7765 UBER EATS HELP.UBER.COMNL",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 1655,
+                "itemIndex": 0,
+                "tag": "takeaway",
+                "totalAmountCents": 1655,
+                "transactionId": "2025093012025-09-30-05.30.17.713980"
+            },
+            {
+                "account": "Millennium",
+                "date": "2025-09-30",
+                "desc": "COMPRA 7765 WOO LISBOA PT",
+                "details": "",
+                "isExpense": true,
+                "itemAmountCents": 700,
+                "itemIndex": 0,
+                "tag": "phone bill",
+                "totalAmountCents": 700,
+                "transactionId": "2025093012025-09-30-05.30.17.717734"
+            }
+        ]
+    }
+}

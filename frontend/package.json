@@ -1,0 +1,21 @@
+{
+  "//": "I'm pretty sure I used this as a template: https://github.com/purescript-halogen/purescript-halogen-template",
+  "private": true,
+  "devDependencies": {
+    "esbuild": "0.24.2",
+    "parcel": "2.15.2",
+    "spago": "^0.93.41"
+  },
+  "scripts": {
+    "build": "spago build",
+    "ts": "tsc -b",
+    "test": "spago test",
+    "serve": "parcel dev/index.html --open",
+    "parcel-build": "parcel build --public-url '.'"
+  },
+  "dependencies": {
+    "@dvsl/zoomcharts": "^1.21.8",
+    "choices.js": "^11.1.0",
+    "inflection": "^3.0.2"
+  }
+}

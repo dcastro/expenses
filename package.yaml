@@ -1,0 +1,175 @@
+name:                expenses
+version:             0.1.0.0
+#synopsis:
+#description:
+homepage:            https://github.com/githubuser/expenses#readme
+license:             BSD3
+author:              Author name here
+maintainer:          example@example.com
+copyright:           2022 Author name here
+category:            Web
+extra-source-files:
+- README.md
+
+dependencies:
+  - base >= 4.7 && < 5
+  - universum
+  - lens >= 5.3.3 # this  is required so we can use `classIdFields`
+  - lens-aeson
+  - aeson
+  - aeson-casing
+  - aeson-pretty
+  - bytestring
+  - time
+  - http-client
+  - http-client-tls
+  - group-with
+  - with-utf8
+  - text
+  - containers
+  - unordered-containers
+  - filepath
+  - directory
+  - fmt
+  - sqlite-simple
+  - uuid
+  - interpolate
+  - extra
+  - servant
+  - servant-client
+  - servant-auth
+  - servant-auth-client
+  - servant-auth-server
+  - warp
+  - servant-server
+  - wai
+  - wai-cors
+  - wai-app-static
+  - wai-extra
+  - http-media
+  - linear-base
+  - http-types
+  - log-base
+  - safe-exceptions
+  - template-haskell
+  - mtl
+  - monad-control
+  - cron
+  - deepseq
+
+default-extensions:
+  - NoImplicitPrelude
+  - AllowAmbiguousTypes
+  - ApplicativeDo
+  - BangPatterns
+  - BlockArguments
+  - ConstraintKinds
+  - DataKinds
+  - DefaultSignatures
+  - DeriveAnyClass
+  - DeriveDataTypeable
+  - DeriveFoldable
+  - DeriveFunctor
+  - DeriveGeneric
+  - DeriveTraversable
+  - DerivingStrategies
+  - DerivingVia
+  - EmptyCase
+  - FlexibleContexts
+  - FlexibleInstances
+  - FunctionalDependencies
+  - GADTs
+  - GeneralizedNewtypeDeriving
+  - LambdaCase
+  - MultiParamTypeClasses
+  - MultiWayIf
+  - NamedFieldPuns
+  - NegativeLiterals
+  - NumericUnderscores
+  - NumDecimals
+  - OverloadedLabels
+  - OverloadedStrings
+  - PatternSynonyms
+  - PolyKinds
+  - QuasiQuotes
+  - QuantifiedConstraints
+  - RankNTypes
+  - RecordWildCards
+  - RecursiveDo
+  - ScopedTypeVariables
+  - StandaloneDeriving
+  - TemplateHaskell
+  - TupleSections
+  - TypeApplications
+  - TypeFamilies
+  - TypeOperators
+  - UndecidableInstances
+  - UndecidableSuperClasses
+  - ViewPatterns
+  - ImportQualifiedPost
+  - StrictData
+  - DuplicateRecordFields
+  - OverloadedRecordDot
+  - NoFieldSelectors
+  - StandaloneKindSignatures
+  - TypeAbstractions
+  - LinearTypes
+  - InstanceSigs
+
+ghc-options:
+  - -Weverything
+  - -Wno-name-shadowing
+  - -Wno-missing-exported-signatures
+  - -Wno-missing-import-lists
+  - -Wno-missing-export-lists
+  - -Wno-missed-specialisations
+  - -Wno-all-missed-specialisations
+  - -Wno-unsafe
+  - -Wno-safe
+  - -Wno-missing-local-signatures
+  - -Wno-monomorphism-restriction
+  - -Wno-implicit-prelude
+  - -Wno-prepositive-qualified-module
+  - -Wno-missing-safe-haskell-mode
+  - -Wno-unused-packages
+  - -Wno-missing-kind-signatures
+  - -Wno-missing-role-annotations
+
+executables:
+  db-migrations:
+    source-dirs: db-migrations
+    main:             Main.hs
+    dependencies:
+      - expenses
+  expenses-manager-server:
+    source-dirs: server
+    main: Main.hs
+    dependencies:
+      - expenses
+    ghc-options:
+      - -threaded
+
+library:
+  source-dirs: src
+  dependencies:
+    - optparse-applicative
+
+tests:
+  test:
+    source-dirs: test
+    main: Spec.hs
+    dependencies:
+      - expenses
+      - tasty
+      - tasty-hunit
+      - tasty-hspec
+      - tasty-hedgehog
+      - hedgehog
+      - hspec
+      - hspec-expectations-pretty-diff
+      - tasty-golden
+    ghc-options:
+      - -Wno-x-partial
+
+build-tools:
+  - tasty-discover:tasty-discover

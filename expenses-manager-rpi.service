@@ -1,0 +1,23 @@
+# Docs:
+# * https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html
+# * https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html
+# * https://www.freedesktop.org/software/systemd/man/latest/systemd.unit.html
+
+[Unit]
+Description=expenses-manager
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/home/dc/.nix-profile/bin/expenses-manager-server --port 8082 --app-dir /home/dc/.local/share/expenses-manager --cron
+# If the server process dies, the service will be restarted
+Restart=always
+StandardOutput=journal
+StandardError=journal
+User=dc
+
+
+[Install]
+# Automatically start the service (if enabled) on reboot.
+# https://unix.stackexchange.com/a/506374/98391
+WantedBy=multi-user.target
