@@ -2,6 +2,7 @@
 
 module Expenses.Server.Routes where
 
+import Config (AppConfig)
 import Config qualified
 import Control.Concurrent.MVar qualified as M
 import CustomPrelude
@@ -119,9 +120,9 @@ main = do
       runLogger True stdout $ Opt.mkServerOptions
 
     runLogger isVerbose stdout do
-      let ctx = mkAuthContext user
-
       env <- mkEnv opts stdout
+
+      let ctx = mkAuthContext env.config user
 
       when runCron do
         CronJob.startCronJobs env stdout
@@ -150,28 +151,29 @@ main = do
           }
 
   mkEnv :: (MonadIO m, MonadLog m) => ServerOptions -> Logger -> m Env
-  mkEnv ServerOptions{dbPath, eventLogPath, logsDir, isVerbose, nordigenSecretId, nordigenSecretKey} logger = do
+  mkEnv ServerOptions{dbPath, eventLogPath, logsDir, isVerbose, nordigenSecretId, nordigenSecretKey, configPath} logger = do
     Util.checkDbExists dbPath
     dbConn <- liftIO $ SQL.open dbPath
     liftIO $ SQL.setTrace dbConn $ Just \t ->
       runLogger isVerbose logger do
         logTrace_ [i|SQL:\n#{t}|]
     dbConnMutex <- liftIO $ M.newMVar dbConn
-    pure Env{dbConn = dbConnMutex, eventLogPath, logsDir, nordigenSecretId, nordigenSecretKey}
+    config <- Config.loadAppConfig configPath
+    pure Env{dbConn = dbConnMutex, eventLogPath, logsDir, nordigenSecretId, nordigenSecretKey, config}
 
-  mkAuthContext :: Maybe Username -> Context '[SS.AuthHandler Wai.Request Username, SS.AuthHandler Wai.Request Admin]
-  mkAuthContext fallbackUser =
+  mkAuthContext :: AppConfig -> Maybe Username -> Context '[SS.AuthHandler Wai.Request Username, SS.AuthHandler Wai.Request Admin]
+  mkAuthContext config fallbackUser =
     userAuthHandler fallbackUser
-      :. adminAuthHandler fallbackUser
+      :. adminAuthHandler config fallbackUser
       :. EmptyContext
 
   userAuthHandler :: Maybe Username -> SS.AuthHandler Wai.Request Username
   userAuthHandler = SS.mkAuthHandler . authHandler'
 
-  adminAuthHandler :: Maybe Username -> SS.AuthHandler Wai.Request Admin
-  adminAuthHandler fallbackUser = SS.mkAuthHandler \request -> do
+  adminAuthHandler :: AppConfig -> Maybe Username -> SS.AuthHandler Wai.Request Admin
+  adminAuthHandler config fallbackUser = SS.mkAuthHandler \request -> do
     user <- authHandler' fallbackUser request
-    case tryMkAdmin user of
+    case Config.tryMkAdmin config user of
       Just admin -> pure admin
       Nothing -> throwJsonError err403 [i|User is not an admin: #{user}|]
 
@@ -258,11 +260,6 @@ getStaticHandler resourcesDir = do
     Wai.defaultFileServerSettings resourcesDir
 
 isAdminHandler :: Username -> AppM Bool
-isAdminHandler username =
-  pure $ isJust $ tryMkAdmin username
-
-tryMkAdmin :: Username -> Maybe Admin
-tryMkAdmin user =
-  if user `elem` Config.admins
-    then Just $ Admin user
-    else Nothing
+isAdminHandler username = do
+  config <- asks (.config)
+  pure $ isJust $ Config.tryMkAdmin config username

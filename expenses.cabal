@@ -1,6 +1,6 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.36.0.
+-- This file has been generated from package.yaml by hpack version 0.38.1.
 --
 -- see: https://github.com/sol/hpack
 
@@ -117,6 +117,7 @@ library
     , containers
     , cron
     , deepseq
+    , deriving-aeson
     , directory
     , extra
     , filepath
@@ -154,6 +155,7 @@ library
     , wai-extra
     , warp
     , with-utf8
+    , yaml
   default-language: Haskell2010
 
 executable db-migrations
@@ -240,6 +242,7 @@ executable db-migrations
     , containers
     , cron
     , deepseq
+    , deriving-aeson
     , directory
     , expenses
     , extra
@@ -277,6 +280,7 @@ executable db-migrations
     , wai-extra
     , warp
     , with-utf8
+    , yaml
   default-language: Haskell2010
 
 executable expenses-manager-server
@@ -355,6 +359,7 @@ executable expenses-manager-server
     , containers
     , cron
     , deepseq
+    , deriving-aeson
     , directory
     , expenses
     , extra
@@ -392,6 +397,7 @@ executable expenses-manager-server
     , wai-extra
     , warp
     , with-utf8
+    , yaml
   default-language: Haskell2010
 
 test-suite test
@@ -475,6 +481,7 @@ test-suite test
     , containers
     , cron
     , deepseq
+    , deriving-aeson
     , directory
     , expenses
     , extra
@@ -520,4 +527,5 @@ test-suite test
     , wai-extra
     , warp
     , with-utf8
+    , yaml
   default-language: Haskell2010

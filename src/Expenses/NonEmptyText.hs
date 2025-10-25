@@ -5,7 +5,7 @@ module Expenses.NonEmptyText (
 ) where
 
 import CustomPrelude
-import Data.Aeson (FromJSON (..), ToJSON)
+import Data.Aeson (FromJSON (..), FromJSONKey, ToJSON, ToJSONKey)
 import Data.Aeson qualified as J
 import Data.Text qualified as T
 import Database.SQLite.Simple.FromField (FromField (..))
@@ -17,7 +17,7 @@ import GHC.Records (HasField (..))
 
 -- | Ensures that a Text value is non-empty AND stripped of surrounding whitespace.
 newtype NonEmptyText = NonEmptyText Text
-  deriving newtype (Eq, Ord, Show, Hashable, ToJSON, Buildable, ToField)
+  deriving newtype (Eq, Ord, Show, Hashable, ToJSON, ToJSONKey, FromJSONKey, Buildable, ToField)
   deriving newtype (NFData)
 
 instance HasField "getNonEmptyText" NonEmptyText Text where

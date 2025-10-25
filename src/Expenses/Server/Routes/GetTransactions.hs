@@ -1,5 +1,6 @@
 module Expenses.Server.Routes.GetTransactions where
 
+import Config (AppConfig)
 import Config qualified
 import Control.Lens
 import CustomPrelude
@@ -12,7 +13,7 @@ import Data.Time (Day)
 import Data.Time.Calendar.Month (Month, pattern MonthDay)
 import Data.Time.Calendar.Month qualified as Time
 import Database qualified as Db
-import Expenses.Server.AppM (AppM, useConnection)
+import Expenses.Server.AppM (AppM, Env (..), useConnection)
 import Expenses.Server.Utils (MapAsList (..))
 import Types
 
@@ -84,6 +85,7 @@ makeLensesWith classIdFields ''TransactionItem
 
 getTransactionsHandler :: Month -> Month -> AppM GetTransactions
 getTransactionsHandler monthStart monthEnd = do
+  config <- asks (.config)
   let dayStart = MonthDay monthStart 1
   let dayEnd = MonthDay (monthEnd & Time.addMonths 1) 1
 
@@ -99,7 +101,7 @@ getTransactionsHandler monthStart monthEnd = do
           & mapMaybe \tx -> do
             tag <- tx.tag
             Just (tx, tag)
-  let groupStats = mkGroupStats txsWithTags
+  let groupStats = mkGroupStats config txsWithTags
 
   pure
     GetTransactions
@@ -186,8 +188,8 @@ mkGroupStats' groups = do
       }
 
 -- NOTE: transactions without tags are excluded from group stats.
-mkGroupStats :: [(TransactionItem, TagName)] -> [TagGroupStats]
-mkGroupStats txs = do
+mkGroupStats :: AppConfig -> [(TransactionItem, TagName)] -> [TagGroupStats]
+mkGroupStats config txs = do
   let totalAmountCents = sumOf (each . _1 . itemAmountCents) txs
 
   let allTagTxs :: Map TagName [TransactionItem] =
@@ -196,7 +198,7 @@ mkGroupStats txs = do
           pure (tag, [tx])
 
   let tagGroups :: [(TagGroupName, [TagStats], FECents)] =
-        Config.allTagGroups
+        config.allTagGroups
           & HM.toList
           & mapMaybe \(tgroup :: TagGroupName, tags :: [TagName]) -> do
             let (tagStats, total) =
@@ -216,10 +218,12 @@ mkGroupStats txs = do
                         & List.sortOn (Down . (.tagTotalAmountCents))
                 Just (tgroup, tagStatsSorted, total)
 
+  let knownTags = Config.allKnownTags config
+
   -- Find tags in txs that are not in knownTags
   let otherTagTxs =
         Map.toList allTagTxs
-          & filter (\(tag, _) -> not (Set.member tag Config.allKnownTags))
+          & filter (\(tag, _) -> not (Set.member tag knownTags))
 
   let (otherTagStats, otherTotal) = mkTagStats totalAmountCents otherTagTxs
 

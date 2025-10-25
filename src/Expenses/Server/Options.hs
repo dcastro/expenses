@@ -25,6 +25,7 @@ data ServerOptions = ServerOptions
   { port :: Int
   , dbPath :: FilePath
   , eventLogPath :: FilePath
+  , configPath :: FilePath
   , runCron :: Bool
   , user :: Maybe Username
   , resourcesDir :: FilePath
@@ -46,6 +47,7 @@ mkServerOptions = do
   let
     dbPath = appDir </> "expenses.db"
     eventLogPath = appDir </> "eventlog.jsonl"
+    configPath = appDir </> "config.yaml"
     logsDir = appDir </> "logs"
 
   liftIO $ Dir.createDirectoryIfMissing True logsDir
@@ -58,6 +60,7 @@ mkServerOptions = do
   logInfo_ [i|Fallback user: #{fallbackUserLog}|]
   logInfo_ [i|Cron job enabled: #{runCron}|]
   logInfo_ [i|DB path: #{dbPath}|]
+  logInfo_ [i|Config: #{configPath}|]
   logInfo_ [i|Event log path: #{eventLogPath}|]
   logInfo_ [i|Logs: #{logsDir}|]
   logInfo_ [i|Verbose logging: #{isVerbose}|]
@@ -69,6 +72,7 @@ mkServerOptions = do
       { port
       , dbPath
       , eventLogPath
+      , configPath
       , runCron
       , user
       , resourcesDir

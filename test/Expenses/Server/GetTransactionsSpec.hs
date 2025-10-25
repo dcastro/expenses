@@ -6,13 +6,12 @@ import Data.Map.Strict qualified as Map
 import Data.Time (MonthOfYear, fromGregorian)
 import Data.Time.Calendar.Month (pattern YearMonth)
 import Database qualified as Db
-import Database.SQLite.Simple qualified as SQL
-import Expenses.Server.AppM (Env (..), runLogger)
+import Expenses.Server.AppM (runLogger)
 import Expenses.Server.Routes.GetTransactions
 import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
 import Expenses.Server.Utils (MapAsList (..))
 import Expenses.Test.Util ()
-import GHC.MVar qualified as M
+import Expenses.Test.Util qualified as Util
 import Servant.Server qualified as Servant
 import Test.Hspec (Spec, it)
 import Test.Hspec.Expectations.Pretty (shouldBe)
@@ -22,6 +21,7 @@ import Types
 
 spec_mkGroupStats :: Spec
 spec_mkGroupStats = it "calculates group and tag stats" do
+  config <- Util.mkTestConfig
   let
     mkTransactionRow :: MonthOfYear -> Maybe TagName -> BECents -> Db.TransactionJoinedRow
     mkTransactionRow monthOfYear tag amt =
@@ -103,22 +103,12 @@ spec_mkGroupStats = it "calculates group and tag stats" do
         items & mapMaybe \tx -> do
           tag <- tx.tag
           Just (tx, tag)
-  mkGroupStats itemsWithTags `shouldBe` expected
+  mkGroupStats config itemsWithTags `shouldBe` expected
 
 test_getTransactionsHandler :: TestTree
 test_getTransactionsHandler = do
   goldenVsString "mkGroupStats golden test" "test/golden/getTransactionsHandler.json" do
-    let dbPath = "./resources/test-app-dir/expenses.db"
-    dbConn <- liftIO $ SQL.open dbPath >>= M.newMVar
-    let env =
-          Env
-            { dbConn
-            , eventLogPath = "/dev/null"
-            , logsDir = "/dev/null"
-            , nordigenSecretId = ""
-            , nordigenSecretKey = ""
-            }
-
+    env <- Util.mkTestEnv
     resp <-
       Servant.runHandler $
         getTransactionsHandler (YearMonth 2025 08) (YearMonth 2025 09)

@@ -1,6 +1,5 @@
 module M02_AddExpenseFlag where
 
-import Config qualified
 import CustomPrelude
 import Data.Text qualified as T
 import Database.SQLite.Simple (Connection)
@@ -48,7 +47,7 @@ migrate conn = do
   -- If it should be ignored, it is not an expense, and therefore should not be added to the expenses spreadsheet.
   shouldBeIgnored :: Text -> Bool
   shouldBeIgnored desc =
-    flip any Config.notExpenses \ptrn ->
+    flip any notExpenses \ptrn ->
       ptrn `T.isInfixOf` desc
 
   isExpenseAccount :: Text -> Bool
@@ -75,3 +74,27 @@ migrate conn = do
   hasTemporaryTxId :: Text -> Bool
   hasTemporaryTxId tid =
     length tid == 16
+
+-- | Transactions with this substring will not be treated as expenses.
+notExpenses :: [Text]
+notExpenses =
+  [ "TRF DE DIOGO FILIPE AZEVEDO CASTRO"
+  , "TRF P  Diogo Moey" -- Millennium -> Moey
+  , "TRANSF SEPA -ENG DIOGO FILIPE" -- Millennium -> Moey
+  , "DD PT41100946 CETELEM         75526515837" -- black
+  , "DD PT41100946 CETELEM         75498308722" -- caetano go
+  , "DD PT24113086 UNIVERSO"
+  , "DD UNIVERSO"
+  , -- Black
+    "Pagamento de Mensalidade"
+  , -- Salário da Sónia
+    "TRF. P O  FLOATINGLICIOUS - LDA       MADEMOISE"
+  , -- Nao vou ignorar, porque posso querer adicionar algo manualmente no campo "Details"
+    -- , "DEPOSITO NUMERARIO"
+
+    -- Transferência da conta Millennium da Sónia
+    "TRF DE ENF SONIA DANIELA CARNEIRO BARBOSA"
+  , -- Levantamento ATM multibanco
+    "LEV ATM "
+  , "REEMBOLSOS   IRS"
+  ]

@@ -1,5 +1,6 @@
 module Expenses.Server.CronJob where
 
+import Config (AppConfig)
 import Config qualified
 import Control.Exception.Safe qualified as Safe
 import Control.Lens
@@ -29,10 +30,11 @@ type CronM = ReaderT Env (LogT IO)
 
 startCronJobs :: (MonadLog m, MonadIO m) => Env -> Logger -> m ()
 startCronJobs env logger = do
-  logInfo_ [i|Scheduling Nordigen sync job: #{Config.cronSchedule}.|]
+  let schedule = env.config.cronSchedule
+  logInfo_ [i|Scheduling Nordigen sync job: #{schedule}.|]
   void $
     liftIO $ execSchedule do
-      addJob (nordigenJob env logger) Config.cronSchedule
+      addJob (nordigenJob env logger) schedule
 
 nordigenJob :: Env -> Logger -> IO ()
 nordigenJob env logger =
@@ -56,7 +58,7 @@ nordigenJob' = do
   logInfo_ "[Cron] Starting Nordigen sync job."
   now <- liftIO getCurrentTime
   manager <- liftIO $ newManager tlsManagerSettings
-  txRows <- fetchAllAccounts manager now Config.accountInfos
+  txRows <- fetchAllAccounts manager now
   logInfo_ [i|[Cron] Fetched #{length txRows} transactions.|]
   useConnection \conn -> do
     newTxRows <- liftIO $ Db.filterNewTxs conn txRows
@@ -78,10 +80,11 @@ login manager = do
           }
   pure $ SA.Token $ encodeUtf8 ntr.access
 
-fetchAllAccounts :: Manager -> UTCTime -> [AccountInfo] -> CronM [Db.TransactionJoinedRow]
-fetchAllAccounts manager now accs = do
+fetchAllAccounts :: Manager -> UTCTime -> CronM [Db.TransactionJoinedRow]
+fetchAllAccounts manager now = do
   authToken <- login manager
-  join <$> forM accs \acc ->
+  config <- asks (.config)
+  join <$> forM config.accountInfos \acc ->
     do
       fetchAccount manager authToken now acc
       -- NOTE: use the `*deep` version to catch any impure exceptions thrown by `getTransactionId`
@@ -109,7 +112,8 @@ fetchAccount manager authToken now acc = do
               ^.. transactions
                 . booked
                 . each
-      pure $ apiToRow acc <$> apiTxs
+      config <- asks (.config)
+      pure $ apiToRow config acc <$> apiTxs
     J.Error err -> do
       logAttention_
         [i|
@@ -171,8 +175,8 @@ mkEventLogAction
                 }
         }
 
-apiToRow :: AccountInfo -> ApiTransaction -> Db.TransactionJoinedRow
-apiToRow acc tx = do
+apiToRow :: AppConfig -> AccountInfo -> ApiTransaction -> Db.TransactionJoinedRow
+apiToRow config acc tx = do
   let txAmount = tx.transactionAmount.amount & fixSign acc & Util.eurosToCents & BECents
   let txId = getTransactionId tx
   let txDesc = tx.remittanceInformationUnstructured
@@ -182,7 +186,7 @@ apiToRow acc tx = do
     , date = tx.bookingDate
     , desc = txDesc
     , totalAmountCents = txAmount
-    , isExpense = getIsExpense acc txId txDesc
+    , isExpense = getIsExpense config acc txId txDesc
     , itemIndex = 0
     , itemAmountCents = txAmount
     , tag = pickCategory tx.remittanceInformationUnstructured
@@ -191,7 +195,7 @@ apiToRow acc tx = do
  where
   pickCategory :: Text -> Maybe TagName
   pickCategory desc =
-    Config.categoryPatterns ^? each . filtered (\(ptrn, _) -> ptrn `T.isInfixOf` desc) . _2
+    config.categoryPatterns ^? each . filtered (\entry -> entry.pattern_ `T.isInfixOf` desc) . to (.tag)
 
   fixSign :: AccountInfo -> Text -> Text
   fixSign ai amt =
@@ -210,8 +214,8 @@ apiToRow acc tx = do
         error [i|Transaction does not have a 'transactionId' or a 'entryReference': '#{J.encodeToTextBuilder t}'|]
 
 -- Determines whether a transaction should be considered an expense.
-getIsExpense :: AccountInfo -> Text -> Text -> Bool
-getIsExpense acc txId txDesc =
+getIsExpense :: AppConfig -> AccountInfo -> Text -> Text -> Bool
+getIsExpense config acc txId txDesc =
   if
     | not acc.isExpenseAccount -> False
     | not isExpenseTransaction -> False
@@ -220,7 +224,7 @@ getIsExpense acc txId txDesc =
  where
   isExpenseTransaction :: Bool
   isExpenseTransaction =
-    flip all Config.notExpenses \ptrn ->
+    flip all config.notExpenses \ptrn ->
       not (ptrn `T.isInfixOf` txDesc)
 
   {-

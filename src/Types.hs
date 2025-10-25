@@ -2,7 +2,7 @@ module Types where
 
 import Control.Lens (classIdFields, makeLensesWith)
 import CustomPrelude
-import Data.Aeson (FromJSON, ToJSON)
+import Data.Aeson (FromJSON, FromJSONKey, ToJSON, ToJSONKey)
 import Data.Aeson qualified as J
 import Data.Aeson.Casing (aesonDrop, snakeCase)
 import Data.Aeson.TH (defaultOptions, deriveJSON)
@@ -29,11 +29,11 @@ newtype Admin = Admin {unAdmin :: Username}
   deriving newtype (Hashable, Eq, Ord, Show, ToJSON, FromJSON, LinearToJSON)
 
 newtype TagName = TagName {unTagName :: NonEmptyText}
-  deriving newtype (Hashable, Eq, Ord, Show, ToJSON, FromJSON, Buildable, FromField, ToField, LinearToJSON)
+  deriving newtype (Hashable, Eq, Ord, Show, ToJSON, FromJSON, ToJSONKey, FromJSONKey, Buildable, FromField, ToField, LinearToJSON)
   deriving newtype (NFData)
 
 newtype TagGroupName = TagGroupName {unTagGroupName :: Text}
-  deriving newtype (IsString, Hashable, Eq, Ord, Show, ToJSON, FromJSON, Buildable, FromField, ToField)
+  deriving newtype (IsString, Hashable, Eq, Ord, Show, ToJSON, FromJSON, ToJSONKey, FromJSONKey, Buildable, FromField, ToField)
 
 -- Amount in cents, for use in front-end communication.
 -- Expenses are positive, refunds are negative.
@@ -113,6 +113,7 @@ data AccountInfo = AccountInfo
     -- For credit accounts, we should set `flip sign = true`.
     flipSign :: Bool
   }
+  deriving stock (Eq, Show)
 
 data TransactionRecord = TransactionRecord
   { transactionId :: Text
@@ -141,6 +142,7 @@ $( mconcat
      , deriveJSON defaultOptions ''NewTokenResponse
      , deriveJSON defaultOptions ''BalancesResponse
      , deriveJSON defaultOptions ''DetailsResponse
+     , deriveJSON defaultOptions ''AccountInfo
      ]
  )
 

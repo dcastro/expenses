@@ -1,5 +1,6 @@
 module Expenses.Server.AppM where
 
+import Config (AppConfig)
 import Control.Concurrent qualified as M
 import Control.Monad.Trans.Control (MonadBaseControl, liftBaseOp)
 import CustomPrelude
@@ -15,6 +16,7 @@ data Env = Env
   , logsDir :: FilePath
   , nordigenSecretId :: Text
   , nordigenSecretKey :: Text
+  , config :: AppConfig
   }
 
 useConnection :: (MonadReader Env m, MonadBaseControl IO m) => (SQL.Connection -> m a) -> m a

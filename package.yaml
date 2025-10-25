@@ -1,15 +1,15 @@
-name:                expenses
-version:             0.1.0.0
+name: expenses
+version: 0.1.0.0
 #synopsis:
 #description:
-homepage:            https://github.com/githubuser/expenses#readme
-license:             BSD3
-author:              Author name here
-maintainer:          example@example.com
-copyright:           2022 Author name here
-category:            Web
+homepage: https://github.com/githubuser/expenses#readme
+license: BSD3
+author: Author name here
+maintainer: example@example.com
+copyright: 2022 Author name here
+category: Web
 extra-source-files:
-- README.md
+  - README.md
 
 dependencies:
   - base >= 4.7 && < 5
@@ -19,6 +19,7 @@ dependencies:
   - aeson
   - aeson-casing
   - aeson-pretty
+  - deriving-aeson
   - bytestring
   - time
   - http-client
@@ -56,6 +57,7 @@ dependencies:
   - monad-control
   - cron
   - deepseq
+  - yaml
 
 default-extensions:
   - NoImplicitPrelude
@@ -138,7 +140,7 @@ ghc-options:
 executables:
   db-migrations:
     source-dirs: db-migrations
-    main:             Main.hs
+    main: Main.hs
     dependencies:
       - expenses
   expenses-manager-server:
