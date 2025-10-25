@@ -49,7 +49,7 @@ _search = Proxy :: Proxy "search"
 _newTransactionModal = Proxy :: Proxy "newTransactionModal"
 
 type Input =
-  { thisMonth :: YearMonth
+  { maxMonth :: YearMonth
   , transactions :: API.GetTransactions
   , minMonth :: YearMonth -- ^ The oldest month the user can select.
   , isAdmin :: Boolean
@@ -67,7 +67,7 @@ type State =
 
   -- These fields are used solely to initialize the `SingleMonth` and `MonthRange` components.
   -- There's no point in modifying these fields after initialization, they're never used again.
-  , thisMonth :: YearMonth
+  , maxMonth :: YearMonth
   , transactions :: API.GetTransactions
   , minMonth :: YearMonth -- ^ The oldest month the user can select.
   , isAdmin :: Boolean
@@ -91,7 +91,7 @@ data Action
 component :: forall q m. MonadAff m => MonadRouter AppRoute m => H.Component q Input Output m
 component =
   H.mkComponent
-    { initialState: \{ thisMonth, transactions, minMonth, isAdmin, initRoute, allTags, allAccounts } -> do
+    { initialState: \{ maxMonth, transactions, minMonth, isAdmin, initRoute, allTags, allAccounts } -> do
         let
           initSearchRoute = case initRoute of
             Just (Search { searchRoute }) -> searchRoute
@@ -99,7 +99,7 @@ component =
 
           initialRoute = initRoute # fromMaybe Routes.defaultSingleMonthRoute
 
-        { thisMonth
+        { maxMonth
         , transactions
         , minMonth
         , isAdmin
@@ -203,7 +203,7 @@ render state =
           SingleMonth.component
           { transactions: state.transactions
           , minMonth: state.minMonth
-          , thisMonth: state.thisMonth
+          , maxMonth: state.maxMonth
           , enabled: Routes.isSingleMonth state.currentRoute
           , isAdmin: state.isAdmin
           , allTags: state.allTags
@@ -214,7 +214,7 @@ render state =
           MonthRange.component
           { transactions: state.transactions
           , minMonth: state.minMonth
-          , thisMonth: state.thisMonth
+          , maxMonth: state.maxMonth
           , enabled: Routes.isMonthRange state.currentRoute
           , isAdmin: state.isAdmin
           , allTags: state.allTags

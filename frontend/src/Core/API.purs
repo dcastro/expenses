@@ -55,6 +55,12 @@ allAccounts = do
     <#> statusCodeIs 200
     <#> decodeJson
 
+getDates :: Aff DateRange
+getDates = do
+  get (HtmlUtils.apiBaseUrl <> "dates")
+    <#> statusCodeIs 200
+    <#> decodeJson
+
 createTransaction :: NewTransactionItem -> Aff Unit
 createTransaction newTransaction = do
   let body = RequestBody.json $ J.encodeJson newTransaction

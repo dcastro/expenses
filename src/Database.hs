@@ -9,6 +9,7 @@ import Data.Map qualified as Map
 import Data.Set qualified as Set
 import Data.Text qualified as T
 import Data.Time
+import Data.Time.Calendar.Month (Month, pattern MonthDay)
 import Database.SQLite.Simple
 import Database.SQLite.Simple qualified as SQL
 import Database.SQLite.Simple.QQ (sql)
@@ -155,6 +156,22 @@ getTransactionsByDate conn startDate endDate = do
         [i| #{selectJoinedRows} WHERE date >= ? AND date < ?|]
     )
     (startDate, endDate)
+
+getTransactionsMonthRange :: Connection -> IO (Maybe (Month, Month))
+getTransactionsMonthRange conn = do
+  rows :: [(Maybe Day, Maybe Day)] <-
+    SQL.query_
+      conn
+      [sql|
+        SELECT MIN(date), MAX(date)
+        FROM transactions
+      |]
+  pure $ case rows of
+    [(Just minDay, Just maxDay)] -> Just (dayToMonth minDay, dayToMonth maxDay)
+    _ -> Nothing
+ where
+  dayToMonth :: Day -> Month
+  dayToMonth (MonthDay month _) = month
 
 recordToRows :: TransactionRecord -> (TransactionRow, [TransactionItemRow])
 recordToRows tx =

@@ -8,7 +8,6 @@ import Core.API as API
 import Core.YearMonth as YM
 import Data.Date as Date
 import Effect (Effect)
-import Effect.Now as Now
 import Halogen as H
 import Halogen.Aff as HA
 import Halogen.Router.Class as R
@@ -25,10 +24,10 @@ main = do
       router <- H.liftEffect $ R.mkRouter Routes.routeCodec
       currentRouteOpt <- R.runRouterT router R.current
 
-      now <- H.liftEffect Now.nowDate
-      let thisMonth = YM.dateToYearMonth now
-      let minMonth = YM.mkYearMonth 2024 Date.January
-      transactions <- H.liftAff $ API.getTransactions thisMonth thisMonth
+      dates <- H.liftAff API.getDates
+      let minMonth = max dates.minMonth (YM.mkYearMonth 2024 Date.January)
+      let maxMonth = dates.maxMonth
+      transactions <- H.liftAff $ API.getTransactions maxMonth maxMonth
       isAdmin <- H.liftAff API.isAdmin
 
       allTags <- H.liftAff API.allTags
@@ -36,7 +35,7 @@ main = do
 
       let
         input =
-          { thisMonth
+          { maxMonth
           , transactions
           , minMonth
           , isAdmin

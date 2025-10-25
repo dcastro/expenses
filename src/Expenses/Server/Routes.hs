@@ -14,6 +14,8 @@ import Expenses.Server.Options (ServerOptions (..))
 import Expenses.Server.Options qualified as Opt
 import Expenses.Server.Routes.AllAccounts qualified as AllAccounts
 import Expenses.Server.Routes.AllTags qualified as AllTags
+import Expenses.Server.Routes.GetAvailableDateRange (DateRange)
+import Expenses.Server.Routes.GetAvailableDateRange qualified as GetAvailableDateRange
 import Expenses.Server.Routes.GetTransactionItems qualified as GetTransactionItems
 import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
 import Expenses.Server.Routes.InsertNew qualified as InsertNew
@@ -80,6 +82,7 @@ data PrivateAPI mode = PrivateAPI
           :> Post '[JSON] (Vector GetTransactions.TransactionItem)
   , allTags :: mode :- "tags" :> Get '[JSON] [TagName]
   , allAccounts :: mode :- "accounts" :> Get '[JSON] [Text]
+  , getAvailableDateRange :: mode :- "dates" :> Get '[JSON] DateRange
   }
   deriving stock (Generic)
 
@@ -236,6 +239,7 @@ mkServer logger resourcesDir =
           , isAdmin = isAdminHandler username
           , allTags = AllTags.allTagsHandler
           , allAccounts = AllAccounts.allAccountsHandler
+          , getAvailableDateRange = GetAvailableDateRange.getAvailableDateRangeHandler
           }
     , admin = \admin ->
         AdminAPI

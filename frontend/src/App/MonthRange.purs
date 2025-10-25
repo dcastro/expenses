@@ -53,7 +53,7 @@ type Slots =
 _transactionsTable = Proxy :: Proxy "transactionsTable"
 
 type Input =
-  { thisMonth :: YearMonth
+  { maxMonth :: YearMonth
   , transactions :: API.GetTransactions
   , minMonth :: YearMonth -- ^ The oldest month the user can select.
   , enabled :: Boolean
@@ -106,17 +106,17 @@ data Action
 component :: forall q o m. MonadAff m => H.Component q Input o m
 component =
   H.mkComponent
-    { initialState: \{ thisMonth, transactions, minMonth, enabled, isAdmin, allTags } -> do
+    { initialState: \{ maxMonth, transactions, minMonth, enabled, isAdmin, allTags } -> do
         {
           -- TODO: get rid of this hack
           chart: Foreign.unsafeToForeign 1
         , timeChart: Foreign.unsafeToForeign 1
-        , from: thisMonth
-        , to: thisMonth
+        , from: maxMonth
+        , to: maxMonth
         , transactions
         , selection: NoSelection
         , minMonth -- ^ The oldest month the user can select.
-        , maxMonth: thisMonth
+        , maxMonth: maxMonth
         , totalsOrAvg: Totals
         , enabled
         , isAdmin
