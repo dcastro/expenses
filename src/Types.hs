@@ -19,9 +19,13 @@ import Prelude.Linear qualified as Linear
 newtype Username = Username {unUsername :: NonEmptyText}
   deriving newtype (Hashable, Eq, Ord, Show, ToJSON, FromJSON, LinearToJSON)
 
+-- >>> mkUsername "diogo.filipe.acastro@gmail.com"
+-- Just "diogo.filipe.acastro"
+-- >>> mkUsername "diogo.castro@serokell.io"
+-- Just "diogo.castro@serokell.io"
 mkUsername :: Text -> Maybe Username
 mkUsername raw = do
-  let withoutDomain = T.takeWhile (\c -> c /= '@') raw
+  let withoutDomain = T.stripSuffix "@gmail.com" raw & fromMaybe raw
   net <- NET.fromText withoutDomain
   pure $ Username net
 
