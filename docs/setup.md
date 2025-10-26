@@ -102,15 +102,12 @@ FAQ:
 ## Install app in the RPI
 
 ```sh
+# Run this only once, to setup the database and event log
 just rpi-overwrite-data
-just rpi-deploy
-just rpi-send-service
-just rpi-install-env-vars /home/dc/Dropbox/dotfiles/expenses-manager-override.conf
 
-# Setup db and event log
-ssh {{remote}} -- mkdir -p /home/dc/.local/share/expenses-manager
-scp ~/.local/share/expenses-manager/expenses.db dc@{{remote}}:/home/dc/.local/share/expenses-manager/expenses.db
-scp ~/.local/share/expenses-manager/eventlog.jsonl dc@{{remote}}:/home/dc/.local/share/expenses-manager/eventlog.jsonl
+# Run this on every deploy
+just rpi-deploy
+just rpi-setup-service /home/dc/Dropbox/dotfiles/expenses-manager-override.conf
 ```
 
 ## Add anacron job

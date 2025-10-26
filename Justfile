@@ -7,6 +7,9 @@ default:
 run:
   stack run expenses-manager-server -- --user test --verbose
 
+run-user-dir:
+  stack run expenses-manager-server -- --user test --verbose --app-dir /home/dc/.local/share/expenses-manager
+
 test:
   stack test --fast
 
@@ -94,15 +97,20 @@ rpi-deploy:
     sudo systemctl restart expenses-manager ;\
     "
 
-rpi-send-service:
+rpi-setup-service env_file:
   # `scp` can't use sudo, so we have to copy the file to a location where we have permission,
   # and then use `ssh` to move it to the correct directory.`
-  scp expenses-manager-rpi.service dc@{{remote}}:/home/dc/.local/share/expenses-manager/expenses-manager.service
+  scp expenses-manager-rpi.service    dc@{{remote}}:/home/dc/.local/share/expenses-manager/expenses-manager.service
+  scp {{env_file}}                    dc@{{remote}}:/home/dc/.local/share/expenses-manager/override.conf
+  scp ./resources/prod/config.yaml    dc@{{remote}}:/home/dc/.local/share/expenses-manager/config.yaml
   ssh {{remote}} -- " \
-    sudo mv /home/dc/.local/share/expenses-manager/expenses-manager.service /etc/systemd/system/expenses-manager.service;  \
+    sudo mv /home/dc/.local/share/expenses-manager/expenses-manager.service   /etc/systemd/system/expenses-manager.service;  \
+    sudo mkdir -p                                                             /etc/systemd/system/expenses-manager.service.d ; \
+    sudo mv /home/dc/.local/share/expenses-manager/override.conf              /etc/systemd/system/expenses-manager.service.d/override.conf ; \
     sudo systemctl daemon-reload ; \
     sudo systemctl enable expenses-manager ; \
-    sudo systemctl restart expenses-manager ;"
+    sudo systemctl restart expenses-manager ; "
+
 
 rpi-logs:
   ssh {{remote}} -- journalctl -u expenses-manager --follow --lines 100
@@ -113,21 +121,12 @@ rpi-event-log:
 # Overwrite the database on the Raspberry Pi with the local database
 [confirm]
 rpi-overwrite-data:
+  ssh {{remote}} -- mkdir -p /home/dc/.local/share/expenses-manager
   scp ~/.local/share/expenses-manager/expenses.db dc@{{remote}}:/home/dc/.local/share/expenses-manager/expenses.db
   scp ~/.local/share/expenses-manager/eventlog.jsonl dc@{{remote}}:/home/dc/.local/share/expenses-manager/eventlog.jsonl
 
 rpi-sync:
   curl -v -X POST "http://{{remote}}:8082/sync" -H "Cf-Access-Authenticated-User-Email: diogo.filipe.acastro@gmail.com"
-
-rpi-install-env-vars env_file:
-  # `scp` can't use sudo, so we have to copy the file to a location where we have permission,
-  # and then use `ssh` to move it to the correct directory.`
-  scp {{env_file}} dc@{{remote}}:/home/dc/.local/share/expenses-manager/override.conf
-  ssh {{remote}} -- " \
-    sudo mkdir -p /etc/systemd/system/expenses-manager.service.d ; \
-    sudo mv /home/dc/.local/share/expenses-manager/override.conf /etc/systemd/system/expenses-manager.service.d/override.conf ; \
-    sudo systemctl daemon-reload ; \
-    sudo systemctl restart expenses-manager ; "
 
 ##############################################################
 # Systemd
@@ -146,14 +145,11 @@ install:
   sudo find $BUNDLE_PATH/bin/ -type f -exec touch {} +
   sudo systemctl restart expenses-manager
 
-install-env-vars env_file:
-  sudo mkdir -p /etc/systemd/system/expenses-manager.service.d
-  sudo cp {{env_file}} /etc/systemd/system/expenses-manager.service.d/override.conf
-  sudo systemctl daemon-reload
-  sudo systemctl restart expenses-manager
-
-register-service:
-  sudo cp expenses-manager-localhost.service /etc/systemd/system/expenses-manager.service
+setup-service env_file:
+  sudo cp expenses-manager-localhost.service  /etc/systemd/system/expenses-manager.service
+  sudo mkdir -p                               /etc/systemd/system/expenses-manager.service.d
+  sudo cp {{env_file}}                        /etc/systemd/system/expenses-manager.service.d/override.conf
+  cp ./resources/prod/config.yaml             /home/dc/.local/share/expenses-manager/config.yaml
   sudo systemctl daemon-reload
   sudo systemctl enable expenses-manager
   sudo systemctl restart expenses-manager
