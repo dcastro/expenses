@@ -52,17 +52,17 @@ spec_mkGroupStats = it "calculates group and tag stats" do
               ]
           }
       , TagGroupStats
-          { name = "Eletronica"
+          { name = "Electronics"
           , groupTotalAmountCents = 3000
           , groupPercentage = 30
           , tags =
-              [ TagStats "jogos" 2400 80 24 $
+              [ TagStats "games" 2400 80 24 $
                   MapAsList $
                     Map.fromList
                       [ (YearMonth 2024 1, 2000)
                       , (YearMonth 2024 2, 400)
                       ]
-              , TagStats "eletronica" 600 20 6 $
+              , TagStats "electronics" 600 20 6 $
                   MapAsList $
                     Map.fromList
                       [ (YearMonth 2024 1, 600)
@@ -89,10 +89,10 @@ spec_mkGroupStats = it "calculates group and tag stats" do
       ]
     rows =
       [ mkTransactionRow 1 (Just "groceries") -6000
-      , mkTransactionRow 1 (Just "eletronica") -600
-      , mkTransactionRow 1 (Just "jogos") -2000
-      , mkTransactionRow 2 (Just "jogos") -300
-      , mkTransactionRow 2 (Just "jogos") -100
+      , mkTransactionRow 1 (Just "electronics") -600
+      , mkTransactionRow 1 (Just "games") -2000
+      , mkTransactionRow 2 (Just "games") -300
+      , mkTransactionRow 2 (Just "games") -100
       , mkTransactionRow 1 (Just "aaa") -250
       , mkTransactionRow 1 (Just "bbb") -750
       , mkTransactionRow 1 Nothing -900

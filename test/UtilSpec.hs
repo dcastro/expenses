@@ -1,10 +1,9 @@
 module UtilSpec where
 
-import Config qualified
+import Config (AppConfig (..))
 import CustomPrelude
 import Expenses.Server.CronJob qualified as CronJob
 import Expenses.Test.Util ()
-import Expenses.Test.Util qualified as TestUtil
 import Test.Tasty.HUnit
 import Types
 import Universum.Unsafe qualified as Unsafe
@@ -63,7 +62,15 @@ unit_eurosToCents = do
 
 unit_getIsExpense :: IO ()
 unit_getIsExpense = do
-  config <- TestUtil.mkTestConfig
+  let config =
+        AppConfig
+          { accountInfos = []
+          , admins = []
+          , allTagGroups = mempty
+          , cronSchedule = ""
+          , categoryPatterns = mempty
+          , notExpenses = ["ATM"]
+          }
   let accExpense =
         AccountInfo
           { accountId = "exp-acc-id"
@@ -81,7 +88,7 @@ unit_getIsExpense = do
   let txIdNormal = "20220121233851916940"
   let txIdTemporary = "12345678901234"
   let txDescNormal = "Some normal transaction"
-  let txDescNotExpense = "something " <> Unsafe.head config.notExpenses <> " something"
+  let !txDescNotExpense = "something " <> Unsafe.head config.notExpenses <> " something"
 
   -- Expense account, normal txId, normal desc
   CronJob.getIsExpense config accExpense txIdNormal txDescNormal @?= True

@@ -2,41 +2,21 @@
     "Right": {
         "groupsStats": [
             {
-                "groupPercentage": 52,
-                "groupTotalAmountCents": 308881,
-                "name": "Other",
+                "groupPercentage": 25,
+                "groupTotalAmountCents": 152049,
+                "name": "Bills",
                 "tags": [
                     {
-                        "name": "rent",
+                        "name": "school",
                         "tagAmountPerMonth": [
                             [
-                                "2025-08",
-                                70000
-                            ],
-                            [
                                 "2025-09",
-                                70000
+                                38500
                             ]
                         ],
-                        "tagPercentage": 45,
-                        "tagPercentageOfTotal": 23,
-                        "tagTotalAmountCents": 140000
-                    },
-                    {
-                        "name": "clothes",
-                        "tagAmountPerMonth": [
-                            [
-                                "2025-08",
-                                2810
-                            ],
-                            [
-                                "2025-09",
-                                34044
-                            ]
-                        ],
-                        "tagPercentage": 11,
+                        "tagPercentage": 25,
                         "tagPercentageOfTotal": 6,
-                        "tagTotalAmountCents": 36854
+                        "tagTotalAmountCents": 38500
                     },
                     {
                         "name": "health insurance",
@@ -50,9 +30,25 @@
                                 18188
                             ]
                         ],
-                        "tagPercentage": 11,
+                        "tagPercentage": 23,
                         "tagPercentageOfTotal": 6,
                         "tagTotalAmountCents": 36376
+                    },
+                    {
+                        "name": "gym",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                9032
+                            ],
+                            [
+                                "2025-09",
+                                9032
+                            ]
+                        ],
+                        "tagPercentage": 11,
+                        "tagPercentageOfTotal": 3,
+                        "tagTotalAmountCents": 18064
                     },
                     {
                         "name": "water bill",
@@ -66,7 +62,7 @@
                                 9953
                             ]
                         ],
-                        "tagPercentage": 5,
+                        "tagPercentage": 11,
                         "tagPercentageOfTotal": 2,
                         "tagTotalAmountCents": 17110
                     },
@@ -82,65 +78,25 @@
                                 6291
                             ]
                         ],
-                        "tagPercentage": 3,
+                        "tagPercentage": 7,
                         "tagPercentageOfTotal": 1,
                         "tagTotalAmountCents": 11665
                     },
                     {
-                        "name": "fuel",
+                        "name": "charity",
                         "tagAmountPerMonth": [
                             [
                                 "2025-08",
-                                5479
+                                5000
                             ],
                             [
                                 "2025-09",
-                                5128
+                                5000
                             ]
                         ],
-                        "tagPercentage": 3,
+                        "tagPercentage": 6,
                         "tagPercentageOfTotal": 1,
-                        "tagTotalAmountCents": 10607
-                    },
-                    {
-                        "name": "appointments",
-                        "tagAmountPerMonth": [
-                            [
-                                "2025-09",
-                                8575
-                            ]
-                        ],
-                        "tagPercentage": 2,
-                        "tagPercentageOfTotal": 1,
-                        "tagTotalAmountCents": 8575
-                    },
-                    {
-                        "name": "pharmacy",
-                        "tagAmountPerMonth": [
-                            [
-                                "2025-08",
-                                3364
-                            ],
-                            [
-                                "2025-09",
-                                4559
-                            ]
-                        ],
-                        "tagPercentage": 2,
-                        "tagPercentageOfTotal": 1,
-                        "tagTotalAmountCents": 7923
-                    },
-                    {
-                        "name": "lentes",
-                        "tagAmountPerMonth": [
-                            [
-                                "2025-08",
-                                7680
-                            ]
-                        ],
-                        "tagPercentage": 2,
-                        "tagPercentageOfTotal": 1,
-                        "tagTotalAmountCents": 7680
+                        "tagTotalAmountCents": 10000
                     },
                     {
                         "name": "internet bill",
@@ -154,49 +110,9 @@
                                 3248
                             ]
                         ],
-                        "tagPercentage": 2,
+                        "tagPercentage": 4,
                         "tagPercentageOfTotal": 1,
                         "tagTotalAmountCents": 6496
-                    },
-                    {
-                        "name": "haircut",
-                        "tagAmountPerMonth": [
-                            [
-                                "2025-08",
-                                2800
-                            ],
-                            [
-                                "2025-09",
-                                2200
-                            ]
-                        ],
-                        "tagPercentage": 1,
-                        "tagPercentageOfTotal": 0,
-                        "tagTotalAmountCents": 5000
-                    },
-                    {
-                        "name": "electronics",
-                        "tagAmountPerMonth": [
-                            [
-                                "2025-08",
-                                4763
-                            ]
-                        ],
-                        "tagPercentage": 1,
-                        "tagPercentageOfTotal": 0,
-                        "tagTotalAmountCents": 4763
-                    },
-                    {
-                        "name": "school stuff",
-                        "tagAmountPerMonth": [
-                            [
-                                "2025-09",
-                                4585
-                            ]
-                        ],
-                        "tagPercentage": 1,
-                        "tagPercentageOfTotal": 0,
-                        "tagTotalAmountCents": 4585
                     },
                     {
                         "name": "gas bill",
@@ -206,9 +122,25 @@
                                 4224
                             ]
                         ],
-                        "tagPercentage": 1,
+                        "tagPercentage": 2,
                         "tagPercentageOfTotal": 0,
                         "tagTotalAmountCents": 4224
+                    },
+                    {
+                        "name": "netflix",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                1799
+                            ],
+                            [
+                                "2025-09",
+                                1799
+                            ]
+                        ],
+                        "tagPercentage": 2,
+                        "tagPercentageOfTotal": 0,
+                        "tagTotalAmountCents": 3598
                     },
                     {
                         "name": "life insurance",
@@ -222,7 +154,7 @@
                                 1608
                             ]
                         ],
-                        "tagPercentage": 1,
+                        "tagPercentage": 2,
                         "tagPercentageOfTotal": 0,
                         "tagTotalAmountCents": 3216
                     },
@@ -238,37 +170,9 @@
                                 1400
                             ]
                         ],
-                        "tagPercentage": 0,
+                        "tagPercentage": 1,
                         "tagPercentageOfTotal": 0,
                         "tagTotalAmountCents": 2800
-                    },
-                    {
-                        "name": "home",
-                        "tagAmountPerMonth": [
-                            [
-                                "2025-08",
-                                1703
-                            ],
-                            [
-                                "2025-09",
-                                -995
-                            ]
-                        ],
-                        "tagPercentage": 0,
-                        "tagPercentageOfTotal": 0,
-                        "tagTotalAmountCents": 708
-                    },
-                    {
-                        "name": "games",
-                        "tagAmountPerMonth": [
-                            [
-                                "2025-08",
-                                299
-                            ]
-                        ],
-                        "tagPercentage": 0,
-                        "tagPercentageOfTotal": 0,
-                        "tagTotalAmountCents": 299
                     }
                 ]
             },
@@ -296,76 +200,55 @@
                 ]
             },
             {
-                "groupPercentage": 11,
-                "groupTotalAmountCents": 70162,
-                "name": "Contas",
+                "groupPercentage": 23,
+                "groupTotalAmountCents": 140000,
+                "name": "Rent",
                 "tags": [
                     {
-                        "name": "school",
+                        "name": "rent",
                         "tagAmountPerMonth": [
                             [
+                                "2025-08",
+                                70000
+                            ],
+                            [
                                 "2025-09",
-                                38500
+                                70000
                             ]
                         ],
-                        "tagPercentage": 54,
+                        "tagPercentage": 100,
+                        "tagPercentageOfTotal": 23,
+                        "tagTotalAmountCents": 140000
+                    }
+                ]
+            },
+            {
+                "groupPercentage": 6,
+                "groupTotalAmountCents": 36854,
+                "name": "Clothing",
+                "tags": [
+                    {
+                        "name": "clothes",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                2810
+                            ],
+                            [
+                                "2025-09",
+                                34044
+                            ]
+                        ],
+                        "tagPercentage": 100,
                         "tagPercentageOfTotal": 6,
-                        "tagTotalAmountCents": 38500
-                    },
-                    {
-                        "name": "gym",
-                        "tagAmountPerMonth": [
-                            [
-                                "2025-08",
-                                9032
-                            ],
-                            [
-                                "2025-09",
-                                9032
-                            ]
-                        ],
-                        "tagPercentage": 25,
-                        "tagPercentageOfTotal": 3,
-                        "tagTotalAmountCents": 18064
-                    },
-                    {
-                        "name": "charity",
-                        "tagAmountPerMonth": [
-                            [
-                                "2025-08",
-                                5000
-                            ],
-                            [
-                                "2025-09",
-                                5000
-                            ]
-                        ],
-                        "tagPercentage": 14,
-                        "tagPercentageOfTotal": 1,
-                        "tagTotalAmountCents": 10000
-                    },
-                    {
-                        "name": "netflix",
-                        "tagAmountPerMonth": [
-                            [
-                                "2025-08",
-                                1799
-                            ],
-                            [
-                                "2025-09",
-                                1799
-                            ]
-                        ],
-                        "tagPercentage": 5,
-                        "tagPercentageOfTotal": 0,
-                        "tagTotalAmountCents": 3598
+                        "tagTotalAmountCents": 36854
                     }
                 ]
             },
             {
                 "groupPercentage": 4,
                 "groupTotalAmountCents": 27495,
-                "name": "Baby",
+                "name": "Toys",
                 "tags": [
                     {
                         "name": "toys",
@@ -382,6 +265,41 @@
                         "tagPercentage": 100,
                         "tagPercentageOfTotal": 4,
                         "tagTotalAmountCents": 27495
+                    }
+                ]
+            },
+            {
+                "groupPercentage": 4,
+                "groupTotalAmountCents": 24178,
+                "name": "Health",
+                "tags": [
+                    {
+                        "name": "pharmacy",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                11044
+                            ],
+                            [
+                                "2025-09",
+                                4559
+                            ]
+                        ],
+                        "tagPercentage": 64,
+                        "tagPercentageOfTotal": 2,
+                        "tagTotalAmountCents": 15603
+                    },
+                    {
+                        "name": "appointments",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-09",
+                                8575
+                            ]
+                        ],
+                        "tagPercentage": 35,
+                        "tagPercentageOfTotal": 1,
+                        "tagTotalAmountCents": 8575
                     }
                 ]
             },
@@ -432,6 +350,76 @@
                 ]
             },
             {
+                "groupPercentage": 1,
+                "groupTotalAmountCents": 11209,
+                "name": "Car",
+                "tags": [
+                    {
+                        "name": "fuel",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                5479
+                            ],
+                            [
+                                "2025-09",
+                                5128
+                            ]
+                        ],
+                        "tagPercentage": 94,
+                        "tagPercentageOfTotal": 1,
+                        "tagTotalAmountCents": 10607
+                    },
+                    {
+                        "name": "car repairs",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-09",
+                                602
+                            ]
+                        ],
+                        "tagPercentage": 5,
+                        "tagPercentageOfTotal": 0,
+                        "tagTotalAmountCents": 602
+                    }
+                ]
+            },
+            {
+                "groupPercentage": 1,
+                "groupTotalAmountCents": 9585,
+                "name": "Other",
+                "tags": [
+                    {
+                        "name": "haircut",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                2800
+                            ],
+                            [
+                                "2025-09",
+                                2200
+                            ]
+                        ],
+                        "tagPercentage": 52,
+                        "tagPercentageOfTotal": 0,
+                        "tagTotalAmountCents": 5000
+                    },
+                    {
+                        "name": "school stuff",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-09",
+                                4585
+                            ]
+                        ],
+                        "tagPercentage": 47,
+                        "tagPercentageOfTotal": 0,
+                        "tagTotalAmountCents": 4585
+                    }
+                ]
+            },
+            {
                 "groupPercentage": 0,
                 "groupTotalAmountCents": 5615,
                 "name": "Gifts",
@@ -452,20 +440,55 @@
             },
             {
                 "groupPercentage": 0,
-                "groupTotalAmountCents": 602,
-                "name": "Carro",
+                "groupTotalAmountCents": 5062,
+                "name": "Electronics",
                 "tags": [
                     {
-                        "name": "car repairs",
+                        "name": "electronics",
                         "tagAmountPerMonth": [
                             [
+                                "2025-08",
+                                4763
+                            ]
+                        ],
+                        "tagPercentage": 94,
+                        "tagPercentageOfTotal": 0,
+                        "tagTotalAmountCents": 4763
+                    },
+                    {
+                        "name": "games",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                299
+                            ]
+                        ],
+                        "tagPercentage": 5,
+                        "tagPercentageOfTotal": 0,
+                        "tagTotalAmountCents": 299
+                    }
+                ]
+            },
+            {
+                "groupPercentage": 0,
+                "groupTotalAmountCents": 708,
+                "name": "Home",
+                "tags": [
+                    {
+                        "name": "home",
+                        "tagAmountPerMonth": [
+                            [
+                                "2025-08",
+                                1703
+                            ],
+                            [
                                 "2025-09",
-                                602
+                                -995
                             ]
                         ],
                         "tagPercentage": 100,
                         "tagPercentageOfTotal": 0,
-                        "tagTotalAmountCents": 602
+                        "tagTotalAmountCents": 708
                     }
                 ]
             }
@@ -800,11 +823,11 @@
                 "account": "Millennium",
                 "date": "2025-08-13",
                 "desc": "COMPRA 7765 WELLS.PT SRA DA HORA",
-                "details": "",
+                "details": "contact lenses",
                 "isExpense": true,
                 "itemAmountCents": 7680,
                 "itemIndex": 0,
-                "tag": "lentes",
+                "tag": "pharmacy",
                 "totalAmountCents": 7680,
                 "transactionId": "2025081332025-08-13-10.00.11.482609"
             },
