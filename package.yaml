@@ -58,6 +58,7 @@ dependencies:
   - cron
   - deepseq
   - yaml
+  - regex-tdfa
 
 default-extensions:
   - NoImplicitPrelude

@@ -8,6 +8,7 @@ import Data.Set qualified as Set
 import Data.Yaml qualified as Y
 import Deriving.Aeson (CustomJSON (..), FieldLabelModifier, StripSuffix)
 import Expenses.NonEmptyText qualified as NET
+import Text.Regex.TDFA ((=~))
 import Types
 
 cronUser :: Admin
@@ -15,7 +16,7 @@ cronUser = Admin $ Username $ NET.unsafeFromText "cron"
 
 data AppConfig = AppConfig
   { accountInfos :: [AccountInfo]
-  , admins :: [Username]
+  , admins :: [Text]
   , allTagGroups :: HashMap TagGroupName [TagName]
   , cronSchedule :: Text
   , categoryPatterns :: [CategoryPatternEntry]
@@ -46,6 +47,6 @@ allKnownTags AppConfig{allTagGroups} =
 
 tryMkAdmin :: AppConfig -> Username -> Maybe Admin
 tryMkAdmin config user =
-  if user `elem` config.admins
+  if config.admins & any \regex -> user.unUsername.getNonEmptyText =~ regex
     then Just $ Admin user
     else Nothing

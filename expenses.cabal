@@ -135,6 +135,7 @@ library
     , monad-control
     , mtl
     , optparse-applicative
+    , regex-tdfa
     , safe-exceptions
     , servant
     , servant-auth
@@ -260,6 +261,7 @@ executable db-migrations
     , log-base
     , monad-control
     , mtl
+    , regex-tdfa
     , safe-exceptions
     , servant
     , servant-auth
@@ -377,6 +379,7 @@ executable expenses-manager-server
     , log-base
     , monad-control
     , mtl
+    , regex-tdfa
     , safe-exceptions
     , servant
     , servant-auth
@@ -502,6 +505,7 @@ test-suite test
     , log-base
     , monad-control
     , mtl
+    , regex-tdfa
     , safe-exceptions
     , servant
     , servant-auth

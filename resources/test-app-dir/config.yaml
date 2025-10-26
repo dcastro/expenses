@@ -1,7 +1,5 @@
 admins:
-  - diogo.filipe.acastro
-  - sonia.d.c.barbosa
-  - test
+  - '.*'
 
 cronSchedule: '0 2 * * *'
 
