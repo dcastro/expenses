@@ -75,7 +75,10 @@ nix copy /nix/store/v7vjfr5s586kky2jqnyshbblzi8qhjbz-expenses-bundle --to ssh://
 
 * Setup a remotely-managed tunnel using Zero Trust
   https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/get-started/create-remote-tunnel/
-  * In "Published Application Routes" > "Additional application settings" > "Access", enable "Enforce Access JSON Web Token (JWT) validation"
+  * In "Published Application Routes", setup 2 applications:
+    * expenses.diogocastro.com -- http://localhost:8082
+    * expenses-demo.diogocastro.com -- http://localhost:8083
+  * In "Published Application Routes" > "Edit" > Additional application settings" > "Access", enable "Enforce Access JSON Web Token (JWT) validation"
 
 * Setup a login method via Google OAuth2.0
   https://developers.cloudflare.com/cloudflare-one/identity/idp-integration/
@@ -84,14 +87,24 @@ nix copy /nix/store/v7vjfr5s586kky2jqnyshbblzi8qhjbz-expenses-bundle --to ssh://
 * Go to "Access" > "Policies" to allow specific users to login
   https://developers.cloudflare.com/cloudflare-one/policies/access/policy-management/
   https://one.dash.cloudflare.com/8d4b450054bebd727ed6830294482a73/access/policies?tab=reusable
+  * Setup 2 policies
+    * "Expenses Policy": Include > Emails > diogo.filipe.acastro@gmail.com / sonia.d.c.barbosa@gmail.com
+    * "Expenses Demo Policy": Include > Everyone
 
 * Setup a public web application in Cloudflare using Google for authentication
   https://developers.cloudflare.com/cloudflare-one/applications/configure-apps/self-hosted-public-app/
+  * Setup 2 apps
+    * expenses.diogocastro.com
+    * expenses-demo.diogocastro.com
   * Select the previously configured Login method
+    * Select "instant auth"
   * Select the previously configured Access policy
-  * In Advanced > Cookie Settings, set `SameSite = lax`, to avoid redirect loops after logging in.
-    * See: https://community.cloudflare.com/t/cloudflareaccess-com-redirect-loop/468169
-    * See: https://developers.cloudflare.com/cloudflare-one/identity/authorization-cookie/#samesite-attribute
+  * In Advanced > Cookie Settings:
+    * enable "HTTP Only"
+    * enable "Enable binding cookie"
+    * set `SameSite = lax`, to avoid redirect loops after logging in.
+        * See: https://community.cloudflare.com/t/cloudflareaccess-com-redirect-loop/468169
+        * See: https://developers.cloudflare.com/cloudflare-one/identity/authorization-cookie/#samesite-attribute
 
 FAQ:
 
@@ -99,15 +112,22 @@ FAQ:
   Go to: https://dfacastro.cloudflareaccess.com/cdn-cgi/access/logout
   https://developers.cloudflare.com/cloudflare-one/identity/users/session-management/#log-out-as-a-user
 
+* How do I view all login attempts?
+  * Go to Zero Trust > Logs > Access
+  * https://one.dash.cloudflare.com/8d4b450054bebd727ed6830294482a73/logs/access?startDate=1761346800&endDate=1761523199
+
 ## Install app in the RPI
 
 ```sh
 # Run this only once, to setup the database and event log
 just rpi-overwrite-data
 
+# Run this once to setup the demo
+just rpi-setup-demo-service /home/dc/Dropbox/dotfiles/expenses-manager-demo-override.conf
+
 # Run this on every deploy
-just rpi-deploy
 just rpi-setup-service /home/dc/Dropbox/dotfiles/expenses-manager-override.conf
+just rpi-deploy
 ```
 
 ## Add anacron job
