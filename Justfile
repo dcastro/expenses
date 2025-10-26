@@ -95,14 +95,15 @@ rpi-deploy:
     nix profile add $BUNDLE_PATH ;\
     sudo find $BUNDLE_PATH/bin/ -type f -exec touch {} + ;\
     sudo systemctl restart expenses-manager ;\
+    sudo systemctl restart expenses-manager-demo ;\
     "
 
 rpi-setup-service env_file:
   # `scp` can't use sudo, so we have to copy the file to a location where we have permission,
   # and then use `ssh` to move it to the correct directory.`
-  scp expenses-manager-rpi.service    dc@{{remote}}:/home/dc/.local/share/expenses-manager/expenses-manager.service
-  scp {{env_file}}                    dc@{{remote}}:/home/dc/.local/share/expenses-manager/override.conf
-  scp ./resources/prod/config.yaml    dc@{{remote}}:/home/dc/.local/share/expenses-manager/config.yaml
+  scp ./resources/prod/expenses-manager-rpi.service     dc@{{remote}}:/home/dc/.local/share/expenses-manager/expenses-manager.service
+  scp {{env_file}}                                      dc@{{remote}}:/home/dc/.local/share/expenses-manager/override.conf
+  scp ./resources/prod/config.yaml                      dc@{{remote}}:/home/dc/.local/share/expenses-manager/config.yaml
   ssh {{remote}} -- " \
     sudo mv /home/dc/.local/share/expenses-manager/expenses-manager.service   /etc/systemd/system/expenses-manager.service;  \
     sudo mkdir -p                                                             /etc/systemd/system/expenses-manager.service.d ; \
@@ -110,7 +111,6 @@ rpi-setup-service env_file:
     sudo systemctl daemon-reload ; \
     sudo systemctl enable expenses-manager ; \
     sudo systemctl restart expenses-manager ; "
-
 
 rpi-logs:
   ssh {{remote}} -- journalctl -u expenses-manager --follow --lines 100
@@ -127,6 +127,28 @@ rpi-overwrite-data:
 
 rpi-sync:
   curl -v -X POST "http://{{remote}}:8082/sync" -H "Cf-Access-Authenticated-User-Email: diogo.filipe.acastro@gmail.com"
+
+##############################################################
+# Raspberry Pi - Public demo page
+##############################################################
+demo-app-dir := "/home/dc/.local/share/expenses-manager-demo"
+
+rpi-setup-demo-service env_file:
+  ssh {{remote}} -- mkdir -p {{demo-app-dir}}
+  scp ./resources/test-app-dir/expenses.db              dc@{{remote}}:{{demo-app-dir}}/expenses.db
+  scp ./resources/test-app-dir/config.yaml              dc@{{remote}}:{{demo-app-dir}}/config.yaml
+  scp ./resources/demo/expenses-manager-demo.service    dc@{{remote}}:{{demo-app-dir}}/expenses-manager-demo.service
+  scp {{env_file}}                                      dc@{{remote}}:{{demo-app-dir}}/override.conf
+  ssh {{remote}} -- " \
+    sudo mv {{demo-app-dir}}/expenses-manager-demo.service    /etc/systemd/system/expenses-manager-demo.service;  \
+    sudo mkdir -p                                             /etc/systemd/system/expenses-manager-demo.service.d ; \
+    sudo mv {{demo-app-dir}}/override.conf                    /etc/systemd/system/expenses-manager-demo.service.d/override.conf ; \
+    sudo systemctl daemon-reload ; \
+    sudo systemctl enable expenses-manager-demo ; \
+    sudo systemctl restart expenses-manager-demo ; "
+
+rpi-demo-logs:
+  ssh {{remote}} -- journalctl -u expenses-manager-demo --follow --lines 100
 
 ##############################################################
 # Systemd
@@ -146,10 +168,10 @@ install:
   sudo systemctl restart expenses-manager
 
 setup-service env_file:
-  sudo cp expenses-manager-localhost.service  /etc/systemd/system/expenses-manager.service
-  sudo mkdir -p                               /etc/systemd/system/expenses-manager.service.d
-  sudo cp {{env_file}}                        /etc/systemd/system/expenses-manager.service.d/override.conf
-  cp ./resources/prod/config.yaml             /home/dc/.local/share/expenses-manager/config.yaml
+  sudo cp ./resources/prod/expenses-manager-localhost.service   /etc/systemd/system/expenses-manager.service
+  sudo mkdir -p                                                 /etc/systemd/system/expenses-manager.service.d
+  sudo cp {{env_file}}                                          /etc/systemd/system/expenses-manager.service.d/override.conf
+  cp ./resources/prod/config.yaml                               /home/dc/.local/share/expenses-manager/config.yaml
   sudo systemctl daemon-reload
   sudo systemctl enable expenses-manager
   sudo systemctl restart expenses-manager
