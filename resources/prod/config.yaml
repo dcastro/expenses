@@ -14,6 +14,10 @@ accountInfos:
     accountId: '8b683d99-56cf-4cf5-bb05-7fd182877f9a'
     isExpenseAccount: false
     flipSign: false
+  - accountName: 'Black'
+    accountId: '9e01653c-1c47-450f-89b5-6f90766424df'
+    isExpenseAccount: true
+    flipSign: true
 
 allTagGroups:
   Renda:
