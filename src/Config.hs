@@ -1,7 +1,7 @@
 module Config where
 
 import CustomPrelude
-import Data.Aeson (FromJSON)
+import Data.Aeson (FromJSON (..))
 import Data.Aeson.TH (defaultOptions, deriveFromJSON)
 import Data.HashMap.Strict qualified as HM
 import Data.Set qualified as Set
@@ -18,6 +18,7 @@ data AppConfig = AppConfig
   { accountInfos :: [AccountInfo]
   , admins :: [Text]
   , allTagGroups :: HashMap TagGroupName [TagName]
+  , ungroupedTags :: [TagName]
   , cronSchedule :: Text
   , categoryPatterns :: [CategoryPatternEntry]
   , notExpenses :: [Text]
@@ -41,9 +42,13 @@ loadAppConfig :: (MonadIO m) => FilePath -> m AppConfig
 loadAppConfig path = do
   Y.decodeFileThrow path
 
-allKnownTags :: AppConfig -> Set.Set TagName
-allKnownTags AppConfig{allTagGroups} =
+allGroupedTags :: AppConfig -> Set.Set TagName
+allGroupedTags AppConfig{allTagGroups} =
   Set.fromList $ concat $ HM.elems allTagGroups
+
+allKnownTags :: AppConfig -> Set.Set TagName
+allKnownTags config =
+  allGroupedTags config `Set.union` Set.fromList config.ungroupedTags
 
 tryMkAdmin :: AppConfig -> Username -> Maybe Admin
 tryMkAdmin config user =

@@ -67,6 +67,7 @@ unit_getIsExpense = do
           { accountInfos = []
           , admins = []
           , allTagGroups = mempty
+          , ungroupedTags = mempty
           , cronSchedule = ""
           , categoryPatterns = mempty
           , notExpenses = ["ATM"]

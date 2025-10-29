@@ -82,6 +82,9 @@ allTagGroups:
   Gata:
     - vet
 
+ungroupedTags:
+  - festas
+
 categoryPatterns:
   - pattern: 'Joana Galhardo'
     tag: renda

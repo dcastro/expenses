@@ -218,12 +218,12 @@ mkGroupStats config txs = do
                         & List.sortOn (Down . (.tagTotalAmountCents))
                 Just (tgroup, tagStatsSorted, total)
 
-  let knownTags = Config.allKnownTags config
+  let groupedTags = Config.allGroupedTags config
 
-  -- Find tags in txs that are not in knownTags
+  -- Find tags in txs that are not in groupedTags
   let otherTagTxs =
         Map.toList allTagTxs
-          & filter (\(tag, _) -> not (Set.member tag knownTags))
+          & filter (\(tag, _) -> not (Set.member tag groupedTags))
 
   let (otherTagStats, otherTotal) = mkTagStats totalAmountCents otherTagTxs
 

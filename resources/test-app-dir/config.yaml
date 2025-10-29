@@ -46,6 +46,9 @@ allTagGroups:
     - electronics
     - games
 
+ungroupedTags:
+  - parties
+
 categoryPatterns: []
 
 notExpenses: []
