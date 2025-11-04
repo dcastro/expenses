@@ -81,9 +81,10 @@ allTagGroups:
     - jogos
   Gata:
     - vet
+  Festas:
+    - festas
 
-ungroupedTags:
-  - festas
+ungroupedTags: []
 
 categoryPatterns:
   - pattern: 'Joana Galhardo'
@@ -346,6 +347,23 @@ categoryPatterns:
     tag: software
   - pattern: 'REEMBOLSOS A RESIDENTES     AT'
     tag: iva reembolso
+
+  - pattern: 'Serokell'
+    tag: income
+  - pattern: 'TRF DE DIOGO FILIPE AZEVEDO CASTRO'
+    tag: transfers
+  - pattern: 'TRF P  Diogo Millennium'
+    tag: transfers
+  - pattern: 'LEV ATM'
+    tag: transfers
+  - pattern: 'DD UNIVERSO'
+    tag: transfers
+  - pattern: 'TRF P  Interactive Brokers'
+    tag: investments
+  - pattern: 'DD INSTITUTO DE G 23021632430'
+    tag: taxes
+  - pattern: 'PAG.IGCP'
+    tag: taxes
 
 notExpenses:
   - 'TRF DE DIOGO FILIPE AZEVEDO CASTRO'
