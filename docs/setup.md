@@ -134,7 +134,7 @@ just rpi-deploy
 
 ```sh
 # NOTE: this will backup to Dropbox, Mega, and Nextcloud, so I need to set those up first
-sudo bash -c "echo '3	10	expenses-backup	sudo -u dc /home/dc/Dropbox/Projects/Haskell/expenses/scripts/backup.sh' >> /etc/anacrontab"
+sudo bash -c "echo '5	10	expenses-backup	sudo -u dc /home/dc/Dropbox/Projects/Haskell/expenses/scripts/backup.sh' >> /etc/anacrontab"
 ```
 
 Run the anacron job manually:

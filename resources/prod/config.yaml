@@ -84,7 +84,11 @@ allTagGroups:
   Festas:
     - festas
 
-ungroupedTags: []
+ungroupedTags:
+  - income
+  - transfers
+  - investments
+  - taxes
 
 categoryPatterns:
   - pattern: 'Joana Galhardo'
@@ -102,6 +106,8 @@ categoryPatterns:
   - pattern: 'EDP GAS SERVI'
     tag: gás
   - pattern: 'DD PT64114306 GAS SU'
+    tag: gás
+  - pattern: '99775959381'
     tag: gás
   - pattern: 'DD PT79100553 COMPANHIA DE SE 00681505982'
     tag: seguro de saude
@@ -289,6 +295,9 @@ categoryPatterns:
     tag: takeaway
   # Churrasqueira Prestige, ao lado da casa da Cristina em Gondomar
   - pattern: 'CHURRASQ PRESTIGE'
+    tag: takeaway
+  # Churrasqueira Pigalle, na Carvalha
+  - pattern: 'CHURRASQUEIRA FANZERES'
     tag: takeaway
   - pattern: 'IRISH CO VILA NOVA DE GAIA'
     tag: go out
