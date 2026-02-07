@@ -1,4 +1,3 @@
-
 package:
   name: expenses-manager
   dependencies:
@@ -65,6 +64,27 @@ workspace:
   packageSet:
     registry: 66.3.0
   extraPackages:
+    routing-duplex:
+      git: https://github.com/dcastro/purescript-routing-duplex.git
+      ref: a927dbb1589982ad5daf4a385cd73535eed99321
+      dependencies:
+        - arrays
+        - assert
+        - control
+        - effect
+        - either
+        - foldable-traversable
+        - integers
+        - js-uri
+        - lazy
+        - maybe
+        - newtype
+        - prelude
+        - profunctor
+        - quickcheck
+        - record
+        - strings
+        - tuples
     halogen-router:
       git: https://github.com/katsujukou/purescript-halogen-router.git
       ref: e25e7bbb7a32011c3f8c48c04612d5909455b035
