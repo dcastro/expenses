@@ -9,12 +9,11 @@ import M06_RemoveQuotesFromIds qualified
 import M07_RemoveBabyColumn qualified
 import M08_MoveIsExpenseColumn qualified
 import System.Environment (getArgs)
-import Util qualified
 
 main :: IO ()
 main = do
   args <- getArgs
-  Util.withConnection "/home/dc/.local/share/expenses-manager/expenses.db" \conn ->
+  SQL.withConnection "/home/dc/.local/share/expenses-manager/expenses.db" \conn ->
     case drop 1 args of
       ("1" : _) -> do
         SQL.withTransaction conn $ M01_AddItemCosts.migrate conn

@@ -24,6 +24,11 @@ useConnection f = do
   env <- ask
   -- NOTE: instead of `liftBaseOp` from `monad-control`, we could have also re-implemented
   -- `withMVar` using `resourcet` instead of `bracket`: https://hackage.haskell.org/package/resourcet
+  --
+  -- It's safe to lift `withMVar` using `MonadBaseControl` here, the monad state is always restored.
+  -- https://lexi-lambda.github.io/blog/2019/09/07/demystifying-monadbasecontrol/
+  --
+  -- This is exactly how `withMvar` from `lifted-base` is implemented.
   liftBaseOp (M.withMVar env.dbConn) \dbConn -> do
     f dbConn
 
