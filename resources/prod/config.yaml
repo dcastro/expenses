@@ -113,7 +113,7 @@ categoryPatterns:
     tag: seguro de saude
   - pattern: 'COMPANHIA DE S 00681505982'
     tag: seguro de saude
-  - pattern: 'DDPT95102302MED02173395164 DI56118299'
+  - pattern: 'DI56118299'
     tag: seguro de saude
   - pattern: 'DD MEDIS     SAUDE    DI56118299'
     tag: seguro de saude
@@ -148,6 +148,8 @@ categoryPatterns:
   - pattern: 'COMPRA 7765 WOO https'
     tag: telemovel
   - pattern: 'COMPRA 7765 WOO '
+    tag: telemovel
+  - pattern: 'COMPRA 8003 WOO LISBOA'
     tag: telemovel
   - pattern: 'TRF P  Carlos Gomes'
     tag: netflix
@@ -212,6 +214,8 @@ categoryPatterns:
   - pattern: 'CONTINENTE'
     tag: groceries
   - pattern: 'Continente Pay'
+    tag: groceries
+  - pattern: 'MODELO Portugal'
     tag: groceries
   # Continente
   - pattern: 'BONJOUR Portugal PT'
@@ -299,6 +303,9 @@ categoryPatterns:
   # Churrasqueira Pigalle, na Carvalha
   - pattern: 'CHURRASQUEIRA FANZERES'
     tag: takeaway
+  # Churrasqueira Central Rio Tinto
+  - pattern: 'CENTRAL RIO NIF 514817879'
+    tag: takeaway
   - pattern: 'IRISH CO VILA NOVA DE GAIA'
     tag: go out
   - pattern: 'BEIJOBAR MATOSINHOS'
@@ -351,6 +358,8 @@ categoryPatterns:
     tag: software
   - pattern: 'GITKRAKEN'
     tag: software
+  - pattern: 'TRF P  Caminhar Escola'
+    tag: school
   # Google One / Google Photos
   - pattern: 'COMPRA 7765 GOOGLE GOOGLE PLAY APP G.CO HELPPAY'
     tag: software
@@ -369,7 +378,7 @@ categoryPatterns:
     tag: transfers
   - pattern: 'TRF P  Interactive Brokers'
     tag: investments
-  - pattern: 'DD INSTITUTO DE G 23021632430'
+  - pattern: '23021632430' # seg social
     tag: taxes
   - pattern: 'PAG.IGCP'
     tag: taxes
