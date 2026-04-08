@@ -99,6 +99,8 @@ categoryPatterns:
     tag: agua
   - pattern: 'Aguas de Gondo'
     tag: agua
+  - pattern: 'AGUAS DE GONDO'
+    tag: agua
   - pattern: 'EDP COMERCIAL'
     tag: luz
   - pattern: 'LUZBOA'
@@ -190,6 +192,8 @@ categoryPatterns:
   - pattern: 'Trf MB WAY 910415181'
     tag: cabelo
   - pattern: 'TRF MB WAY P  ALICE PINTO'
+    tag: cabelo
+  - pattern: 'VISAGISME'
     tag: cabelo
   # Cabeleireiro Alter Ego, D. Isabel, onde o David corta o cabelo
   - pattern: 'TRF MB WAY P  ISABEL MARIA GONCALVES'
@@ -354,7 +358,7 @@ categoryPatterns:
     tag: contabilista
   - pattern: 'DNH GO DADDY EUROPE'
     tag: software
-  - pattern: 'DNH GODADDY'
+  - pattern: 'GODADDY'
     tag: software
   - pattern: 'GITKRAKEN'
     tag: software

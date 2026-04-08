@@ -160,7 +160,7 @@
           expenses-manager-server-native = (pkgs.expensesProject.flake
             { }).packages."expenses:exe:expenses-manager-server";
 
-          # Build a dinamically linked binary for 64bit ARM
+          # Build a dynamically linked binary for 64bit ARM
           expenses-manager-server-rpi =
             (pkgs.pkgsCross.aarch64-multiplatform.expensesProject.flake
               { }).packages."expenses:exe:expenses-manager-server";
