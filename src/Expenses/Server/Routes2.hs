@@ -225,7 +225,7 @@ api = Proxy
 mkApp :: Context '[SS.AuthHandler Wai.Request Username, SS.AuthHandler Wai.Request Admin] -> Bool -> Env -> Logger -> FilePath -> Application
 mkApp ctx isVerbose env logger resourcesDir =
   mkServer logger resourcesDir
-    & serveWithContextT api ctx (Effects.naturalTransformation env)
+    & serveWithContextT api ctx (Effects.naturalTransformation isVerbose env logger)
 
 --  where
 -- naturalTransformation :: forall a. AppM a -> Handler a
