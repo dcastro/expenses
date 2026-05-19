@@ -13,24 +13,23 @@ resolver: nightly-2025-08-27
 # system-ghc: true
 
 packages:
-- .
+  - .
 
 extra-deps:
-- group-with-0.2.0.3
-- lens-5.3.3
+  - group-with-0.2.0.3
+  - lens-5.3.3
+  - log-effectful-1.0.1.0
 
-- universum-1.8.2.2 # universum is not in LTS 24 yet.
+  - universum-1.8.2.2 # universum is not in LTS 24 yet.
 
-# packages missing from nightly stack
-- cryptonite-0.30
+  # packages missing from nightly stack
+  - cryptonite-0.30
 
-
-# Fix nix build
-- file-io-0.1.5
+  # Fix nix build
+  - file-io-0.1.5
 flags:
   file-io:
     os-string: true
-
 
 # `group-with-0.2.0.3` depends on `base >=4.2 && <4.9`,
 # but actually compiles with newer versions of base.
@@ -38,6 +37,7 @@ allow-newer: true
 allow-newer-deps:
   - group-with
   - universum # universum-1.8.2.2 has a bound on text, >=1.0.0.0 && <=2.1.1
+
 
 # Override default flag values for local packages and extra-deps
 # flags: {}

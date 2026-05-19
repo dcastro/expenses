@@ -9,12 +9,13 @@ import CustomPrelude
 import Data.List qualified as List
 import Data.Time.Calendar.Month (Month)
 import Database.SQLite.Simple qualified as SQL
-import Expenses.Server.AppM (AppM, Env (..), runLogger)
+import Expenses.Server.AppM (Env (..), runLogger)
 import Expenses.Server.CronJob qualified as CronJob
 import Expenses.Server.Options (ServerOptions (..))
 import Expenses.Server.Options qualified as Opt
 import Expenses.Server.Routes.AllAccounts qualified as AllAccounts
 import Expenses.Server.Routes.AllTags qualified as AllTags
+import Expenses.Server.Routes.AllTags2 qualified as AllTags2
 import Expenses.Server.Routes.GetAvailableDateRange (DateRange)
 import Expenses.Server.Routes.GetAvailableDateRange qualified as GetAvailableDateRange
 import Expenses.Server.Routes.GetTransactionItems qualified as GetTransactionItems
@@ -41,6 +42,9 @@ import Servant.Server.StaticFiles qualified as S
 import System.IO qualified as IO
 import Types (Admin (..), TagName, Username (..), mkUsername)
 import Util qualified
+
+import Expenses.Effects (AppM)
+import Expenses.Effects qualified as Effects
 
 type RequiredParam = QueryParam' '[Required, Strict]
 
@@ -221,13 +225,14 @@ api = Proxy
 mkApp :: Context '[SS.AuthHandler Wai.Request Username, SS.AuthHandler Wai.Request Admin] -> Bool -> Env -> Logger -> FilePath -> Application
 mkApp ctx isVerbose env logger resourcesDir =
   mkServer logger resourcesDir
-    & serveWithContextT api ctx naturalTransformation
- where
-  naturalTransformation :: forall a. AppM a -> Handler a
-  naturalTransformation app =
-    app
-      & flip runReaderT env
-      & runLogger isVerbose logger
+    & serveWithContextT api ctx (Effects.naturalTransformation env)
+
+--  where
+-- naturalTransformation :: forall a. AppM a -> Handler a
+-- naturalTransformation app =
+--   app
+--     & flip runReaderT env
+--     & runLogger isVerbose logger
 
 mkServer :: Logger -> FilePath -> API (AsServerT AppM)
 -- mkServer :: Logger -> FilePath -> ServerT MyAPI AppM
@@ -235,23 +240,23 @@ mkServer logger resourcesDir =
   API
     { private = \username ->
         PrivateAPI
-          { transactions = GetTransactions.getTransactionsHandler
-          , getTransactionItems = GetTransactionItems.getTransactionItemsHandler
-          , search = Search.searchHandler
-          , isAdmin = isAdminHandler username
-          , allTags = AllTags.allTagsHandler
-          , allAccounts = AllAccounts.allAccountsHandler
-          , getAvailableDateRange = GetAvailableDateRange.getAvailableDateRangeHandler
+          { transactions = undefined -- GetTransactions.getTransactionsHandler
+          , getTransactionItems = undefined -- GetTransactionItems.getTransactionItemsHandler
+          , search = undefined -- Search.searchHandler
+          , isAdmin = undefined -- isAdminHandler username
+          , allTags = undefined -- AllTags.allTagsHandler
+          , allAccounts = undefined -- AllAccounts.allAccountsHandler
+          , getAvailableDateRange = undefined -- GetAvailableDateRange.getAvailableDateRangeHandler
           }
     , admin = \admin ->
         AdminAPI
-          { modifyTransaction = ModifyTransaction.modifyTransactionHandler admin
-          , insertTransaction = InsertNew.insertTransactionHandler admin
-          , splitTransactionItems = SplitTransactionItems.splitTransactionItemsHandler admin
-          , runCronSync = RunCron.runCronHandler logger admin
+          { modifyTransaction = undefined --  ModifyTransaction.modifyTransactionHandler admin
+          , insertTransaction = undefined --  InsertNew.insertTransactionHandler admin
+          , splitTransactionItems = undefined --  SplitTransactionItems.splitTransactionItemsHandler admin
+          , runCronSync = undefined --  RunCron.runCronHandler logger admin
           }
-    , health = pure "OK"
-    , static = getStaticHandler resourcesDir
+    , health = undefined -- pure "OK"
+    , static = undefined -- getStaticHandler resourcesDir
     }
 
 getStaticHandler :: FilePath -> Tagged AppM Application
@@ -259,7 +264,7 @@ getStaticHandler resourcesDir = do
   S.serveDirectoryWith $
     Wai.defaultFileServerSettings resourcesDir
 
-isAdminHandler :: Username -> AppM Bool
-isAdminHandler username = do
-  config <- asks (.config)
-  pure $ isJust $ Config.tryMkAdmin config username
+-- isAdminHandler :: Username -> AppM Bool
+-- isAdminHandler username = do
+--   config <- asks (.config)
+--   pure $ isJust $ Config.tryMkAdmin config username

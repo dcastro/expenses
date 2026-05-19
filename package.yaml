@@ -59,6 +59,9 @@ dependencies:
   - deepseq
   - yaml
   - regex-tdfa
+  - effectful
+  - effectful-core
+  - log-effectful
 
 default-extensions:
   - NoImplicitPrelude

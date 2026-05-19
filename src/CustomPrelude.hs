@@ -7,6 +7,8 @@ import Data.String.Interpolate qualified as Interpolate
 import Data.String.Interpolate.Util qualified as Interpolate
 import Data.Text qualified as T
 import Language.Haskell.TH.Quote (QuasiQuoter (..))
+
+-- TODO: Hide `ask`, `Reader`, etc
 import Universum as Export hiding (view, (%~), (.~), (^.), (^..), (^?), _1, _2, _3)
 
 {- | A string interpolator, equivalent to the `interpolate` package

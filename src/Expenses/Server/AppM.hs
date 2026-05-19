@@ -2,9 +2,13 @@ module Expenses.Server.AppM where
 
 import Config (AppConfig)
 import Control.Concurrent qualified as M
+import Control.Monad.Reader qualified as R
 import Control.Monad.Trans.Control (MonadBaseControl, liftBaseOp)
-import CustomPrelude
+import CustomPrelude hiding (Reader, ask)
 import Database.SQLite.Simple qualified as SQL
+import Effectful
+import Effectful.Concurrent.MVar
+import Effectful.Reader.Static
 import Log
 import Servant.Server (Handler)
 
@@ -19,9 +23,17 @@ data Env = Env
   , config :: AppConfig
   }
 
+useConnection2 :: (Concurrent :> es, Reader Env :> es) => (SQL.Connection -> Eff es a) -> Eff es a
+useConnection2 f = do
+  env <- ask @Env
+  let mv = env.dbConn :: MVar SQL.Connection
+  withMVar mv \dbConn -> do
+    f dbConn
+
+-- TODO: delete
 useConnection :: (MonadReader Env m, MonadBaseControl IO m) => (SQL.Connection -> m a) -> m a
 useConnection f = do
-  env <- ask
+  env <- R.ask
   -- NOTE: instead of `liftBaseOp` from `monad-control`, we could have also re-implemented
   -- `withMVar` using `resourcet` instead of `bracket`: https://hackage.haskell.org/package/resourcet
   --

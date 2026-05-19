@@ -15,6 +15,9 @@ import Database.SQLite.Simple qualified as SQL
 import Database.SQLite.Simple.QQ (sql)
 import Database.SQLite.Simple.ToField (ToField)
 import Database.SQLite.Simple.ToField qualified as SQL
+import Effectful
+import Expenses.Effects.SQLite (Db)
+import Expenses.Effects.SQLite qualified as SQL2
 import Expenses.NonEmptyText (NonEmptyText)
 import Log
 import Types
@@ -415,6 +418,18 @@ getAllTags :: Connection -> IO [TagName]
 getAllTags conn = do
   coerce $
     SQL.query_ @(Only TagName)
+      conn
+      [sql|
+        SELECT DISTINCT(tag)
+        FROM transaction_items
+        WHERE tag IS NOT NULL
+        ORDER BY tag
+      |]
+
+getAllTags2 :: forall es. (Db :> es) => Connection -> Eff es [TagName]
+getAllTags2 conn = do
+  coerce @(_ _ [Only TagName]) @(_ _ [TagName]) $
+    SQL2.query_ @(Only TagName)
       conn
       [sql|
         SELECT DISTINCT(tag)
