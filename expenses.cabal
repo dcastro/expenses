@@ -37,11 +37,16 @@ library
       Expenses.Server.Routes.GetAvailableDateRange
       Expenses.Server.Routes.GetTransactionItems
       Expenses.Server.Routes.GetTransactions
+      Expenses.Server.Routes.GetTransactions2
       Expenses.Server.Routes.InsertNew
+      Expenses.Server.Routes.InsertNew2
       Expenses.Server.Routes.ModifyTransaction
+      Expenses.Server.Routes.ModifyTransaction2
       Expenses.Server.Routes.RunCron
       Expenses.Server.Routes.Search
+      Expenses.Server.Routes.Search2
       Expenses.Server.Routes.SplitTransactionItems
+      Expenses.Server.Routes.SplitTransactionItems2
       Expenses.Server.Routes2
       Expenses.Server.Utils
       Nordigen
