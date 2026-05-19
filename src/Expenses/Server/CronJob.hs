@@ -10,7 +10,7 @@ import Data.Aeson.Encode.Pretty qualified as J
 import Data.Aeson.Text qualified as J
 import Data.ByteString.Lazy qualified as BSL
 import Data.Text qualified as T
-import Data.Time (getCurrentTime)
+import Data.Time (getCurrentTime, pattern YearMonthDay)
 import Database qualified as Db
 import Expenses.Linear (liftConsume)
 import Expenses.Server.AppM (Env (..), runLogger, useConnection)
@@ -112,6 +112,7 @@ fetchAccount manager authToken now acc = do
               ^.. transactions
                 . booked
                 . each
+                . to fixTransaction
       config <- asks (.config)
       pure $ apiToRow config acc <$> apiTxs
     J.Error err -> do
@@ -120,6 +121,38 @@ fetchAccount manager authToken now acc = do
           [Cron] Failed to decode Nordigen's response for account: #{acc ^. accountName}:
             #{err}|]
       pure []
+
+-- | Manually fix mistakes in the API response.
+fixTransaction :: ApiTransaction -> ApiTransaction
+fixTransaction tx =
+  {-
+    This transaction (found in the logs: `2026-05-17 02:00:00.080614225 UTC-transactions.json`)
+    contained an invalid date: "5207-01-20".
+
+    I backed up the db on `2026-05-19_16-10-31` before manually deleting this row and re-syncing.
+
+    ```
+    {
+      "entryReference": "02026051552026-05-16-01.09.08.38441",
+      "bookingDate": "5207-01-20",
+      "valueDate": "5207-01-20",
+      "transactionAmount": {
+        "amount": "+0.04",
+        "currency": "EUR"
+      },
+      "remittanceInformationUnstructured": "4PAG BXVAL- 8003 VIAVERDE",
+      "internalTransactionId": "96aec454d5ec65f5ae62d8649e38afb6"
+    },
+    ```
+
+    > delete from transactions where id = '02026051552026-05-16-01.09.08.38441';
+    > delete from transaction_items where transaction_id = '02026051552026-05-16-01.09.08.38441';
+  -}
+  if tx.entryReference == Just "02026051552026-05-16-01.09.08.38441"
+    then
+      let date = YearMonthDay 2026 05 15
+       in tx{bookingDate = date, valueDate = date}
+    else tx
 
 logTransactions :: UTCTime -> Value -> AccountInfo -> CronM ()
 logTransactions now transactions acc = do
