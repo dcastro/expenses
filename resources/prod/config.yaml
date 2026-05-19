@@ -24,10 +24,11 @@ allTagGroups:
     - renda
   Groceries:
     - groceries
-  Baby:
+  David:
     - baby
     - atividades
     - toys
+    - education
   Contas:
     - gym
     - vodafone
@@ -139,7 +140,7 @@ categoryPatterns:
     tag: seguro de vida
   - pattern: 'ASISA VIDA SEG'
     tag: seguro de vida
-  - pattern: 'DD PT96113924 AT - AUTORIDADE AT202200000000168'
+  - pattern: 'AT202200000000'
     tag: iuc
   - pattern: 'DD PT85112861 TOYOTA KREDITBA'
     tag: credito carro
@@ -349,6 +350,8 @@ categoryPatterns:
   - pattern: 'INST GEST FINAN'
     tag: seg social
   - pattern: 'Serokell OU'
+    tag: ordenado
+  - pattern: 'SEROKELL'
     tag: ordenado
   - pattern: 'ORDEM DOS ENFE'
     tag: ordem dos enfermeiros
