@@ -24,6 +24,7 @@ import Expenses.Server.Routes.InsertNew qualified as InsertNew
 import Expenses.Server.Routes.ModifyTransaction qualified as ModifyTransaction
 import Expenses.Server.Routes.RunCron qualified as RunCron
 import Expenses.Server.Routes.Search qualified as Search
+import Expenses.Server.Routes.Search2 qualified as Search2
 import Expenses.Server.Routes.SplitTransactionItems qualified as SplitTransactionItems
 import Expenses.Server.Utils (throwJsonError)
 import Log
@@ -83,7 +84,7 @@ data PrivateAPI mode = PrivateAPI
   , search ::
       mode
         :- "search"
-          :> ReqBody '[JSON] Search.RawSearchParams
+          :> ReqBody '[JSON] Search2.RawSearchParams
           :> Post '[JSON] (Vector GetTransactions.TransactionItem)
   , allTags :: mode :- "tags" :> Get '[JSON] (Set TagName)
   , allAccounts :: mode :- "accounts" :> Get '[JSON] [Text]
@@ -242,9 +243,9 @@ mkServer logger resourcesDir =
         PrivateAPI
           { transactions = undefined -- GetTransactions.getTransactionsHandler
           , getTransactionItems = undefined -- GetTransactionItems.getTransactionItemsHandler
-          , search = undefined -- Search.searchHandler
+          , search = Search2.searchHandler
           , isAdmin = undefined -- isAdminHandler username
-          , allTags = undefined -- AllTags.allTagsHandler
+          , allTags = AllTags2.allTagsHandler
           , allAccounts = undefined -- AllAccounts.allAccountsHandler
           , getAvailableDateRange = undefined -- GetAvailableDateRange.getAvailableDateRangeHandler
           }
