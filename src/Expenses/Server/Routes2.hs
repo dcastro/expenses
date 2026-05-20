@@ -253,7 +253,7 @@ mkServer logger resourcesDir =
     , admin = \admin ->
         AdminAPI
           { modifyTransaction = ModifyTransaction.modifyTransactionHandler admin
-          , insertTransaction = undefined --  InsertNew.insertTransactionHandler admin
+          , insertTransaction = InsertNew.insertTransactionHandler admin
           , splitTransactionItems = SplitTransactionItems.splitTransactionItemsHandler admin
           , runCronSync = undefined --  RunCron.runCronHandler logger admin
           }

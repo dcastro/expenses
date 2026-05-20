@@ -24,6 +24,7 @@ library
       Database
       Expenses.Effects
       Expenses.Effects.EventLog
+      Expenses.Effects.NextUUID
       Expenses.Effects.SQLite
       Expenses.Linear
       Expenses.NonEmptyText
@@ -40,7 +41,6 @@ library
       Expenses.Server.Routes.GetTransactions
       Expenses.Server.Routes.GetTransactions2
       Expenses.Server.Routes.InsertNew
-      Expenses.Server.Routes.InsertNew2
       Expenses.Server.Routes.ModifyTransaction
       Expenses.Server.Routes.RunCron
       Expenses.Server.Routes.Search

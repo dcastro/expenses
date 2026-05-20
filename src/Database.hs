@@ -574,6 +574,24 @@ insertTransactionJoinedRow conn TransactionJoinedRow{transactionId, account, dat
         |]
       (transactionId, itemIndex, itemAmountCents, tag, details, isExpense)
 
+insertTransactionJoinedRow2 :: (Db :> es) => Connection -> TransactionJoinedRow -> Eff es ()
+insertTransactionJoinedRow2 conn TransactionJoinedRow{transactionId, account, date, desc, totalAmountCents, isExpense, itemIndex, itemAmountCents, tag, details} = do
+  SQL2.withTransaction conn do
+    SQL2.execute
+      conn
+      [sql|
+          INSERT INTO transactions (id, account, date, desc, total_amount_cents)
+          VALUES (?, ?, ?, ?, ?)
+        |]
+      (transactionId, account, date, desc, totalAmountCents)
+    SQL2.execute
+      conn
+      [sql|
+          INSERT INTO transaction_items (transaction_id, item_index, item_amount_cents, tag, details, is_expense)
+          VALUES (?, ?, ?, ?, ?, ?)
+        |]
+      (transactionId, itemIndex, itemAmountCents, tag, details, isExpense)
+
 ----------------------------------------------------------------------------
 -- Utils
 ----------------------------------------------------------------------------
