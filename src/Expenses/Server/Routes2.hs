@@ -251,7 +251,7 @@ mkServer logger resourcesDir =
           }
     , admin = \admin ->
         AdminAPI
-          { modifyTransaction = undefined --  ModifyTransaction.modifyTransactionHandler admin
+          { modifyTransaction = ModifyTransaction.modifyTransactionHandler admin
           , insertTransaction = undefined --  InsertNew.insertTransactionHandler admin
           , splitTransactionItems = undefined --  SplitTransactionItems.splitTransactionItemsHandler admin
           , runCronSync = undefined --  RunCron.runCronHandler logger admin

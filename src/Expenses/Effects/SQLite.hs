@@ -5,6 +5,7 @@ module Expenses.Effects.SQLite (
   runDb,
   query,
   query_,
+  execute,
   withTransaction,
   SQL.Connection,
 ) where
@@ -19,6 +20,7 @@ import Effectful.Dispatch.Dynamic
 data Db :: Effect where
   QueryWith :: (ToRow q) => RowParser r -> Connection -> SQL.Query -> q -> Db m [r]
   QueryWith_ :: RowParser r -> Connection -> SQL.Query -> Db m [r]
+  Execute :: (ToRow q) => Connection -> SQL.Query -> q -> Db m ()
   WithTransaction :: Connection -> m a -> Db m a
 
 type instance DispatchOf Db = Dynamic
@@ -29,6 +31,8 @@ runDb = interpret \env -> \case
     liftIO $ SQL.queryWith parser conn sql params
   QueryWith_ parser conn sql -> do
     liftIO $ SQL.queryWith_ parser conn sql
+  Execute conn sql params -> do
+    liftIO $ SQL.execute conn sql params
   WithTransaction conn action -> do
     localSeqUnliftIO env \unlift -> do
       liftIO $ SQL.withTransaction conn (unlift action)
@@ -38,6 +42,9 @@ queryWith = send ... QueryWith
 
 queryWith_ :: (Db :> es) => RowParser r -> Connection -> SQL.Query -> Eff es [r]
 queryWith_ = send ... QueryWith_
+
+execute :: (Db :> es) => (ToRow q) => Connection -> SQL.Query -> q -> Eff es ()
+execute = send ... Execute
 
 withTransaction :: (Db :> es) => Connection -> Eff es a -> Eff es a
 withTransaction = send ... WithTransaction

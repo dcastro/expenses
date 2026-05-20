@@ -235,23 +235,23 @@ mkServer logger resourcesDir =
   API
     { private = \username ->
         PrivateAPI
-          { transactions = GetTransactions.getTransactionsHandler
-          , getTransactionItems = GetTransactionItems.getTransactionItemsHandler
-          , search = Search.searchHandler
-          , isAdmin = isAdminHandler username
-          , allTags = AllTags.allTagsHandler
-          , allAccounts = AllAccounts.allAccountsHandler
-          , getAvailableDateRange = GetAvailableDateRange.getAvailableDateRangeHandler
+          { transactions = undefined -- GetTransactions.getTransactionsHandler
+          , getTransactionItems = undefined -- GetTransactionItems.getTransactionItemsHandler
+          , search = undefined -- Search.searchHandler
+          , isAdmin = undefined -- isAdminHandler username
+          , allTags = undefined -- AllTags.allTagsHandler
+          , allAccounts = undefined -- AllAccounts.allAccountsHandler
+          , getAvailableDateRange = undefined -- GetAvailableDateRange.getAvailableDateRangeHandler
           }
     , admin = \admin ->
         AdminAPI
-          { modifyTransaction = ModifyTransaction.modifyTransactionHandler admin
-          , insertTransaction = InsertNew.insertTransactionHandler admin
-          , splitTransactionItems = SplitTransactionItems.splitTransactionItemsHandler admin
-          , runCronSync = RunCron.runCronHandler logger admin
+          { modifyTransaction = undefined --  ModifyTransaction.modifyTransactionHandler admin
+          , insertTransaction = undefined --  InsertNew.insertTransactionHandler admin
+          , splitTransactionItems = undefined --  SplitTransactionItems.splitTransactionItemsHandler admin
+          , runCronSync = undefined --  RunCron.runCronHandler logger admin
           }
-    , health = pure "OK"
-    , static = getStaticHandler resourcesDir
+    , health = undefined --  pure "OK"
+    , static = undefined --  getStaticHandler resourcesDir
     }
 
 getStaticHandler :: FilePath -> Tagged AppM Application

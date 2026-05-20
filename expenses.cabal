@@ -23,6 +23,7 @@ library
       CustomPrelude
       Database
       Expenses.Effects
+      Expenses.Effects.EventLog
       Expenses.Effects.SQLite
       Expenses.Linear
       Expenses.NonEmptyText
@@ -41,7 +42,6 @@ library
       Expenses.Server.Routes.InsertNew
       Expenses.Server.Routes.InsertNew2
       Expenses.Server.Routes.ModifyTransaction
-      Expenses.Server.Routes.ModifyTransaction2
       Expenses.Server.Routes.RunCron
       Expenses.Server.Routes.Search
       Expenses.Server.Routes.Search2

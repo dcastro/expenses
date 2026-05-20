@@ -18,6 +18,7 @@ import Database.SQLite.Simple.ToField qualified as SQL
 import Effectful
 import Effectful.Log
 import Effectful.Time (Time)
+import Expenses.Effects qualified as Eff
 import Expenses.Effects.SQLite (Db)
 import Expenses.Effects.SQLite qualified as SQL2
 import Expenses.NonEmptyText (NonEmptyText)
@@ -142,9 +143,9 @@ getTransactionById conn transactionId =
 
     pure $ rowsToRecord txRow itemRows
 
-getTransactionItemById :: (MonadIO m) => Connection -> Text -> Int -> m (Maybe TransactionJoinedRow)
-getTransactionItemById conn txId itemIndex = liftIO do
-  SQL.query
+getTransactionItemById :: (Db :> es) => Connection -> Text -> Int -> Eff es (Maybe TransactionJoinedRow)
+getTransactionItemById conn txId itemIndex = do
+  SQL2.query
     conn
     ( SQL.Query
         [i| #{selectJoinedRows} WHERE id = ? AND item_index = ?|]
@@ -467,17 +468,17 @@ getAllAccounts conn = do
 -- Modify transactions
 ----------------------------------------------------------------------------
 
-getDescription :: (MonadIO m) => Connection -> Text -> m Text
-getDescription conn txId = liftIO do
-  SQL.query conn [sql| SELECT desc FROM transactions WHERE id = ? |] [txId] >>= \case
+getDescription :: (Db :> es) => Connection -> Text -> Eff es Text
+getDescription conn txId = do
+  SQL2.query conn [sql| SELECT desc FROM transactions WHERE id = ? |] [txId] >>= \case
     [Only desc] -> pure desc
-    [] -> die $ T.unpack [i|getDescription: transaction not found for #{txId}|]
-    _ -> die $ T.unpack [i|getDescription: unexpected number of rows for #{txId}|]
+    [] -> Eff.die [i|getDescription: transaction not found for #{txId}|]
+    _ -> Eff.die [i|getDescription: unexpected number of rows for #{txId}|]
 
-getTag :: (MonadIO m) => Connection -> Text -> Int -> m (Maybe TagName)
-getTag conn txId idx = liftIO do
+getTag :: (Db :> es) => Connection -> Text -> Int -> Eff es (Maybe TagName)
+getTag conn txId idx = do
   rows <-
-    SQL.query
+    SQL2.query
       conn
       [sql|
           SELECT tag
@@ -487,12 +488,12 @@ getTag conn txId idx = liftIO do
       (txId, idx)
   case rows of
     [Only tag] -> pure tag
-    [] -> die $ T.unpack [i|getTag: transaction item not found for #{txId} (#{idx})|]
-    _ -> die $ T.unpack [i|getTag: unexpected number of rows for #{txId} (#{idx})|]
+    [] -> Eff.die [i|getTag: transaction item not found for #{txId} (#{idx})|]
+    _ -> Eff.die [i|getTag: unexpected number of rows for #{txId} (#{idx})|]
 
-updateTag :: forall m. (MonadIO m) => Connection -> Text -> Int -> TagName -> m ()
-updateTag conn txId idx newTag = liftIO do
-  SQL.execute
+updateTag :: (Db :> es) => Connection -> Text -> Int -> TagName -> Eff es ()
+updateTag conn txId idx newTag = do
+  SQL2.execute
     conn
     [sql|
         UPDATE transaction_items
@@ -501,10 +502,10 @@ updateTag conn txId idx newTag = liftIO do
       |]
     (newTag, txId, idx)
 
-getIsExpense :: (MonadIO m) => Connection -> Text -> Int -> m Bool
-getIsExpense conn txId idx = liftIO do
+getIsExpense :: (Db :> es) => Connection -> Text -> Int -> Eff es Bool
+getIsExpense conn txId idx = do
   rows <-
-    SQL.query
+    SQL2.query
       conn
       [sql|
           SELECT is_expense
@@ -514,12 +515,12 @@ getIsExpense conn txId idx = liftIO do
       (txId, idx)
   case rows of
     [Only flag] -> pure flag
-    [] -> die $ T.unpack [i|getIsExpense: transaction not found for #{txId}|]
-    _ -> die $ T.unpack [i|getIsExpense: unexpected number of rows for #{txId}|]
+    [] -> Eff.die [i|getIsExpense: transaction not found for #{txId}|]
+    _ -> Eff.die [i|getIsExpense: unexpected number of rows for #{txId}|]
 
-updateIsExpense :: (MonadIO m) => Connection -> Text -> Int -> Bool -> m ()
-updateIsExpense conn txId idx newIsExpense = liftIO do
-  SQL.execute
+updateIsExpense :: (Db :> es) => Connection -> Text -> Int -> Bool -> Eff es ()
+updateIsExpense conn txId idx newIsExpense = do
+  SQL2.execute
     conn
     [sql|
         UPDATE transaction_items
@@ -528,10 +529,10 @@ updateIsExpense conn txId idx newIsExpense = liftIO do
       |]
     (newIsExpense, txId, idx)
 
-getDetails :: (MonadIO m) => Connection -> Text -> Int -> m Text
-getDetails conn txId idx = liftIO do
+getDetails :: (Db :> es) => Connection -> Text -> Int -> Eff es Text
+getDetails conn txId idx = do
   rows <-
-    SQL.query
+    SQL2.query
       conn
       [sql|
           SELECT details
@@ -541,12 +542,12 @@ getDetails conn txId idx = liftIO do
       (txId, idx)
   case rows of
     [Only details] -> pure details
-    [] -> die $ T.unpack [i|getDetails: transaction item not found for #{txId} (#{idx})|]
-    _ -> die $ T.unpack [i|getDetails: unexpected number of rows for #{txId} (#{idx})|]
+    [] -> Eff.die [i|getDetails: transaction item not found for #{txId} (#{idx})|]
+    _ -> Eff.die [i|getDetails: unexpected number of rows for #{txId} (#{idx})|]
 
-updateDetails :: forall m. (MonadIO m) => Connection -> Text -> Int -> Text -> m ()
-updateDetails conn txId idx newDetails = liftIO do
-  SQL.execute
+updateDetails :: (Db :> es) => Connection -> Text -> Int -> Text -> Eff es ()
+updateDetails conn txId idx newDetails = do
+  SQL2.execute
     conn
     [sql|
         UPDATE transaction_items

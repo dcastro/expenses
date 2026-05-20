@@ -1,15 +1,23 @@
 module Expenses.Server.Routes.ModifyTransaction where
 
-import CustomPrelude
+import CustomPrelude hiding (Reader)
 import Data.Aeson.TH (defaultOptions, deriveFromJSON)
-import Data.Time.Clock (getCurrentTime)
 import Database qualified as Db
-import Expenses.Server.AppM (AppM, Env, useConnection)
+import Effectful
+import Effectful.Concurrent (Concurrent)
+import Effectful.Error.Static (Error)
+import Effectful.Reader.Static (Reader)
+import Effectful.Time (Time)
+import Effectful.Time qualified as Time
+import Expenses.Effects.EventLog (EventLog)
+import Expenses.Effects.EventLog qualified as EventLog
+import Expenses.Effects.SQLite (Db)
+import Expenses.Server.AppM (Env, useConnection2)
 import Expenses.Server.EventLog
-import Expenses.Server.EventLog qualified as EventLog
 import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
-import Expenses.Server.Utils (throwJsonError)
+import Expenses.Server.Utils (throwJsonError2)
 import Servant (err500)
+import Servant.Server qualified as S
 import Types (Admin (..), TagName)
 
 data ModifyTransaction = ModifyTransaction
@@ -45,13 +53,13 @@ $( mconcat
  )
 
 -- | Modifies a transaction / transaction item and returns the updated transaction items.
-modifyTransactionHandler :: Admin -> ModifyTransaction -> AppM GetTransactions.TransactionItem
+modifyTransactionHandler :: (Time :> es, Reader Env :> es, Concurrent :> es, EventLog :> es, Db :> es, Error S.ServerError :> es) => Admin -> ModifyTransaction -> Eff es GetTransactions.TransactionItem
 modifyTransactionHandler admin ModifyTransaction{transactionId = txId, itemIndex, actionType} = do
-  now <- liftIO getCurrentTime
+  now <- Time.currentTime
 
-  let appendAction :: forall m. (MonadIO m, MonadReader Env m) => Text -> ActionType -> m ()
+  let appendAction :: forall es. (EventLog :> es) => Text -> ActionType -> Eff es ()
       appendAction txDesc actionType =
-        EventLog.append
+        EventLog.appendEvent
           Action
             { username = admin
             , ts = now
@@ -61,7 +69,7 @@ modifyTransactionHandler admin ModifyTransaction{transactionId = txId, itemIndex
             , actionType
             }
 
-  useConnection \conn -> do
+  useConnection2 \conn -> do
     desc <- Db.getDescription conn txId
 
     case actionType of
@@ -83,5 +91,5 @@ modifyTransactionHandler admin ModifyTransaction{transactionId = txId, itemIndex
 
     rowMb <- Db.getTransactionItemById conn txId itemIndex
     case rowMb of
-      Nothing -> throwJsonError err500 [i|Failed to find tx item after modifying it: #{txId} index #{itemIndex}|]
+      Nothing -> throwJsonError2 err500 [i|Failed to find tx item after modifying it: #{txId} index #{itemIndex}|]
       Just row -> pure $ GetTransactions.convertRowToItem row

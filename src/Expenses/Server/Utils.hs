@@ -5,7 +5,9 @@ import CustomPrelude
 import Data.Aeson (ToJSON (..))
 import Data.Aeson qualified as J
 import Data.Map.Lazy qualified as Map
-import Servant (throwError)
+import Effectful
+import Effectful.Error.Static
+import Effectful.Error.Static qualified as Err
 import Servant qualified as S
 
 {- | NOTE: purescript's JSON decoder for `Map` expects a JSON array, but Haskell's encoder produces a JSON object.
@@ -19,7 +21,15 @@ instance (ToJSON k, ToJSON v) => ToJSON (MapAsList k v) where
 
 throwJsonError :: forall errBody m a. (MonadError S.ServerError m) => (ToJSON errBody) => S.ServerError -> errBody -> m a
 throwJsonError err errBody =
-  throwError $
+  S.throwError $
+    err
+      { S.errBody = J.encode errBody
+      , S.errHeaders = [("Content-Type", "application/json;charset=utf-8")]
+      }
+
+throwJsonError2 :: forall errBody a es. (Error S.ServerError :> es) => (ToJSON errBody) => S.ServerError -> errBody -> Eff es a
+throwJsonError2 err errBody =
+  Err.throwError $
     err
       { S.errBody = J.encode errBody
       , S.errHeaders = [("Content-Type", "application/json;charset=utf-8")]
