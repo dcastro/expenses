@@ -5,7 +5,7 @@ module Expenses.Server.Routes2 where
 import Config (AppConfig)
 import Config qualified
 import Control.Concurrent.MVar qualified as M
-import CustomPrelude
+import CustomPrelude hiding (asks)
 import Data.List qualified as List
 import Data.Time.Calendar.Month (Month)
 import Database.SQLite.Simple qualified as SQL
@@ -44,6 +44,7 @@ import System.IO qualified as IO
 import Types (Admin (..), TagName, Username (..), mkUsername)
 import Util qualified
 
+import Effectful.Reader.Static qualified as R
 import Expenses.Effects (AppM)
 import Expenses.Effects qualified as Effects
 
@@ -244,7 +245,7 @@ mkServer logger resourcesDir =
           { transactions = undefined -- GetTransactions.getTransactionsHandler
           , getTransactionItems = GetTransactionItems.getTransactionItemsHandler
           , search = Search2.searchHandler
-          , isAdmin = undefined -- isAdminHandler username
+          , isAdmin = isAdminHandler username
           , allTags = AllTags2.allTagsHandler
           , allAccounts = undefined -- AllAccounts.allAccountsHandler
           , getAvailableDateRange = undefined -- GetAvailableDateRange.getAvailableDateRangeHandler
@@ -256,8 +257,8 @@ mkServer logger resourcesDir =
           , splitTransactionItems = SplitTransactionItems.splitTransactionItemsHandler admin
           , runCronSync = undefined --  RunCron.runCronHandler logger admin
           }
-    , health = undefined -- pure "OK"
-    , static = undefined -- getStaticHandler resourcesDir
+    , health = pure "OK"
+    , static = getStaticHandler resourcesDir
     }
 
 getStaticHandler :: FilePath -> Tagged AppM Application
@@ -265,7 +266,7 @@ getStaticHandler resourcesDir = do
   S.serveDirectoryWith $
     Wai.defaultFileServerSettings resourcesDir
 
--- isAdminHandler :: Username -> AppM Bool
--- isAdminHandler username = do
---   config <- asks (.config)
---   pure $ isJust $ Config.tryMkAdmin config username
+isAdminHandler :: Username -> AppM Bool
+isAdminHandler username = do
+  config <- R.asks @Env (.config)
+  pure $ isJust $ Config.tryMkAdmin config username
