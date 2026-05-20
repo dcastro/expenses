@@ -24,6 +24,7 @@ library
       Database
       Expenses.Effects
       Expenses.Effects.SQLite
+      Expenses.Effects.Timed
       Expenses.Linear
       Expenses.NonEmptyText
       Expenses.Server.AppM

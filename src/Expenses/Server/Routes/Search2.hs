@@ -1,14 +1,20 @@
 module Expenses.Server.Routes.Search2 where
 
 import Control.Lens hiding (Contains)
-import CustomPrelude
+import CustomPrelude hiding (Reader)
 import Data.Aeson.TH (defaultOptions, deriveFromJSON)
 import Data.List (partition)
 import Data.Text qualified as T
 import Database (AmountParams (..), Contains (..), DoesNotContain (..), IsGTE (..), IsLT (..), SearchParams (..), StringParams (..), TagParams)
 import Database qualified as Db
+import Effectful
+import Effectful.Concurrent (Concurrent)
+import Effectful.Log (Log)
+import Effectful.Reader.Static (Reader)
+import Expenses.Effects.SQLite (Db)
+import Expenses.Effects.Timed (Timed)
 import Expenses.NonEmptyText qualified as NET
-import Expenses.Server.AppM (AppM, useConnection)
+import Expenses.Server.AppM (Env, useConnection2)
 import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
 
 data RawSearchParams = RawSearchParams
@@ -27,15 +33,15 @@ $( mconcat
      ]
  )
 
-searchHandler :: RawSearchParams -> AppM (Vector GetTransactions.TransactionItem)
+searchHandler :: (Db :> es, Reader Env :> es, Concurrent :> es, Log :> es, Timed :> es) => RawSearchParams -> Eff es (Vector GetTransactions.TransactionItem)
 searchHandler params = do
   let parsedParams = parseSearchParams params
 
   if parsedParams == emptyParams
     then pure mempty
     else do
-      useConnection \conn -> do
-        rows <- Db.search conn parsedParams
+      useConnection2 \conn -> do
+        rows <- Db.search2 conn parsedParams
         pure $ rows <&> \row -> GetTransactions.convertRowToItem row
 
 parseSearchParams :: RawSearchParams -> SearchParams

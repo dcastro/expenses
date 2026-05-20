@@ -16,10 +16,12 @@ import Database.SQLite.Simple.QQ (sql)
 import Database.SQLite.Simple.ToField (ToField)
 import Database.SQLite.Simple.ToField qualified as SQL
 import Effectful
+import Effectful.Log
 import Expenses.Effects.SQLite (Db)
 import Expenses.Effects.SQLite qualified as SQL2
+import Expenses.Effects.Timed (Timed)
+import Expenses.Effects.Timed qualified as Timed
 import Expenses.NonEmptyText (NonEmptyText)
-import Log
 import Types
 import Util qualified
 
@@ -295,6 +297,15 @@ search conn params = do
   logTrace_ [i|Found #{length txs} matching transaction items.|]
   pure txs
 
+search2 :: (Db :> es, Log :> es, Timed :> es) => Connection -> SearchParams -> Eff es (Vector TransactionJoinedRow)
+search2 conn params = do
+  let (query, values) = mkSearchQuery params
+  txs <- Timed.timed "search query" do
+    fromList <$> SQL2.query conn query values
+
+  logTrace_ [i|Found #{length txs} matching transaction items.|]
+  pure txs
+
 mkSearchQuery :: SearchParams -> (Query, [SQLData])
 mkSearchQuery params = do
   let clauses = mkSearchQueryClauses params
@@ -426,7 +437,7 @@ getAllTags conn = do
         ORDER BY tag
       |]
 
-getAllTags2 :: forall es. (Db :> es) => Connection -> Eff es [TagName]
+getAllTags2 :: (Db :> es) => Connection -> Eff es [TagName]
 getAllTags2 conn = do
   coerce @(_ _ [Only TagName]) @(_ _ [TagName]) $
     SQL2.query_ @(Only TagName)
