@@ -1,24 +1,35 @@
 module Expenses.Server.Routes.SplitTransactionItems where
 
-import CustomPrelude
-import Data.Time.Clock (getCurrentTime)
+import CustomPrelude hiding (Reader)
 import Database qualified as Db
-import Expenses.Server.AppM (AppM, useConnection)
+import Effectful
+import Effectful.Concurrent (Concurrent)
+import Effectful.Error.Static (Error)
+import Effectful.Log
+import Effectful.Reader.Static (Reader)
+import Effectful.Time (Time)
+import Effectful.Time qualified as Time
+import Expenses.Effects.EventLog (EventLog)
+import Expenses.Effects.EventLog qualified as EventLog
+import Expenses.Effects.SQLite (Db)
+import Expenses.Server.AppM (Env, useConnection2)
 import Expenses.Server.EventLog qualified as EventLog
 import Expenses.Server.Routes.GetTransactions (NewShortTransactionItem (..))
-import Expenses.Server.Utils (throwJsonError)
-import Log (logTrace_)
+import Expenses.Server.Utils (throwJsonError2)
 import Servant (NoContent (..))
+import Servant qualified as S
 import Servant.Server (err400, err404)
 import Types (Admin (..), TransactionItemRecord (..), TransactionRecord (..), toBE)
 
-splitTransactionItemsHandler :: Admin -> Text -> [NewShortTransactionItem] -> AppM NoContent
+splitTransactionItemsHandler ::
+  (Time :> es, Reader Env :> es, Concurrent :> es, Db :> es, Error S.ServerError :> es, Log :> es, EventLog :> es) =>
+  Admin -> Text -> [NewShortTransactionItem] -> Eff es NoContent
 splitTransactionItemsHandler admin transactionId splitItems = do
   -- Load existing transaction items
   originalRecord <-
-    useConnection (\conn -> liftIO $ Db.getTransactionById conn transactionId)
+    useConnection2 (\conn -> Db.getTransactionById conn transactionId)
       >>= maybe
-        (throwJsonError err404 [i|Transaction not found: #{transactionId}|])
+        (throwJsonError2 err404 [i|Transaction not found: #{transactionId}|])
         pure
 
   -- Update record
@@ -29,20 +40,20 @@ splitTransactionItemsHandler admin transactionId splitItems = do
     expectedTotal = originalRecord.totalAmountCents
     actualTotal = updatedRecord.items <&> (.itemAmountCents) & sum
   when (actualTotal /= expectedTotal) do
-    throwJsonError err400 [i|Split amounts (#{actualTotal}) do not sum to transaction total (#{expectedTotal})|]
+    throwJsonError2 err400 [i|Split amounts (#{actualTotal}) do not sum to transaction total (#{expectedTotal})|]
 
   if originalRecord.items == updatedRecord.items
     then do
       logTrace_ [i|SplitTransactionItems: no changes for #{transactionId}|]
       pure NoContent
     else do
-      useConnection \conn -> Db.updateExistingRecord conn updatedRecord
+      useConnection2 \conn -> Db.updateExistingRecord conn updatedRecord
       logTrace_ [i|SplitTransactionItems: updated #{transactionId}|]
 
       -- Write to the event log
-      now <- liftIO getCurrentTime
+      now <- Time.currentTime
       for_ (originalRecord.items `zip` [0 ..]) \(item, idx) ->
-        EventLog.append
+        EventLog.appendEvent
           EventLog.Action
             { username = admin
             , ts = now
@@ -53,7 +64,7 @@ splitTransactionItemsHandler admin transactionId splitItems = do
             }
 
       for_ (splitItems `zip` [0 ..]) \(item, idx) ->
-        EventLog.append
+        EventLog.appendEvent
           EventLog.Action
             { username = admin
             , ts = now

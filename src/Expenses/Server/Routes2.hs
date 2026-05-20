@@ -242,7 +242,7 @@ mkServer logger resourcesDir =
     { private = \username ->
         PrivateAPI
           { transactions = undefined -- GetTransactions.getTransactionsHandler
-          , getTransactionItems = undefined -- GetTransactionItems.getTransactionItemsHandler
+          , getTransactionItems = GetTransactionItems.getTransactionItemsHandler
           , search = Search2.searchHandler
           , isAdmin = undefined -- isAdminHandler username
           , allTags = AllTags2.allTagsHandler
@@ -253,7 +253,7 @@ mkServer logger resourcesDir =
         AdminAPI
           { modifyTransaction = ModifyTransaction.modifyTransactionHandler admin
           , insertTransaction = undefined --  InsertNew.insertTransactionHandler admin
-          , splitTransactionItems = undefined --  SplitTransactionItems.splitTransactionItemsHandler admin
+          , splitTransactionItems = SplitTransactionItems.splitTransactionItemsHandler admin
           , runCronSync = undefined --  RunCron.runCronHandler logger admin
           }
     , health = undefined -- pure "OK"

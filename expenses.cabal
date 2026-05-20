@@ -46,7 +46,6 @@ library
       Expenses.Server.Routes.Search
       Expenses.Server.Routes.Search2
       Expenses.Server.Routes.SplitTransactionItems
-      Expenses.Server.Routes.SplitTransactionItems2
       Expenses.Server.Routes2
       Expenses.Server.Utils
       Nordigen

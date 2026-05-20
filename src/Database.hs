@@ -104,16 +104,16 @@ filterNewTxs conn txs = liftIO do
 
   pure $ txs & filter (\tx -> not (tx.transactionId `Set.member` existingSet))
 
-updateExistingRecord :: (MonadIO m) => Connection -> TransactionRecord -> m ()
+updateExistingRecord :: (Db :> es) => Connection -> TransactionRecord -> Eff es ()
 updateExistingRecord conn txRecord =
-  liftIO $ SQL.withTransaction conn do
+  SQL2.withTransaction conn do
     -- Delete the transaction's items and re-insert
     let (txRow, txItemRows) = recordToRows txRecord
-    execute
+    SQL2.execute
       conn
       "DELETE FROM transaction_items WHERE transaction_id = ?"
       (Only txRow.transactionId)
-    executeMany
+    SQL2.executeMany
       conn
       [sql|
         INSERT INTO transaction_items
@@ -123,11 +123,11 @@ updateExistingRecord conn txRecord =
       |]
       txItemRows
 
-getTransactionById :: Connection -> Text -> IO (Maybe TransactionRecord)
+getTransactionById :: (Db :> es) => Connection -> Text -> Eff es (Maybe TransactionRecord)
 getTransactionById conn transactionId =
   runMaybeT do
     txRow <-
-      SQL.query
+      SQL2.query
         conn
         "SELECT id, account, date, desc, total_amount_cents FROM transactions WHERE id = ?"
         (Only transactionId)
@@ -136,7 +136,7 @@ getTransactionById conn transactionId =
 
     itemRows <-
       lift $
-        SQL.query
+        SQL2.query
           conn
           "SELECT transaction_id, item_index, item_amount_cents, tag, details, is_expense FROM transaction_items WHERE transaction_id = ?"
           (Only transactionId)

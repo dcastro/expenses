@@ -33,7 +33,9 @@ $( mconcat
      ]
  )
 
-searchHandler :: (Db :> es, Reader Env :> es, Concurrent :> es, Log :> es, Time :> es) => RawSearchParams -> Eff es (Vector GetTransactions.TransactionItem)
+searchHandler ::
+  (Db :> es, Reader Env :> es, Concurrent :> es, Log :> es, Time :> es) =>
+  RawSearchParams -> Eff es (Vector GetTransactions.TransactionItem)
 searchHandler params = do
   let parsedParams = parseSearchParams params
 
