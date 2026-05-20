@@ -17,10 +17,9 @@ import Database.SQLite.Simple.ToField (ToField)
 import Database.SQLite.Simple.ToField qualified as SQL
 import Effectful
 import Effectful.Log
+import Effectful.Time (Time)
 import Expenses.Effects.SQLite (Db)
 import Expenses.Effects.SQLite qualified as SQL2
-import Expenses.Effects.Timed (Timed)
-import Expenses.Effects.Timed qualified as Timed
 import Expenses.NonEmptyText (NonEmptyText)
 import Types
 import Util qualified
@@ -297,10 +296,10 @@ search conn params = do
   logTrace_ [i|Found #{length txs} matching transaction items.|]
   pure txs
 
-search2 :: (Db :> es, Log :> es, Timed :> es) => Connection -> SearchParams -> Eff es (Vector TransactionJoinedRow)
+search2 :: (Db :> es, Log :> es, Time :> es) => Connection -> SearchParams -> Eff es (Vector TransactionJoinedRow)
 search2 conn params = do
   let (query, values) = mkSearchQuery params
-  txs <- Timed.timed "search query" do
+  txs <- Util.timed2 "search query" do
     fromList <$> SQL2.query conn query values
 
   logTrace_ [i|Found #{length txs} matching transaction items.|]

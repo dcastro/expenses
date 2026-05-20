@@ -6,6 +6,10 @@ import Data.Text qualified as T
 import Data.Time qualified as Time
 import Database.SQLite.Simple (Connection)
 import Database.SQLite.Simple qualified as Db
+import Effectful
+import Effectful.Log (Log)
+import Effectful.Time (Time)
+import Effectful.Time qualified as ETime
 import Log
 import System.Directory qualified as Dir
 import Text.Read qualified as Read
@@ -68,5 +72,13 @@ timed actionName action = do
   start <- liftIO Time.getCurrentTime
   result <- action
   end <- liftIO Time.getCurrentTime
+  logTrace_ [i|Finished #{actionName} in: #{Time.diffUTCTime end start}|]
+  pure result
+
+timed2 :: (Time :> es, Log :> es) => Text -> Eff es a -> Eff es a
+timed2 actionName action = do
+  start <- ETime.currentTime
+  result <- action
+  end <- ETime.currentTime
   logTrace_ [i|Finished #{actionName} in: #{Time.diffUTCTime end start}|]
   pure result

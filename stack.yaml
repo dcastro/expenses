@@ -19,6 +19,7 @@ extra-deps:
   - group-with-0.2.0.3
   - lens-5.3.3
   - log-effectful-1.0.1.0
+  - monad-time-effectful-1.0.1.0
 
   - universum-1.8.2.2 # universum is not in LTS 24 yet.
 

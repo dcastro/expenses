@@ -24,7 +24,6 @@ library
       Database
       Expenses.Effects
       Expenses.Effects.SQLite
-      Expenses.Effects.Timed
       Expenses.Linear
       Expenses.NonEmptyText
       Expenses.Server.AppM
@@ -146,6 +145,7 @@ library
     , log-base
     , log-effectful
     , monad-control
+    , monad-time-effectful
     , mtl
     , optparse-applicative
     , regex-tdfa
@@ -276,6 +276,7 @@ executable db-migrations
     , log-base
     , log-effectful
     , monad-control
+    , monad-time-effectful
     , mtl
     , regex-tdfa
     , safe-exceptions
@@ -397,6 +398,7 @@ executable expenses-manager-server
     , log-base
     , log-effectful
     , monad-control
+    , monad-time-effectful
     , mtl
     , regex-tdfa
     , safe-exceptions
@@ -526,6 +528,7 @@ test-suite test
     , log-base
     , log-effectful
     , monad-control
+    , monad-time-effectful
     , mtl
     , regex-tdfa
     , safe-exceptions

@@ -11,8 +11,8 @@ import Effectful
 import Effectful.Concurrent (Concurrent)
 import Effectful.Log (Log)
 import Effectful.Reader.Static (Reader)
+import Effectful.Time (Time)
 import Expenses.Effects.SQLite (Db)
-import Expenses.Effects.Timed (Timed)
 import Expenses.NonEmptyText qualified as NET
 import Expenses.Server.AppM (Env, useConnection2)
 import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
@@ -33,7 +33,7 @@ $( mconcat
      ]
  )
 
-searchHandler :: (Db :> es, Reader Env :> es, Concurrent :> es, Log :> es, Timed :> es) => RawSearchParams -> Eff es (Vector GetTransactions.TransactionItem)
+searchHandler :: (Db :> es, Reader Env :> es, Concurrent :> es, Log :> es, Time :> es) => RawSearchParams -> Eff es (Vector GetTransactions.TransactionItem)
 searchHandler params = do
   let parsedParams = parseSearchParams params
 

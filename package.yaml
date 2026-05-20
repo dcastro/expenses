@@ -62,6 +62,7 @@ dependencies:
   - effectful
   - effectful-core
   - log-effectful
+  - monad-time-effectful
 
 default-extensions:
   - NoImplicitPrelude
