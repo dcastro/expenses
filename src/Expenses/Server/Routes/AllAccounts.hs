@@ -4,11 +4,11 @@ import CustomPrelude
 import Database qualified as Db
 import Effectful
 import Expenses.Effects
-import Expenses.Server.AppM (useConnection2)
+import Expenses.Server.AppM (useConnection)
 
 allAccountsHandler :: (Db :> es, Reader Env :> es, Concurrent :> es) => Eff es [Text]
 allAccountsHandler = do
-  useConnection2 \conn -> do
+  useConnection \conn -> do
     accounts <- Db.getAllAccounts conn
     -- NOTE: moving `Cash` to the front of the list so that it becomes
     -- the default account in the UI form for inserting new transactions.

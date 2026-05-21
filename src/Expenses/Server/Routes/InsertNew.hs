@@ -10,7 +10,7 @@ import Expenses.Effects
 import Expenses.Effects.EventLog qualified as EventLog
 import Expenses.Effects.NextUUID qualified as Uuid
 import Expenses.Linear qualified as Linear
-import Expenses.Server.AppM (useConnection2)
+import Expenses.Server.AppM (useConnection)
 import Expenses.Server.EventLog qualified as EventLog
 import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
 import Types (Admin (..), FECents, TagName, toBE)
@@ -42,8 +42,8 @@ insertTransactionHandler admin newTxItem = do
     transactionItem = mkTransactionItem transactionId newTxItem
     row = GetTransactions.convertItemToRow transactionItem
 
-  useConnection2 \conn -> do
-    Db.insertTransactionJoinedRow2 conn row
+  useConnection \conn -> do
+    Db.insertTransactionJoinedRow conn row
 
   EventLog.appendEvent $ mkEventLogAction admin now transactionId newTxItem
 

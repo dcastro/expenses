@@ -7,10 +7,10 @@ import Effectful.Log
 import Effectful.Time qualified as Time
 import Expenses.Effects
 import Expenses.Effects.EventLog qualified as EventLog
-import Expenses.Server.AppM (useConnection2)
+import Expenses.Server.AppM (useConnection)
 import Expenses.Server.EventLog qualified as EventLog
 import Expenses.Server.Routes.GetTransactions (NewShortTransactionItem (..))
-import Expenses.Server.Utils (throwJsonError2)
+import Expenses.Server.Utils (throwJsonError)
 import Servant (NoContent (..))
 import Servant qualified as S
 import Servant.Server (err400, err404)
@@ -22,9 +22,9 @@ splitTransactionItemsHandler ::
 splitTransactionItemsHandler admin transactionId splitItems = do
   -- Load existing transaction items
   originalRecord <-
-    useConnection2 (\conn -> Db.getTransactionById conn transactionId)
+    useConnection (\conn -> Db.getTransactionById conn transactionId)
       >>= maybe
-        (throwJsonError2 err404 [i|Transaction not found: #{transactionId}|])
+        (throwJsonError err404 [i|Transaction not found: #{transactionId}|])
         pure
 
   -- Update record
@@ -35,14 +35,14 @@ splitTransactionItemsHandler admin transactionId splitItems = do
     expectedTotal = originalRecord.totalAmountCents
     actualTotal = updatedRecord.items <&> (.itemAmountCents) & sum
   when (actualTotal /= expectedTotal) do
-    throwJsonError2 err400 [i|Split amounts (#{actualTotal}) do not sum to transaction total (#{expectedTotal})|]
+    throwJsonError err400 [i|Split amounts (#{actualTotal}) do not sum to transaction total (#{expectedTotal})|]
 
   if originalRecord.items == updatedRecord.items
     then do
       logTrace_ [i|SplitTransactionItems: no changes for #{transactionId}|]
       pure NoContent
     else do
-      useConnection2 \conn -> Db.updateExistingRecord conn updatedRecord
+      useConnection \conn -> Db.updateExistingRecord conn updatedRecord
       logTrace_ [i|SplitTransactionItems: updated #{transactionId}|]
 
       -- Write to the event log

@@ -16,7 +16,7 @@ import Database qualified as Db
 import Effectful
 import Effectful.Reader.Static (asks)
 import Expenses.Effects
-import Expenses.Server.AppM (Env (..), useConnection2)
+import Expenses.Server.AppM (Env (..), useConnection)
 import Expenses.Server.Utils (MapAsList (..))
 import Types
 
@@ -95,7 +95,7 @@ getTransactionsHandler monthStart monthEnd = do
   let dayEnd = MonthDay (monthEnd & Time.addMonths 1) 1
 
   txs <-
-    useConnection2 (\conn -> Db.getTransactionsByDate conn dayStart dayEnd)
+    useConnection (\conn -> Db.getTransactionsByDate conn dayStart dayEnd)
       <&> filter (\tx -> tx.isExpense)
       <&> fmap (\row -> convertRowToItem row)
       <&> List.sortBy ((compare `on` (.date)) <> (compare `on` (.transactionId)))

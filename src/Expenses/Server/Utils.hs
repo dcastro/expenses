@@ -1,6 +1,6 @@
 module Expenses.Server.Utils where
 
-import Control.Monad.Error.Class (MonadError)
+import Control.Monad.Except (MonadError)
 import CustomPrelude
 import Data.Aeson (ToJSON (..))
 import Data.Aeson qualified as J
@@ -19,16 +19,16 @@ newtype MapAsList k v = MapAsList {unMapAsList :: Map.Map k v}
 instance (ToJSON k, ToJSON v) => ToJSON (MapAsList k v) where
   toJSON (MapAsList m) = toJSON (Map.toList m)
 
-throwJsonError :: forall errBody m a. (MonadError S.ServerError m) => (ToJSON errBody) => S.ServerError -> errBody -> m a
-throwJsonError err errBody =
+throwJsonError' :: forall errBody m a. (MonadError S.ServerError m) => (ToJSON errBody) => S.ServerError -> errBody -> m a
+throwJsonError' err errBody =
   S.throwError $
     err
       { S.errBody = J.encode errBody
       , S.errHeaders = [("Content-Type", "application/json;charset=utf-8")]
       }
 
-throwJsonError2 :: forall errBody a es. (Error S.ServerError :> es) => (ToJSON errBody) => S.ServerError -> errBody -> Eff es a
-throwJsonError2 err errBody =
+throwJsonError :: forall errBody a es. (Error S.ServerError :> es) => (ToJSON errBody) => S.ServerError -> errBody -> Eff es a
+throwJsonError err errBody =
   Err.throwError $
     err
       { S.errBody = J.encode errBody

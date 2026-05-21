@@ -10,7 +10,7 @@ import Database qualified as Db
 import Effectful
 import Expenses.Effects
 import Expenses.NonEmptyText qualified as NET
-import Expenses.Server.AppM (useConnection2)
+import Expenses.Server.AppM (useConnection)
 import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
 
 data RawSearchParams = RawSearchParams
@@ -38,8 +38,8 @@ searchHandler params = do
   if parsedParams == emptyParams
     then pure mempty
     else do
-      useConnection2 \conn -> do
-        rows <- Db.search2 conn parsedParams
+      useConnection \conn -> do
+        rows <- Db.search conn parsedParams
         pure $ rows <&> \row -> GetTransactions.convertRowToItem row
 
 parseSearchParams :: RawSearchParams -> SearchParams

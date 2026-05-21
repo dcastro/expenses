@@ -9,6 +9,9 @@ import CustomPrelude
 import Data.List qualified as List
 import Data.Time.Calendar.Month (Month)
 import Database.SQLite.Simple qualified as SQL
+import Effectful.Reader.Static qualified as R
+import Expenses.Effects (AppM)
+import Expenses.Effects qualified as Effects
 import Expenses.Server.AppM (Env (..), runLogger)
 import Expenses.Server.CronJob qualified as CronJob
 import Expenses.Server.Options (ServerOptions (..))
@@ -24,7 +27,7 @@ import Expenses.Server.Routes.ModifyTransaction qualified as ModifyTransaction
 import Expenses.Server.Routes.RunCron qualified as RunCron
 import Expenses.Server.Routes.Search qualified as Search
 import Expenses.Server.Routes.SplitTransactionItems qualified as SplitTransactionItems
-import Expenses.Server.Utils (throwJsonError)
+import Expenses.Server.Utils (throwJsonError')
 import Log
 import Log.Backend.StandardOutput (withStdOutLogger)
 import Network.HTTP.Types (hAuthorization, hContentType)
@@ -41,10 +44,6 @@ import Servant.Server.StaticFiles qualified as S
 import System.IO qualified as IO
 import Types (Admin (..), TagName, Username (..), mkUsername)
 import Util qualified
-
-import Effectful.Reader.Static qualified as R
-import Expenses.Effects (AppM)
-import Expenses.Effects qualified as Effects
 
 type RequiredParam = QueryParam' '[Required, Strict]
 
@@ -179,7 +178,7 @@ main = do
     user <- authHandler' fallbackUser request
     case Config.tryMkAdmin config user of
       Just admin -> pure admin
-      Nothing -> throwJsonError err403 [i|User is not an admin: #{user}|]
+      Nothing -> throwJsonError' err403 [i|User is not an admin: #{user}|]
 
 -- This type instance binds together the `AuthHandler Request Username` and `AuthProtect` endpoints.
 -- It tells the `HasServer` instance that our `Context` will supply a `Username` (via `AuthHandler`)
@@ -217,7 +216,7 @@ authHandler' fallbackUser request = do
   throw401 :: Text -> Maybe a -> Handler a
   throw401 errMsg = \case
     Just a -> pure a
-    Nothing -> throwJsonError err401 errMsg
+    Nothing -> throwJsonError' err401 errMsg
 
 api :: Proxy MyAPI
 api = Proxy

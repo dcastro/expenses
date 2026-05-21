@@ -67,16 +67,8 @@ eurosToCents txt = do
       total = euros * 100 + cents
   sign total
 
-timed :: (MonadIO m) => (MonadLog m) => Text -> m a -> m a
+timed :: (Time :> es, Log :> es) => Text -> Eff es a -> Eff es a
 timed actionName action = do
-  start <- liftIO Time.getCurrentTime
-  result <- action
-  end <- liftIO Time.getCurrentTime
-  logTrace_ [i|Finished #{actionName} in: #{Time.diffUTCTime end start}|]
-  pure result
-
-timed2 :: (Time :> es, Log :> es) => Text -> Eff es a -> Eff es a
-timed2 actionName action = do
   start <- ETime.currentTime
   result <- action
   end <- ETime.currentTime

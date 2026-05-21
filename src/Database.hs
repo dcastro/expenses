@@ -11,7 +11,6 @@ import Data.Text qualified as T
 import Data.Time
 import Data.Time.Calendar.Month (Month, pattern MonthDay)
 import Database.SQLite.Simple
-import Database.SQLite.Simple qualified as SQL
 import Database.SQLite.Simple.QQ (sql)
 import Database.SQLite.Simple.ToField (ToField)
 import Database.SQLite.Simple.ToField qualified as SQL
@@ -20,7 +19,7 @@ import Effectful.Log
 import Effectful.Time (Time)
 import Expenses.Effects qualified as Eff
 import Expenses.Effects.SQLite (Db)
-import Expenses.Effects.SQLite qualified as SQL2
+import Expenses.Effects.SQLite qualified as SQL
 import Expenses.NonEmptyText (NonEmptyText)
 import Types
 import Util qualified
@@ -93,7 +92,7 @@ filterNewTxs :: (Db :> es) => Connection -> [TransactionJoinedRow] -> Eff es [Tr
 filterNewTxs conn txs = do
   let txIds = map (.transactionId) txs
   existingIds :: [Only Text] <-
-    SQL2.query
+    SQL.query
       conn
       ( "SELECT id FROM transactions WHERE id IN ("
           <> makePlaceholders (length txIds)
@@ -106,14 +105,14 @@ filterNewTxs conn txs = do
 
 updateExistingRecord :: (Db :> es) => Connection -> TransactionRecord -> Eff es ()
 updateExistingRecord conn txRecord =
-  SQL2.withTransaction conn do
+  SQL.withTransaction conn do
     -- Delete the transaction's items and re-insert
     let (txRow, txItemRows) = recordToRows txRecord
-    SQL2.execute
+    SQL.execute
       conn
       "DELETE FROM transaction_items WHERE transaction_id = ?"
       (Only txRow.transactionId)
-    SQL2.executeMany
+    SQL.executeMany
       conn
       [sql|
         INSERT INTO transaction_items
@@ -127,7 +126,7 @@ getTransactionById :: (Db :> es) => Connection -> Text -> Eff es (Maybe Transact
 getTransactionById conn transactionId =
   runMaybeT do
     txRow <-
-      SQL2.query
+      SQL.query
         conn
         "SELECT id, account, date, desc, total_amount_cents FROM transactions WHERE id = ?"
         (Only transactionId)
@@ -136,7 +135,7 @@ getTransactionById conn transactionId =
 
     itemRows <-
       lift $
-        SQL2.query
+        SQL.query
           conn
           "SELECT transaction_id, item_index, item_amount_cents, tag, details, is_expense FROM transaction_items WHERE transaction_id = ?"
           (Only transactionId)
@@ -145,9 +144,9 @@ getTransactionById conn transactionId =
 
 getTransactionItemById :: (Db :> es) => Connection -> Text -> Int -> Eff es (Maybe TransactionJoinedRow)
 getTransactionItemById conn txId itemIndex = do
-  SQL2.query
+  SQL.query
     conn
-    ( SQL.Query
+    ( Query
         [i| #{selectJoinedRows} WHERE id = ? AND item_index = ?|]
     )
     (txId, itemIndex)
@@ -155,9 +154,9 @@ getTransactionItemById conn txId itemIndex = do
 
 getTransactionsByDate :: (Db :> es) => Connection -> Day -> Day -> Eff es [TransactionJoinedRow]
 getTransactionsByDate conn startDate endDate = do
-  SQL2.query
+  SQL.query
     conn
-    ( SQL.Query
+    ( Query
         [i| #{selectJoinedRows} WHERE date >= ? AND date < ?|]
     )
     (startDate, endDate)
@@ -165,7 +164,7 @@ getTransactionsByDate conn startDate endDate = do
 getTransactionsMonthRange :: (Db :> es) => Connection -> Eff es (Maybe (Month, Month))
 getTransactionsMonthRange conn = do
   rows :: [(Maybe Day, Maybe Day)] <-
-    SQL2.query_
+    SQL.query_
       conn
       [sql|
         SELECT MIN(date), MAX(date)
@@ -288,20 +287,11 @@ mkClause sql value = WhereClause sql (Just $ SQL.toField value)
 mkClauseWithoutVal :: Text -> WhereClause
 mkClauseWithoutVal sql = WhereClause sql Nothing
 
-search :: (MonadIO m, MonadLog m) => Connection -> SearchParams -> m (Vector TransactionJoinedRow)
+search :: (Db :> es, Log :> es, Time :> es) => Connection -> SearchParams -> Eff es (Vector TransactionJoinedRow)
 search conn params = do
   let (query, values) = mkSearchQuery params
   txs <- Util.timed "search query" do
-    liftIO $ fromList <$> SQL.query conn query values
-
-  logTrace_ [i|Found #{length txs} matching transaction items.|]
-  pure txs
-
-search2 :: (Db :> es, Log :> es, Time :> es) => Connection -> SearchParams -> Eff es (Vector TransactionJoinedRow)
-search2 conn params = do
-  let (query, values) = mkSearchQuery params
-  txs <- Util.timed2 "search query" do
-    fromList <$> SQL2.query conn query values
+    fromList <$> SQL.query conn query values
 
   logTrace_ [i|Found #{length txs} matching transaction items.|]
   pure txs
@@ -317,7 +307,7 @@ mkSearchQuery params = do
             , clauses & mapMaybe (.value)
             )
   let query =
-        SQL.Query $
+        Query $
           [i|
     #{selectJoinedRows}
     WHERE
@@ -425,22 +415,10 @@ replaceEquivChars =
 -- Tags
 ----------------------------------------------------------------------------
 
-getAllTags :: Connection -> IO [TagName]
+getAllTags :: (Db :> es) => Connection -> Eff es [TagName]
 getAllTags conn = do
-  coerce $
-    SQL.query_ @(Only TagName)
-      conn
-      [sql|
-        SELECT DISTINCT(tag)
-        FROM transaction_items
-        WHERE tag IS NOT NULL
-        ORDER BY tag
-      |]
-
-getAllTags2 :: (Db :> es) => Connection -> Eff es [TagName]
-getAllTags2 conn = do
   coerce @(_ _ [Only TagName]) @(_ _ [TagName]) $
-    SQL2.query_ @(Only TagName)
+    SQL.query_ @(Only TagName)
       conn
       [sql|
         SELECT DISTINCT(tag)
@@ -456,7 +434,7 @@ getAllTags2 conn = do
 getAllAccounts :: (Db :> es) => Connection -> Eff es [Text]
 getAllAccounts conn = do
   coerce $
-    SQL2.query_ @(Only Text)
+    SQL.query_ @(Only Text)
       conn
       [sql|
         SELECT DISTINCT(account)
@@ -470,7 +448,7 @@ getAllAccounts conn = do
 
 getDescription :: (Db :> es) => Connection -> Text -> Eff es Text
 getDescription conn txId = do
-  SQL2.query conn [sql| SELECT desc FROM transactions WHERE id = ? |] [txId] >>= \case
+  SQL.query conn [sql| SELECT desc FROM transactions WHERE id = ? |] [txId] >>= \case
     [Only desc] -> pure desc
     [] -> Eff.die [i|getDescription: transaction not found for #{txId}|]
     _ -> Eff.die [i|getDescription: unexpected number of rows for #{txId}|]
@@ -478,7 +456,7 @@ getDescription conn txId = do
 getTag :: (Db :> es) => Connection -> Text -> Int -> Eff es (Maybe TagName)
 getTag conn txId idx = do
   rows <-
-    SQL2.query
+    SQL.query
       conn
       [sql|
           SELECT tag
@@ -493,7 +471,7 @@ getTag conn txId idx = do
 
 updateTag :: (Db :> es) => Connection -> Text -> Int -> TagName -> Eff es ()
 updateTag conn txId idx newTag = do
-  SQL2.execute
+  SQL.execute
     conn
     [sql|
         UPDATE transaction_items
@@ -505,7 +483,7 @@ updateTag conn txId idx newTag = do
 getIsExpense :: (Db :> es) => Connection -> Text -> Int -> Eff es Bool
 getIsExpense conn txId idx = do
   rows <-
-    SQL2.query
+    SQL.query
       conn
       [sql|
           SELECT is_expense
@@ -520,7 +498,7 @@ getIsExpense conn txId idx = do
 
 updateIsExpense :: (Db :> es) => Connection -> Text -> Int -> Bool -> Eff es ()
 updateIsExpense conn txId idx newIsExpense = do
-  SQL2.execute
+  SQL.execute
     conn
     [sql|
         UPDATE transaction_items
@@ -532,7 +510,7 @@ updateIsExpense conn txId idx newIsExpense = do
 getDetails :: (Db :> es) => Connection -> Text -> Int -> Eff es Text
 getDetails conn txId idx = do
   rows <-
-    SQL2.query
+    SQL.query
       conn
       [sql|
           SELECT details
@@ -547,7 +525,7 @@ getDetails conn txId idx = do
 
 updateDetails :: (Db :> es) => Connection -> Text -> Int -> Text -> Eff es ()
 updateDetails conn txId idx newDetails = do
-  SQL2.execute
+  SQL.execute
     conn
     [sql|
         UPDATE transaction_items
@@ -558,33 +536,15 @@ updateDetails conn txId idx newDetails = do
 
 insertTransactionJoinedRow :: (Db :> es) => Connection -> TransactionJoinedRow -> Eff es ()
 insertTransactionJoinedRow conn TransactionJoinedRow{transactionId, account, date, desc, totalAmountCents, isExpense, itemIndex, itemAmountCents, tag, details} = do
-  SQL2.withTransaction conn do
-    SQL2.execute
+  SQL.withTransaction conn do
+    SQL.execute
       conn
       [sql|
           INSERT INTO transactions (id, account, date, desc, total_amount_cents)
           VALUES (?, ?, ?, ?, ?)
         |]
       (transactionId, account, date, desc, totalAmountCents)
-    SQL2.execute
-      conn
-      [sql|
-          INSERT INTO transaction_items (transaction_id, item_index, item_amount_cents, tag, details, is_expense)
-          VALUES (?, ?, ?, ?, ?, ?)
-        |]
-      (transactionId, itemIndex, itemAmountCents, tag, details, isExpense)
-
-insertTransactionJoinedRow2 :: (Db :> es) => Connection -> TransactionJoinedRow -> Eff es ()
-insertTransactionJoinedRow2 conn TransactionJoinedRow{transactionId, account, date, desc, totalAmountCents, isExpense, itemIndex, itemAmountCents, tag, details} = do
-  SQL2.withTransaction conn do
-    SQL2.execute
-      conn
-      [sql|
-          INSERT INTO transactions (id, account, date, desc, total_amount_cents)
-          VALUES (?, ?, ?, ?, ?)
-        |]
-      (transactionId, account, date, desc, totalAmountCents)
-    SQL2.execute
+    SQL.execute
       conn
       [sql|
           INSERT INTO transaction_items (transaction_id, item_index, item_amount_cents, tag, details, is_expense)

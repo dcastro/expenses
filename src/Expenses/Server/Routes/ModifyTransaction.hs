@@ -7,10 +7,10 @@ import Effectful
 import Effectful.Time qualified as Time
 import Expenses.Effects
 import Expenses.Effects.EventLog qualified as EventLog
-import Expenses.Server.AppM (useConnection2)
+import Expenses.Server.AppM (useConnection)
 import Expenses.Server.EventLog
 import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
-import Expenses.Server.Utils (throwJsonError2)
+import Expenses.Server.Utils (throwJsonError)
 import Servant (err500)
 import Servant.Server qualified as S
 import Types (Admin (..), TagName)
@@ -66,7 +66,7 @@ modifyTransactionHandler admin ModifyTransaction{transactionId = txId, itemIndex
             , actionType
             }
 
-  useConnection2 \conn -> do
+  useConnection \conn -> do
     desc <- Db.getDescription conn txId
 
     case actionType of
@@ -88,5 +88,5 @@ modifyTransactionHandler admin ModifyTransaction{transactionId = txId, itemIndex
 
     rowMb <- Db.getTransactionItemById conn txId itemIndex
     case rowMb of
-      Nothing -> throwJsonError2 err500 [i|Failed to find tx item after modifying it: #{txId} index #{itemIndex}|]
+      Nothing -> throwJsonError err500 [i|Failed to find tx item after modifying it: #{txId} index #{itemIndex}|]
       Just row -> pure $ GetTransactions.convertRowToItem row

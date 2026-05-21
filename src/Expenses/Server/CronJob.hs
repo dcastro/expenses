@@ -27,7 +27,7 @@ import Expenses.Effects.Nordigen (Nordigen)
 import Expenses.Effects.Nordigen qualified as N
 import Expenses.Effects.SQLite (Db)
 import Expenses.Linear (liftConsume)
-import Expenses.Server.AppM (Env (..), useConnection2)
+import Expenses.Server.AppM (Env (..), useConnection)
 import Expenses.Server.EventLog qualified as EventLog
 import Log
 import System.Cron.Schedule (addJob, execSchedule)
@@ -63,7 +63,7 @@ nordigenJob' = do
   now <- Time.currentTime
   txRows <- fetchAllAccounts now
   logInfo_ [i|[Cron] Fetched #{length txRows} transactions.|]
-  useConnection2 \conn -> do
+  useConnection \conn -> do
     newTxRows <- Db.filterNewTxs conn txRows
     for_ newTxRows \newTx -> do
       Db.insertTransactionJoinedRow conn newTx

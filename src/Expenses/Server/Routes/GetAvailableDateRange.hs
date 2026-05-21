@@ -6,8 +6,8 @@ import Data.Time.Calendar.Month (Month)
 import Database qualified as Db
 import Effectful
 import Expenses.Effects
-import Expenses.Server.AppM (useConnection2)
-import Expenses.Server.Utils (throwJsonError2)
+import Expenses.Server.AppM (useConnection)
+import Expenses.Server.Utils (throwJsonError)
 import Servant (err404)
 
 data DateRange = DateRange
@@ -26,8 +26,8 @@ getAvailableDateRangeHandler ::
   Eff es DateRange
 getAvailableDateRangeHandler = do
   maybeRange <-
-    useConnection2 \conn ->
+    useConnection \conn ->
       Db.getTransactionsMonthRange conn
   case maybeRange of
     Just (minMonth, maxMonth) -> pure $ DateRange{minMonth, maxMonth}
-    Nothing -> throwJsonError2 err404 ("No transactions available" :: Text)
+    Nothing -> throwJsonError err404 ("No transactions available" :: Text)

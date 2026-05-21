@@ -4,9 +4,9 @@ import CustomPrelude
 import Database qualified as Db
 import Effectful
 import Expenses.Effects
-import Expenses.Server.AppM (useConnection2)
+import Expenses.Server.AppM (useConnection)
 import Expenses.Server.Routes.GetTransactions (ShortTransactionItem (..))
-import Expenses.Server.Utils (throwJsonError2)
+import Expenses.Server.Utils (throwJsonError)
 import Servant (err404)
 import Servant qualified as S
 import Types (TransactionItemRecord (..), TransactionRecord (..), toFE)
@@ -15,11 +15,11 @@ getTransactionItemsHandler ::
   (Reader Env :> es, Concurrent :> es, Db :> es, Error S.ServerError :> es) =>
   Text -> Eff es [ShortTransactionItem]
 getTransactionItemsHandler txId = do
-  useConnection2 \conn -> do
+  useConnection \conn -> do
     txRecord <-
       Db.getTransactionById conn txId
         >>= maybe
-          (throwJsonError2 err404 [i|Transaction not found: #{txId}|])
+          (throwJsonError err404 [i|Transaction not found: #{txId}|])
           pure
     pure $ txRecord.items <&> toShortItem
  where

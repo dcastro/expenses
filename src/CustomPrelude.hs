@@ -8,7 +8,6 @@ import Data.String.Interpolate.Util qualified as Interpolate
 import Data.Text qualified as T
 import Language.Haskell.TH.Quote (QuasiQuoter (..))
 
--- TODO: Hide `ask`, `Reader`, etc
 import Universum as Export hiding (
   -- We're mostly using the `Reader` from the `effectful` package, so we need to hide the one from `universum`
   Reader,
