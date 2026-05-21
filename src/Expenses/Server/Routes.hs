@@ -226,13 +226,6 @@ mkApp ctx isVerbose env logger resourcesDir =
   mkServer resourcesDir
     & serveWithContextT api ctx (Effects.naturalTransformation isVerbose env logger)
 
---  where
--- naturalTransformation :: forall a. AppM a -> Handler a
--- naturalTransformation app =
---   app
---     & flip runReaderT env
---     & runLogger isVerbose logger
-
 mkServer :: FilePath -> API (AsServerT AppM)
 -- mkServer :: Logger -> FilePath -> ServerT MyAPI AppM
 mkServer resourcesDir =

@@ -7,9 +7,8 @@ import Data.Time qualified as Time
 import Database.SQLite.Simple (Connection)
 import Database.SQLite.Simple qualified as Db
 import Effectful
-import Effectful.Log (Log)
-import Effectful.Time (Time)
 import Effectful.Time qualified as ETime
+import Expenses.Effects
 import Log
 import System.Directory qualified as Dir
 import Text.Read qualified as Read
