@@ -162,10 +162,10 @@ getTransactionsByDate conn startDate endDate = do
     )
     (startDate, endDate)
 
-getTransactionsMonthRange :: Connection -> IO (Maybe (Month, Month))
+getTransactionsMonthRange :: (Db :> es) => Connection -> Eff es (Maybe (Month, Month))
 getTransactionsMonthRange conn = do
   rows :: [(Maybe Day, Maybe Day)] <-
-    SQL.query_
+    SQL2.query_
       conn
       [sql|
         SELECT MIN(date), MAX(date)
@@ -453,10 +453,10 @@ getAllTags2 conn = do
 -- Accounts
 ----------------------------------------------------------------------------
 
-getAllAccounts :: Connection -> IO [Text]
+getAllAccounts :: (Db :> es) => Connection -> Eff es [Text]
 getAllAccounts conn = do
   coerce $
-    SQL.query_ @(Only Text)
+    SQL2.query_ @(Only Text)
       conn
       [sql|
         SELECT DISTINCT(account)

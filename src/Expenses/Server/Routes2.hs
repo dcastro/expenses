@@ -247,8 +247,8 @@ mkServer resourcesDir =
           , search = Search2.searchHandler
           , isAdmin = isAdminHandler username
           , allTags = AllTags2.allTagsHandler
-          , allAccounts = undefined -- AllAccounts.allAccountsHandler
-          , getAvailableDateRange = undefined -- GetAvailableDateRange.getAvailableDateRangeHandler
+          , allAccounts = AllAccounts.allAccountsHandler
+          , getAvailableDateRange = GetAvailableDateRange.getAvailableDateRangeHandler
           }
     , admin = \admin ->
         AdminAPI
