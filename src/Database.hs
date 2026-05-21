@@ -89,11 +89,11 @@ instance ToRow TransactionItemRow where
   toRow TransactionItemRow{transactionId, itemIndex, itemAmountCents, tag, details, isExpense} =
     toRow (transactionId, itemIndex, itemAmountCents, tag, details, isExpense)
 
-filterNewTxs :: (MonadIO m) => Connection -> [TransactionJoinedRow] -> m [TransactionJoinedRow]
-filterNewTxs conn txs = liftIO do
+filterNewTxs :: (Db :> es) => Connection -> [TransactionJoinedRow] -> Eff es [TransactionJoinedRow]
+filterNewTxs conn txs = do
   let txIds = map (.transactionId) txs
   existingIds :: [Only Text] <-
-    query
+    SQL2.query
       conn
       ( "SELECT id FROM transactions WHERE id IN ("
           <> makePlaceholders (length txIds)
@@ -556,17 +556,17 @@ updateDetails conn txId idx newDetails = do
       |]
     (newDetails, txId, idx)
 
-insertTransactionJoinedRow :: forall m. (MonadIO m) => Connection -> TransactionJoinedRow -> m ()
-insertTransactionJoinedRow conn TransactionJoinedRow{transactionId, account, date, desc, totalAmountCents, isExpense, itemIndex, itemAmountCents, tag, details} = liftIO do
-  SQL.withTransaction conn do
-    SQL.execute
+insertTransactionJoinedRow :: (Db :> es) => Connection -> TransactionJoinedRow -> Eff es ()
+insertTransactionJoinedRow conn TransactionJoinedRow{transactionId, account, date, desc, totalAmountCents, isExpense, itemIndex, itemAmountCents, tag, details} = do
+  SQL2.withTransaction conn do
+    SQL2.execute
       conn
       [sql|
           INSERT INTO transactions (id, account, date, desc, total_amount_cents)
           VALUES (?, ?, ?, ?, ?)
         |]
       (transactionId, account, date, desc, totalAmountCents)
-    SQL.execute
+    SQL2.execute
       conn
       [sql|
           INSERT INTO transaction_items (transaction_id, item_index, item_amount_cents, tag, details, is_expense)

@@ -226,7 +226,7 @@ api = Proxy
 
 mkApp :: Context '[SS.AuthHandler Wai.Request Username, SS.AuthHandler Wai.Request Admin] -> Bool -> Env -> Logger -> FilePath -> Application
 mkApp ctx isVerbose env logger resourcesDir =
-  mkServer logger resourcesDir
+  mkServer resourcesDir
     & serveWithContextT api ctx (Effects.naturalTransformation isVerbose env logger)
 
 --  where
@@ -236,9 +236,9 @@ mkApp ctx isVerbose env logger resourcesDir =
 --     & flip runReaderT env
 --     & runLogger isVerbose logger
 
-mkServer :: Logger -> FilePath -> API (AsServerT AppM)
+mkServer :: FilePath -> API (AsServerT AppM)
 -- mkServer :: Logger -> FilePath -> ServerT MyAPI AppM
-mkServer logger resourcesDir =
+mkServer resourcesDir =
   API
     { private = \username ->
         PrivateAPI
@@ -255,7 +255,7 @@ mkServer logger resourcesDir =
           { modifyTransaction = ModifyTransaction.modifyTransactionHandler admin
           , insertTransaction = InsertNew.insertTransactionHandler admin
           , splitTransactionItems = SplitTransactionItems.splitTransactionItemsHandler admin
-          , runCronSync = undefined --  RunCron.runCronHandler logger admin
+          , runCronSync = RunCron.runCronHandler
           }
     , health = pure "OK"
     , static = getStaticHandler resourcesDir

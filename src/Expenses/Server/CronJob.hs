@@ -2,93 +2,85 @@ module Expenses.Server.CronJob where
 
 import Config (AppConfig)
 import Config qualified
-import Control.Exception.Safe qualified as Safe
 import Control.Lens
-import CustomPrelude
+import CustomPrelude hiding (Reader, asks)
 import Data.Aeson as J
 import Data.Aeson.Encode.Pretty qualified as J
 import Data.Aeson.Text qualified as J
-import Data.ByteString.Lazy qualified as BSL
 import Data.Text qualified as T
-import Data.Time (getCurrentTime, pattern YearMonthDay)
+import Data.Time (pattern YearMonthDay)
 import Database qualified as Db
+import Effectful
+import Effectful.Concurrent (Concurrent)
+import Effectful.Exception qualified as Eff
+import Effectful.FileSystem (FileSystem)
+import Effectful.FileSystem qualified as FS
+import Effectful.FileSystem.IO.ByteString.Lazy qualified as FS
+import Effectful.Log (Log)
+import Effectful.Reader.Static (Reader, asks)
+import Effectful.Time (Time)
+import Effectful.Time qualified as Time
+import Expenses.Effects qualified as Eff
+import Expenses.Effects.EventLog (EventLog)
+import Expenses.Effects.EventLog qualified as EventLog
+import Expenses.Effects.Nordigen (Nordigen)
+import Expenses.Effects.Nordigen qualified as N
+import Expenses.Effects.SQLite (Db)
 import Expenses.Linear (liftConsume)
-import Expenses.Server.AppM (Env (..), runLogger, useConnection)
+import Expenses.Server.AppM (Env (..), useConnection2)
 import Expenses.Server.EventLog qualified as EventLog
 import Log
-import Network.HTTP.Client (Manager, newManager)
-import Network.HTTP.Client.TLS (tlsManagerSettings)
-import Nordigen qualified as N
-import Servant.Auth.Client qualified as SA
 import System.Cron.Schedule (addJob, execSchedule)
-import System.Directory
 import System.FilePath ((</>))
 import Types
 import Util qualified
 
-type CronM = ReaderT Env (LogT IO)
-
-startCronJobs :: (MonadLog m, MonadIO m) => Env -> Logger -> m ()
+startCronJobs :: Env -> Logger -> LogT IO ()
 startCronJobs env logger = do
   let schedule = env.config.cronSchedule
   logInfo_ [i|Scheduling Nordigen sync job: #{schedule}.|]
   void $
     liftIO $ execSchedule do
-      addJob (nordigenJob env logger) schedule
+      addJob (nordigenJob & Eff.runCronM env logger) schedule
 
-nordigenJob :: Env -> Logger -> IO ()
-nordigenJob env logger =
-  Safe.handleAny (logCronFailure logger) do
-    runCronM env logger do
-      nordigenJob'
+nordigenJob ::
+  forall es.
+  (Reader Env :> es, FileSystem :> es, Nordigen :> es, Log :> es, Time :> es, EventLog :> es, Concurrent :> es, Db :> es) =>
+  Eff es ()
+nordigenJob =
+  Eff.handleSync logCronFailure do
+    nordigenJob'
  where
-  runCronM :: Env -> Logger -> CronM a -> IO a
-  runCronM env logger action =
-    action
-      & flip runReaderT env
-      & runLogger True logger
+  logCronFailure :: SomeException -> Eff es ()
+  logCronFailure err =
+    logAttention_ [i|[Cron] Nordigen sync failed: #{displayException err}|]
 
-  logCronFailure :: Logger -> SomeException -> IO ()
-  logCronFailure logger err =
-    runLogger True logger do
-      logAttention_ [i|[Cron] Nordigen sync failed: #{displayException err}|]
-
-nordigenJob' :: CronM ()
+nordigenJob' ::
+  (Reader Env :> es, FileSystem :> es, Nordigen :> es, Log :> es, Time :> es, EventLog :> es, Concurrent :> es, Db :> es) =>
+  Eff es ()
 nordigenJob' = do
   logInfo_ "[Cron] Starting Nordigen sync job."
-  now <- liftIO getCurrentTime
-  manager <- liftIO $ newManager tlsManagerSettings
-  txRows <- fetchAllAccounts manager now
+  now <- Time.currentTime
+  txRows <- fetchAllAccounts now
   logInfo_ [i|[Cron] Fetched #{length txRows} transactions.|]
-  useConnection \conn -> do
-    newTxRows <- liftIO $ Db.filterNewTxs conn txRows
+  useConnection2 \conn -> do
+    newTxRows <- Db.filterNewTxs conn txRows
     for_ newTxRows \newTx -> do
       Db.insertTransactionJoinedRow conn newTx
-      EventLog.append $ mkEventLogAction Config.cronUser now newTx
+      EventLog.appendEvent $ mkEventLogAction Config.cronUser now newTx
     logSyncTime now
     logInfo_ [i|[Cron] Nordigen sync succeeded. Transactions inserted: #{length newTxRows}.|]
 
-login :: Manager -> CronM SA.Token
-login manager = do
-  env <- ask
-  ntr <- liftIO do
-    N.runNordigen manager do
-      N.getNewToken
-        NewTokenRequest
-          { secretId = env.nordigenSecretId
-          , secretKey = env.nordigenSecretKey
-          }
-  pure $ SA.Token $ encodeUtf8 ntr.access
-
-fetchAllAccounts :: Manager -> UTCTime -> CronM [Db.TransactionJoinedRow]
-fetchAllAccounts manager now = do
-  authToken <- login manager
-  config <- asks (.config)
+fetchAllAccounts ::
+  (Reader Env :> es, FileSystem :> es, Nordigen :> es, Log :> es) =>
+  UTCTime -> Eff es [Db.TransactionJoinedRow]
+fetchAllAccounts now = do
+  config <- asks @Env (.config)
   join <$> forM config.accountInfos \acc ->
     do
-      fetchAccount manager authToken now acc
+      fetchAccount now acc
       -- NOTE: use the `*deep` version to catch any impure exceptions thrown by `getTransactionId`
-      `Safe.catchAnyDeep` \err -> do
+      `Eff.catchSyncDeep` \err -> do
         -- Log the error, return no transactions, and move onto the next account
         logAttention_
           [i|
@@ -96,10 +88,11 @@ fetchAllAccounts manager now = do
             #{displayException err}|]
         pure []
 
-fetchAccount :: Manager -> SA.Token -> UTCTime -> AccountInfo -> CronM [Db.TransactionJoinedRow]
-fetchAccount manager authToken now acc = do
-  json <- liftIO $ N.runNordigen manager do
-    N.getTransactions authToken acc.accountId
+fetchAccount ::
+  (Reader Env :> es, FileSystem :> es, Nordigen :> es, Log :> es) =>
+  UTCTime -> AccountInfo -> Eff es [Db.TransactionJoinedRow]
+fetchAccount now acc = do
+  json <- N.getTransactions acc.accountId
 
   -- log response
   logTransactions now json acc
@@ -113,7 +106,7 @@ fetchAccount manager authToken now acc = do
                 . booked
                 . each
                 . to fixTransaction
-      config <- asks (.config)
+      config <- asks @Env (.config)
       pure $ apiToRow config acc <$> apiTxs
     J.Error err -> do
       logAttention_
@@ -154,23 +147,22 @@ fixTransaction tx =
        in tx{bookingDate = date, valueDate = date}
     else tx
 
-logTransactions :: UTCTime -> Value -> AccountInfo -> CronM ()
+logTransactions :: (FileSystem :> es, Reader Env :> es) => UTCTime -> Value -> AccountInfo -> Eff es ()
 logTransactions now transactions acc = do
-  logsDir <- asks (.logsDir)
+  logsDir <- asks @Env (.logsDir)
   let accountDir = logsDir </> toString acc.accountName
   let archiveTransactionsDir = accountDir </> "archive-transactions"
-  liftIO do
-    createDirectoryIfMissing True archiveTransactionsDir
+  FS.createDirectoryIfMissing True archiveTransactionsDir
 
-    -- Log the full JSON response to a file (pretty-printed), and also archive it with a timestamp (compact printed).
-    BSL.writeFile (accountDir </> "transactions.json") (J.encodePretty transactions)
-    J.encodeFile (archiveTransactionsDir </> show now <> "-transactions.json") transactions
+  -- Log the full JSON response to a file (pretty-printed), and also archive it with a timestamp (compact printed).
+  FS.writeFile (accountDir </> "transactions.json") (J.encodePretty transactions)
+  FS.writeFile (archiveTransactionsDir </> show now <> "-transactions.json") (J.encode transactions)
 
-logSyncTime :: UTCTime -> CronM ()
+logSyncTime :: (FileSystem :> es, Reader Env :> es) => UTCTime -> Eff es ()
 logSyncTime now = do
-  logsDir <- asks (.logsDir)
+  logsDir <- asks @Env (.logsDir)
   let syncLogFile = logsDir </> "last-sync.md"
-  appendFile syncLogFile (show now <> "\n")
+  FS.appendFile syncLogFile (show now <> "\n")
 
 mkEventLogAction :: Admin %1 -> UTCTime %1 -> Db.TransactionJoinedRow %1 -> EventLog.Action
 mkEventLogAction

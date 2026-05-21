@@ -51,7 +51,6 @@ dependencies:
   - linear-base
   - http-types
   - log-base
-  - safe-exceptions
   - template-haskell
   - mtl
   - monad-control
@@ -61,6 +60,7 @@ dependencies:
   - regex-tdfa
   - effectful
   - effectful-core
+  - effectful-th
   - log-effectful
   - monad-time-effectful
 

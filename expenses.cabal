@@ -25,6 +25,7 @@ library
       Expenses.Effects
       Expenses.Effects.EventLog
       Expenses.Effects.NextUUID
+      Expenses.Effects.Nordigen
       Expenses.Effects.SQLite
       Expenses.Linear
       Expenses.NonEmptyText
@@ -129,6 +130,7 @@ library
     , directory
     , effectful
     , effectful-core
+    , effectful-th
     , extra
     , filepath
     , fmt
@@ -148,7 +150,6 @@ library
     , mtl
     , optparse-applicative
     , regex-tdfa
-    , safe-exceptions
     , servant
     , servant-auth
     , servant-auth-client
@@ -259,6 +260,7 @@ executable db-migrations
     , directory
     , effectful
     , effectful-core
+    , effectful-th
     , expenses
     , extra
     , filepath
@@ -278,7 +280,6 @@ executable db-migrations
     , monad-time-effectful
     , mtl
     , regex-tdfa
-    , safe-exceptions
     , servant
     , servant-auth
     , servant-auth-client
@@ -381,6 +382,7 @@ executable expenses-manager-server
     , directory
     , effectful
     , effectful-core
+    , effectful-th
     , expenses
     , extra
     , filepath
@@ -400,7 +402,6 @@ executable expenses-manager-server
     , monad-time-effectful
     , mtl
     , regex-tdfa
-    , safe-exceptions
     , servant
     , servant-auth
     , servant-auth-client
@@ -508,6 +509,7 @@ test-suite test
     , directory
     , effectful
     , effectful-core
+    , effectful-th
     , expenses
     , extra
     , filepath
@@ -530,7 +532,6 @@ test-suite test
     , monad-time-effectful
     , mtl
     , regex-tdfa
-    , safe-exceptions
     , servant
     , servant-auth
     , servant-auth-client
