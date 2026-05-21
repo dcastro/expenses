@@ -7,8 +7,10 @@ import Data.List (partition)
 import Data.Text qualified as T
 import Database (AmountParams (..), Contains (..), DoesNotContain (..), IsGTE (..), IsLT (..), SearchParams (..), StringParams (..), TagParams)
 import Database qualified as Db
+import Effectful
+import Expenses.Effects
 import Expenses.NonEmptyText qualified as NET
-import Expenses.Server.AppM (AppM, useConnection)
+import Expenses.Server.AppM (useConnection2)
 import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
 
 data RawSearchParams = RawSearchParams
@@ -27,15 +29,17 @@ $( mconcat
      ]
  )
 
-searchHandler :: RawSearchParams -> AppM (Vector GetTransactions.TransactionItem)
+searchHandler ::
+  (Db :> es, Reader Env :> es, Concurrent :> es, Log :> es, Time :> es) =>
+  RawSearchParams -> Eff es (Vector GetTransactions.TransactionItem)
 searchHandler params = do
   let parsedParams = parseSearchParams params
 
   if parsedParams == emptyParams
     then pure mempty
     else do
-      useConnection \conn -> do
-        rows <- Db.search conn parsedParams
+      useConnection2 \conn -> do
+        rows <- Db.search2 conn parsedParams
         pure $ rows <&> \row -> GetTransactions.convertRowToItem row
 
 parseSearchParams :: RawSearchParams -> SearchParams

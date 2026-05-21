@@ -36,7 +36,6 @@ library
       Expenses.Server.Routes
       Expenses.Server.Routes.AllAccounts
       Expenses.Server.Routes.AllTags
-      Expenses.Server.Routes.AllTags2
       Expenses.Server.Routes.GetAvailableDateRange
       Expenses.Server.Routes.GetTransactionItems
       Expenses.Server.Routes.GetTransactions
@@ -44,7 +43,6 @@ library
       Expenses.Server.Routes.ModifyTransaction
       Expenses.Server.Routes.RunCron
       Expenses.Server.Routes.Search
-      Expenses.Server.Routes.Search2
       Expenses.Server.Routes.SplitTransactionItems
       Expenses.Server.Routes2
       Expenses.Server.Utils

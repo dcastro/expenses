@@ -4,13 +4,17 @@ import Config qualified
 import CustomPrelude
 import Data.Set qualified as Set
 import Database qualified as Db
-import Expenses.Server.AppM (AppM, Env (..), useConnection)
+import Effectful
+import Effectful.Reader.Static
+import Expenses.Effects
+import Expenses.Server.AppM (Env (..), useConnection2)
 import Types
 
-allTagsHandler :: AppM (Set TagName)
+allTagsHandler ::
+  (Reader Env :> es, Concurrent :> es, Db :> es) =>
+  Eff es (Set TagName)
 allTagsHandler = do
-  -- dbTags <- useConnection \conn -> liftIO $ Db.getAllTags conn
-  -- appConfig <- asks (.config)
-  -- let allTags = Set.fromList dbTags `Set.union` Config.allKnownTags appConfig
-  -- pure allTags
-  undefined
+  dbTags <- useConnection2 \conn -> Db.getAllTags2 conn
+  appConfig <- asks @Env (.config)
+  let allTags = Set.fromList dbTags `Set.union` Config.allKnownTags appConfig
+  pure allTags

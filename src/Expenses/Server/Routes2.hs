@@ -15,7 +15,6 @@ import Expenses.Server.Options (ServerOptions (..))
 import Expenses.Server.Options qualified as Opt
 import Expenses.Server.Routes.AllAccounts qualified as AllAccounts
 import Expenses.Server.Routes.AllTags qualified as AllTags
-import Expenses.Server.Routes.AllTags2 qualified as AllTags2
 import Expenses.Server.Routes.GetAvailableDateRange (DateRange)
 import Expenses.Server.Routes.GetAvailableDateRange qualified as GetAvailableDateRange
 import Expenses.Server.Routes.GetTransactionItems qualified as GetTransactionItems
@@ -24,7 +23,6 @@ import Expenses.Server.Routes.InsertNew qualified as InsertNew
 import Expenses.Server.Routes.ModifyTransaction qualified as ModifyTransaction
 import Expenses.Server.Routes.RunCron qualified as RunCron
 import Expenses.Server.Routes.Search qualified as Search
-import Expenses.Server.Routes.Search2 qualified as Search2
 import Expenses.Server.Routes.SplitTransactionItems qualified as SplitTransactionItems
 import Expenses.Server.Utils (throwJsonError)
 import Log
@@ -85,7 +83,7 @@ data PrivateAPI mode = PrivateAPI
   , search ::
       mode
         :- "search"
-          :> ReqBody '[JSON] Search2.RawSearchParams
+          :> ReqBody '[JSON] Search.RawSearchParams
           :> Post '[JSON] (Vector GetTransactions.TransactionItem)
   , allTags :: mode :- "tags" :> Get '[JSON] (Set TagName)
   , allAccounts :: mode :- "accounts" :> Get '[JSON] [Text]
@@ -244,9 +242,9 @@ mkServer resourcesDir =
         PrivateAPI
           { transactions = GetTransactions.getTransactionsHandler
           , getTransactionItems = GetTransactionItems.getTransactionItemsHandler
-          , search = Search2.searchHandler
+          , search = Search.searchHandler
           , isAdmin = isAdminHandler username
-          , allTags = AllTags2.allTagsHandler
+          , allTags = AllTags.allTagsHandler
           , allAccounts = AllAccounts.allAccountsHandler
           , getAvailableDateRange = GetAvailableDateRange.getAvailableDateRangeHandler
           }
