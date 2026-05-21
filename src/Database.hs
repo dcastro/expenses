@@ -153,9 +153,9 @@ getTransactionItemById conn txId itemIndex = do
     (txId, itemIndex)
     <&> safeHead
 
-getTransactionsByDate :: Connection -> Day -> Day -> IO [TransactionJoinedRow]
+getTransactionsByDate :: (Db :> es) => Connection -> Day -> Day -> Eff es [TransactionJoinedRow]
 getTransactionsByDate conn startDate endDate = do
-  SQL.query
+  SQL2.query
     conn
     ( SQL.Query
         [i| #{selectJoinedRows} WHERE date >= ? AND date < ?|]

@@ -3,7 +3,7 @@ module Expenses.Server.Routes.GetTransactions where
 import Config (AppConfig)
 import Config qualified
 import Control.Lens
-import CustomPrelude
+import CustomPrelude hiding (Reader, ask, asks)
 import Data.Aeson.TH (defaultOptions, deriveFromJSON, deriveToJSON)
 import Data.HashMap.Strict qualified as HM
 import Data.List qualified as List
@@ -13,7 +13,10 @@ import Data.Time (Day)
 import Data.Time.Calendar.Month (Month, pattern MonthDay)
 import Data.Time.Calendar.Month qualified as Time
 import Database qualified as Db
-import Expenses.Server.AppM (AppM, Env (..), useConnection)
+import Effectful
+import Effectful.Reader.Static (asks)
+import Expenses.Effects
+import Expenses.Server.AppM (Env (..), useConnection2)
 import Expenses.Server.Utils (MapAsList (..))
 import Types
 
@@ -83,14 +86,16 @@ $( mconcat
 
 makeLensesWith classIdFields ''TransactionItem
 
-getTransactionsHandler :: Month -> Month -> AppM GetTransactions
+getTransactionsHandler ::
+  (Reader Env :> es, Concurrent :> es, Db :> es) =>
+  Month -> Month -> Eff es GetTransactions
 getTransactionsHandler monthStart monthEnd = do
-  config <- asks (.config)
+  config <- asks @Env (.config)
   let dayStart = MonthDay monthStart 1
   let dayEnd = MonthDay (monthEnd & Time.addMonths 1) 1
 
   txs <-
-    useConnection (\conn -> liftIO $ Db.getTransactionsByDate conn dayStart dayEnd)
+    useConnection2 (\conn -> Db.getTransactionsByDate conn dayStart dayEnd)
       <&> filter (\tx -> tx.isExpense)
       <&> fmap (\row -> convertRowToItem row)
       <&> List.sortBy ((compare `on` (.date)) <> (compare `on` (.transactionId)))

@@ -242,7 +242,7 @@ mkServer resourcesDir =
   API
     { private = \username ->
         PrivateAPI
-          { transactions = undefined -- GetTransactions.getTransactionsHandler
+          { transactions = GetTransactions.getTransactionsHandler
           , getTransactionItems = GetTransactionItems.getTransactionItemsHandler
           , search = Search2.searchHandler
           , isAdmin = isAdminHandler username

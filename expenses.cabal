@@ -40,7 +40,6 @@ library
       Expenses.Server.Routes.GetAvailableDateRange
       Expenses.Server.Routes.GetTransactionItems
       Expenses.Server.Routes.GetTransactions
-      Expenses.Server.Routes.GetTransactions2
       Expenses.Server.Routes.InsertNew
       Expenses.Server.Routes.ModifyTransaction
       Expenses.Server.Routes.RunCron
