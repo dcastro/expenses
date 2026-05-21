@@ -13,7 +13,7 @@ import Effectful.Reader.Static qualified as R
 import Expenses.Effects (AppM)
 import Expenses.Effects qualified as Effects
 import Expenses.Server.CronJob qualified as CronJob
-import Expenses.Server.Env (Env (..), runLogger)
+import Expenses.Server.Env (Env (..))
 import Expenses.Server.Options (ServerOptions (..))
 import Expenses.Server.Options qualified as Opt
 import Expenses.Server.Routes.AllAccounts qualified as AllAccounts
@@ -179,6 +179,14 @@ main = do
     case Config.tryMkAdmin config user of
       Just admin -> pure admin
       Nothing -> throwJsonError' err403 [i|User is not an admin: #{user}|]
+
+  runLogger :: Bool -> Logger -> LogT m a -> m a
+  runLogger isVerbose logger action =
+    runLogT
+      Effects.loggerName
+      logger
+      (if isVerbose then LogTrace else LogInfo)
+      action
 
 -- This type instance binds together the `AuthHandler Request Username` and `AuthProtect` endpoints.
 -- It tells the `HasServer` instance that our `Context` will supply a `Username` (via `AuthHandler`)

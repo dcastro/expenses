@@ -21,6 +21,7 @@ module Expenses.Effects (
   -- * Utils
   die,
   useConnection,
+  loggerName,
 ) where
 
 import Control.Monad.Except (liftEither)
@@ -48,6 +49,9 @@ import Expenses.Server.Env (Env (..))
 import Servant.Server (Handler, ServerError)
 import System.Exit qualified as Exit
 
+loggerName :: Text
+loggerName = "expenses-server"
+
 type AppM = Eff '[NextUUID, Error ServerError, Db, Time, EventLog, Nordigen, Reader Env, FileSystem, Concurrent, Log, IOE]
 
 naturalTransformation :: forall a. Bool -> Env -> Logger -> AppM a -> Handler a
@@ -64,7 +68,7 @@ naturalTransformation isVerbose env logger app = do
           & runFileSystem
           & runConcurrent
           & runLog
-            "expenses-server"
+            loggerName
             logger
             (if isVerbose then LogTrace else LogInfo)
           & runEff
@@ -85,7 +89,7 @@ runCronM env logger app = do
     & runFileSystem
     & runConcurrent
     & runLog
-      "expenses-server"
+      loggerName
       logger
       LogTrace
     & runEff
