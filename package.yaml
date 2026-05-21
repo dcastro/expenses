@@ -11,59 +11,6 @@ category: Web
 extra-source-files:
   - README.md
 
-dependencies:
-  - base >= 4.7 && < 5
-  - universum
-  - lens >= 5.3.3 # this  is required so we can use `classIdFields`
-  - lens-aeson
-  - aeson
-  - aeson-casing
-  - aeson-pretty
-  - deriving-aeson
-  - bytestring
-  - time
-  - http-client
-  - http-client-tls
-  - group-with
-  - with-utf8
-  - text
-  - containers
-  - unordered-containers
-  - filepath
-  - directory
-  - fmt
-  - sqlite-simple
-  - uuid
-  - interpolate
-  - extra
-  - servant
-  - servant-client
-  - servant-auth
-  - servant-auth-client
-  - servant-auth-server
-  - warp
-  - servant-server
-  - wai
-  - wai-cors
-  - wai-app-static
-  - wai-extra
-  - http-media
-  - linear-base
-  - http-types
-  - log-base
-  - template-haskell
-  - mtl
-  - monad-control
-  - cron
-  - deepseq
-  - yaml
-  - regex-tdfa
-  - effectful
-  - effectful-core
-  - effectful-th
-  - log-effectful
-  - monad-time-effectful
-
 default-extensions:
   - NoImplicitPrelude
   - AllowAmbiguousTypes
@@ -138,7 +85,6 @@ ghc-options:
   - -Wno-implicit-prelude
   - -Wno-prepositive-qualified-module
   - -Wno-missing-safe-haskell-mode
-  - -Wno-unused-packages
   - -Wno-missing-kind-signatures
   - -Wno-missing-role-annotations
 
@@ -147,11 +93,16 @@ executables:
     source-dirs: db-migrations
     main: Main.hs
     dependencies:
+      - base
       - expenses
+      - sqlite-simple
+      - text
+      - interpolate
   expenses-manager-server:
     source-dirs: server
     main: Main.hs
     dependencies:
+      - base
       - expenses
     ghc-options:
       - -threaded
@@ -159,22 +110,77 @@ executables:
 library:
   source-dirs: src
   dependencies:
+    - base >= 4.7 && < 5
     - optparse-applicative
+    - universum
+    - lens >= 5.3.3 # this  is required so we can use `classIdFields`
+    - aeson
+    - aeson-casing
+    - aeson-pretty
+    - deriving-aeson
+    - bytestring
+    - time
+    - http-client
+    - http-client-tls
+    - group-with
+    - text
+    - containers
+    - unordered-containers
+    - filepath
+    - directory
+    - fmt
+    - sqlite-simple
+    - uuid
+    - interpolate
+    - servant
+    - servant-client
+    - servant-auth
+    - servant-auth-client
+    - warp
+    - servant-server
+    - wai
+    - wai-cors
+    - wai-app-static
+    - wai-extra
+    - linear-base
+    - http-types
+    - log-base
+    - template-haskell
+    - mtl
+    - monad-control
+    - cron
+    - yaml
+    - regex-tdfa
+    - effectful
+    - effectful-core
+    - effectful-th
+    - log-effectful
+    - monad-time-effectful
 
 tests:
   test:
     source-dirs: test
     main: Spec.hs
     dependencies:
+      - base
       - expenses
       - tasty
       - tasty-hunit
       - tasty-hspec
-      - tasty-hedgehog
-      - hedgehog
       - hspec
       - hspec-expectations-pretty-diff
       - tasty-golden
+
+      - universum
+      - servant-server
+      - text
+      - aeson
+      - aeson-pretty
+      - sqlite-simple
+      - effectful
+      - effectful-core
+      - time
+      - containers
     ghc-options:
       - -Wno-x-partial
 
