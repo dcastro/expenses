@@ -2,7 +2,7 @@
 
 module Expenses.Effects.EventLog where
 
-import CustomPrelude hiding (Reader, ask)
+import CustomPrelude
 import Data.Aeson.Encoding qualified as J
 import Data.ByteString.Lazy qualified as BSL
 import Effectful

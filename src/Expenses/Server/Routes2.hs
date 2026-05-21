@@ -5,7 +5,7 @@ module Expenses.Server.Routes2 where
 import Config (AppConfig)
 import Config qualified
 import Control.Concurrent.MVar qualified as M
-import CustomPrelude hiding (asks)
+import CustomPrelude
 import Data.List qualified as List
 import Data.Time.Calendar.Month (Month)
 import Database.SQLite.Simple qualified as SQL

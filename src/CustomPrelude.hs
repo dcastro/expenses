@@ -9,7 +9,23 @@ import Data.Text qualified as T
 import Language.Haskell.TH.Quote (QuasiQuoter (..))
 
 -- TODO: Hide `ask`, `Reader`, etc
-import Universum as Export hiding (view, (%~), (.~), (^.), (^..), (^?), _1, _2, _3)
+import Universum as Export hiding (
+  -- We're mostly using the `Reader` from the `effectful` package, so we need to hide the one from `universum`
+  Reader,
+  ask,
+  asks,
+  die,
+  runReader,
+  view,
+  (%~),
+  (.~),
+  (^.),
+  (^..),
+  (^?),
+  _1,
+  _2,
+  _3,
+ )
 
 {- | A string interpolator, equivalent to the `interpolate` package
 but builds a `Text` instead of a `String`.

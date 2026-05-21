@@ -3,7 +3,7 @@ module Expenses.Server.CronJob where
 import Config (AppConfig)
 import Config qualified
 import Control.Lens
-import CustomPrelude hiding (Reader, asks)
+import CustomPrelude
 import Data.Aeson as J
 import Data.Aeson.Encode.Pretty qualified as J
 import Data.Aeson.Text qualified as J

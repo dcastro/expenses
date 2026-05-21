@@ -1,6 +1,6 @@
 module Expenses.Server.Routes.InsertNew where
 
-import CustomPrelude hiding (Reader)
+import CustomPrelude
 import Data.Aeson.TH (defaultOptions, deriveFromJSON)
 import Data.Time (Day, UTCTime)
 import Database qualified as Db

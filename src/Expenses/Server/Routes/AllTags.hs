@@ -9,7 +9,8 @@ import Types
 
 allTagsHandler :: AppM (Set TagName)
 allTagsHandler = do
-  dbTags <- useConnection \conn -> liftIO $ Db.getAllTags conn
-  appConfig <- asks (.config)
-  let allTags = Set.fromList dbTags `Set.union` Config.allKnownTags appConfig
-  pure allTags
+  -- dbTags <- useConnection \conn -> liftIO $ Db.getAllTags conn
+  -- appConfig <- asks (.config)
+  -- let allTags = Set.fromList dbTags `Set.union` Config.allKnownTags appConfig
+  -- pure allTags
+  undefined

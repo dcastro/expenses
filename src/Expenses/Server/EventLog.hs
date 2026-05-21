@@ -2,13 +2,10 @@ module Expenses.Server.EventLog where
 
 import CustomPrelude
 import Data.Aeson (Encoding)
-import Data.Aeson.Encoding qualified as J
-import Data.ByteString.Lazy qualified as BSL
 import Data.Monoid.Linear qualified as Linear
 import Data.Time (Day, UTCTime (..))
 import Expenses.Linear (LinearToJSON, linearCoerce, (.=))
 import Expenses.Linear qualified as Linear
-import Expenses.Server.AppM (Env (..))
 import Types (Admin, BECents (..), TagName (..))
 
 data Action = Action
@@ -177,9 +174,3 @@ encItem
           , "isExpense" .= isExpense
           ]
       )
-
-append :: (MonadIO m, MonadReader Env m) => Action -> m ()
-append action = do
-  env <- ask
-  let bs = J.encodingToLazyByteString $ encoding action
-  liftIO $ BSL.appendFile env.eventLogPath (bs <> "\n")

@@ -1,7 +1,7 @@
 module Expenses.Server.Routes.Search2 where
 
 import Control.Lens hiding (Contains)
-import CustomPrelude hiding (Reader)
+import CustomPrelude
 import Data.Aeson.TH (defaultOptions, deriveFromJSON)
 import Data.List (partition)
 import Data.Text qualified as T

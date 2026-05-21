@@ -7,6 +7,7 @@ import Database.SQLite.Simple qualified as SQL
 import Database.SQLite.Simple.QQ (sql)
 import Database.SQLite.Simple.Types (Only (..))
 import Util qualified
+import System.Exit (die)
 
 {- |
 

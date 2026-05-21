@@ -1,6 +1,6 @@
 module Expenses.Server.Routes.ModifyTransaction where
 
-import CustomPrelude hiding (Reader)
+import CustomPrelude
 import Data.Aeson.TH (defaultOptions, deriveFromJSON)
 import Database qualified as Db
 import Effectful

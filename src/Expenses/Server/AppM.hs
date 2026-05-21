@@ -4,7 +4,7 @@ import Config (AppConfig)
 import Control.Concurrent qualified as M
 import Control.Monad.Reader qualified as R
 import Control.Monad.Trans.Control (MonadBaseControl, liftBaseOp)
-import CustomPrelude hiding (Reader, ask)
+import CustomPrelude
 import Database.SQLite.Simple qualified as SQL
 import Effectful
 import Effectful.Concurrent.MVar

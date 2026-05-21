@@ -259,7 +259,7 @@ getStaticHandler resourcesDir = do
   S.serveDirectoryWith $
     Wai.defaultFileServerSettings resourcesDir
 
-isAdminHandler :: Username -> AppM Bool
-isAdminHandler username = do
-  config <- asks (.config)
-  pure $ isJust $ Config.tryMkAdmin config username
+-- isAdminHandler :: Username -> AppM Bool
+-- isAdminHandler username = do
+--   config <- asks (.config)
+--   pure $ isJust $ Config.tryMkAdmin config username
