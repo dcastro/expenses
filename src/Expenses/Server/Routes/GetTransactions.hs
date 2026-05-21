@@ -16,7 +16,6 @@ import Database qualified as Db
 import Effectful
 import Effectful.Reader.Static (asks)
 import Expenses.Effects
-import Expenses.Server.AppM (Env (..), useConnection)
 import Expenses.Server.Utils (MapAsList (..))
 import Types
 

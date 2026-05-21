@@ -8,7 +8,7 @@ import Data.ByteString.Lazy qualified as BSL
 import Effectful
 import Effectful.Dispatch.Dynamic
 import Effectful.Reader.Static
-import Expenses.Server.AppM (Env (..))
+import Expenses.Server.Env (Env (..))
 import Expenses.Server.EventLog (Action)
 import Expenses.Server.EventLog qualified as EL
 

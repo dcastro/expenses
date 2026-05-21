@@ -4,7 +4,6 @@ import CustomPrelude
 import Database qualified as Db
 import Effectful
 import Expenses.Effects
-import Expenses.Server.AppM (useConnection)
 import Expenses.Server.Routes.GetTransactions (ShortTransactionItem (..))
 import Expenses.Server.Utils (throwJsonError)
 import Servant (err404)

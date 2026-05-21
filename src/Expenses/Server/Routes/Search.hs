@@ -10,7 +10,6 @@ import Database qualified as Db
 import Effectful
 import Expenses.Effects
 import Expenses.NonEmptyText qualified as NET
-import Expenses.Server.AppM (useConnection)
 import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
 
 data RawSearchParams = RawSearchParams

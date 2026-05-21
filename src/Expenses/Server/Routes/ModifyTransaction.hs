@@ -7,7 +7,6 @@ import Effectful
 import Effectful.Time qualified as Time
 import Expenses.Effects
 import Expenses.Effects.EventLog qualified as EventLog
-import Expenses.Server.AppM (useConnection)
 import Expenses.Server.EventLog
 import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
 import Expenses.Server.Utils (throwJsonError)

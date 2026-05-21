@@ -13,13 +13,14 @@ module Expenses.Effects (
   EventLog,
   Nordigen,
   Reader,
-  Env,
+  Env (..),
   FileSystem,
   Concurrent,
   Log,
 
   -- * Utils
   die,
+  useConnection,
 ) where
 
 import Control.Monad.Except (liftEither)
@@ -27,6 +28,7 @@ import CustomPrelude
 import Data.Text qualified as T
 import Effectful
 import Effectful.Concurrent
+import Effectful.Concurrent.MVar qualified as MVar
 import Effectful.Dispatch.Static (unsafeEff_)
 import Effectful.Error.Static
 import Effectful.FileSystem (FileSystem, runFileSystem)
@@ -42,7 +44,7 @@ import Expenses.Effects.Nordigen (Nordigen)
 import Expenses.Effects.Nordigen qualified as N
 import Expenses.Effects.SQLite (Db)
 import Expenses.Effects.SQLite qualified as SQL
-import Expenses.Server.AppM (Env)
+import Expenses.Server.Env (Env (..))
 import Servant.Server (Handler, ServerError)
 import System.Exit qualified as Exit
 
@@ -88,5 +90,16 @@ runCronM env logger app = do
       LogTrace
     & runEff
 
+----------------------------------------------------------------------------
+-- Utils
+----------------------------------------------------------------------------
+
 die :: Text -> Eff es a
 die = unsafeEff_ . Exit.die . T.unpack
+
+useConnection :: (Concurrent :> es, Reader Env :> es) => (SQL.Connection -> Eff es a) -> Eff es a
+useConnection f = do
+  env <- ask @Env
+  let mv = env.dbConn :: MVar SQL.Connection
+  MVar.withMVar mv \dbConn -> do
+    f dbConn

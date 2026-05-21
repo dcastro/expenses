@@ -12,7 +12,7 @@ import Database (Contains (..), DoesNotContain (..), IsGTE (..), IsLT (..))
 import Database.SQLite.Simple qualified as SQL
 import Expenses.NonEmptyText (NonEmptyText)
 import Expenses.NonEmptyText qualified as NET
-import Expenses.Server.AppM (Env (..))
+import Expenses.Server.Env (Env (..))
 import GHC.MVar qualified as M
 import Servant (ServerError)
 import Types (TagName (..))

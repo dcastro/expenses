@@ -12,8 +12,8 @@ import Database.SQLite.Simple qualified as SQL
 import Effectful.Reader.Static qualified as R
 import Expenses.Effects (AppM)
 import Expenses.Effects qualified as Effects
-import Expenses.Server.AppM (Env (..), runLogger)
 import Expenses.Server.CronJob qualified as CronJob
+import Expenses.Server.Env (Env (..), runLogger)
 import Expenses.Server.Options (ServerOptions (..))
 import Expenses.Server.Options qualified as Opt
 import Expenses.Server.Routes.AllAccounts qualified as AllAccounts

@@ -12,7 +12,7 @@ import Effectful
 import Effectful.Dispatch.Dynamic
 import Effectful.Reader.Static
 import Effectful.TH (makeEffect)
-import Expenses.Server.AppM (Env (..))
+import Expenses.Server.Env (Env (..))
 import Network.HTTP.Client (Manager)
 import Network.HTTP.Client qualified as Client
 import Network.HTTP.Client.TLS qualified as TLS

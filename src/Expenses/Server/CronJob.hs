@@ -21,7 +21,6 @@ import Expenses.Effects qualified as Eff
 import Expenses.Effects.EventLog qualified as EventLog
 import Expenses.Effects.Nordigen qualified as N
 import Expenses.Linear (liftConsume)
-import Expenses.Server.AppM (Env (..), useConnection)
 import Expenses.Server.EventLog qualified as EventLog
 import Log
 import System.Cron.Schedule (addJob, execSchedule)

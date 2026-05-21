@@ -29,8 +29,8 @@ library
       Expenses.Effects.SQLite
       Expenses.Linear
       Expenses.NonEmptyText
-      Expenses.Server.AppM
       Expenses.Server.CronJob
+      Expenses.Server.Env
       Expenses.Server.EventLog
       Expenses.Server.Options
       Expenses.Server.Routes

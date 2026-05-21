@@ -6,7 +6,6 @@ import Data.Time.Calendar.Month (Month)
 import Database qualified as Db
 import Effectful
 import Expenses.Effects
-import Expenses.Server.AppM (useConnection)
 import Expenses.Server.Utils (throwJsonError)
 import Servant (err404)
 

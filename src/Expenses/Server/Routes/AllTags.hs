@@ -7,7 +7,6 @@ import Database qualified as Db
 import Effectful
 import Effectful.Reader.Static
 import Expenses.Effects
-import Expenses.Server.AppM (Env (..), useConnection)
 import Types
 
 allTagsHandler ::

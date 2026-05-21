@@ -4,7 +4,6 @@ import CustomPrelude
 import Database qualified as Db
 import Effectful
 import Expenses.Effects
-import Expenses.Server.AppM (useConnection)
 
 allAccountsHandler :: (Db :> es, Reader Env :> es, Concurrent :> es) => Eff es [Text]
 allAccountsHandler = do
