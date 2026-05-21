@@ -1,7 +1,29 @@
-module Expenses.Effects where
+module Expenses.Effects (
+  AppM,
+  naturalTransformation,
+  CronM,
+  runCronM,
+
+  -- * Effects
+  NextUUID,
+  Error,
+  ServerError,
+  Db,
+  Time,
+  EventLog,
+  Nordigen,
+  Reader,
+  Env,
+  FileSystem,
+  Concurrent,
+  Log,
+
+  -- * Utils
+  die,
+) where
 
 import Control.Monad.Except (liftEither)
-import CustomPrelude hiding (Reader, runReader)
+import CustomPrelude hiding (Reader, die, runReader)
 import Data.Text qualified as T
 import Effectful
 import Effectful.Concurrent
@@ -22,6 +44,7 @@ import Expenses.Effects.SQLite (Db)
 import Expenses.Effects.SQLite qualified as SQL
 import Expenses.Server.AppM (Env)
 import Servant.Server (Handler, ServerError)
+import System.Exit qualified as Exit
 
 type AppM = Eff '[NextUUID, Error ServerError, Db, Time, EventLog, Nordigen, Reader Env, FileSystem, Concurrent, Log, IOE]
 
@@ -47,9 +70,6 @@ naturalTransformation isVerbose env logger app = do
   either <- liftIO io
   liftEither either
 
-die :: Text -> Eff es a
-die = unsafeEff_ . CustomPrelude.die . T.unpack
-
 type CronM = Eff '[Db, Time, EventLog, Nordigen, Reader Env, FileSystem, Concurrent, Log, IOE]
 
 runCronM :: forall a. Env -> Logger -> CronM a -> IO a
@@ -67,3 +87,6 @@ runCronM env logger app = do
       logger
       LogTrace
     & runEff
+
+die :: Text -> Eff es a
+die = unsafeEff_ . Exit.die . T.unpack

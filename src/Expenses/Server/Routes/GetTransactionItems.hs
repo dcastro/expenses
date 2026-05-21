@@ -3,11 +3,8 @@ module Expenses.Server.Routes.GetTransactionItems where
 import CustomPrelude hiding (Reader)
 import Database qualified as Db
 import Effectful
-import Effectful.Concurrent (Concurrent)
-import Effectful.Error.Static (Error)
-import Effectful.Reader.Static (Reader)
-import Expenses.Effects.SQLite (Db)
-import Expenses.Server.AppM (Env, useConnection2)
+import Expenses.Effects
+import Expenses.Server.AppM (useConnection2)
 import Expenses.Server.Routes.GetTransactions (ShortTransactionItem (..))
 import Expenses.Server.Utils (throwJsonError2)
 import Servant (err404)
