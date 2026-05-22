@@ -13,7 +13,9 @@ import Data.Time (Day)
 import Data.Time.Calendar.Month (Month, pattern MonthDay)
 import Data.Time.Calendar.Month qualified as Time
 import Database qualified as Db
-import Expenses.Server.AppM (AppM, Env (..), useConnection)
+import Effectful
+import Effectful.Reader.Static (asks)
+import Expenses.Effects
 import Expenses.Server.Utils (MapAsList (..))
 import Types
 
@@ -83,14 +85,16 @@ $( mconcat
 
 makeLensesWith classIdFields ''TransactionItem
 
-getTransactionsHandler :: Month -> Month -> AppM GetTransactions
+getTransactionsHandler ::
+  (Reader Env :> es, Concurrent :> es, Db :> es) =>
+  Month -> Month -> Eff es GetTransactions
 getTransactionsHandler monthStart monthEnd = do
-  config <- asks (.config)
+  config <- asks @Env (.config)
   let dayStart = MonthDay monthStart 1
   let dayEnd = MonthDay (monthEnd & Time.addMonths 1) 1
 
   txs <-
-    useConnection (\conn -> liftIO $ Db.getTransactionsByDate conn dayStart dayEnd)
+    useConnection (\conn -> Db.getTransactionsByDate conn dayStart dayEnd)
       <&> filter (\tx -> tx.isExpense)
       <&> fmap (\row -> convertRowToItem row)
       <&> List.sortBy ((compare `on` (.date)) <> (compare `on` (.transactionId)))

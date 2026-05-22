@@ -51,6 +51,7 @@
 
           haskellNix.overlay
           (final: _prev: {
+
             # This overlay adds our project to pkgs
             expensesProject = final.haskell-nix.project' {
 
@@ -178,6 +179,29 @@
             self.packages.${system}.expenses-manager-server-native;
           expenses-manager-bundle-rpi = mkBundle "expenses-manager-bundle-rpi"
             self.packages.${system}.expenses-manager-server-rpi;
+        };
+
+        devShells = {
+          # Fast shell for frontend work (Spago, Purs, Node, esbuild).
+          default = pkgs.mkShell {
+            buildInputs = [
+              pkgs.purs-unstable
+              pkgs.spago-unstable
+              pkgs.esbuild
+              pkgs.nodejs_22
+            ];
+          };
+
+          # Full shell with Haskell + frontend tooling.
+          hs = pkgs.mkShell {
+            inputsFrom = [ pkgs.expensesProject.shell ];
+            buildInputs = [
+              pkgs.purs-unstable
+              pkgs.spago-unstable
+              pkgs.esbuild
+              pkgs.nodejs_22
+            ];
+          };
         };
 
         apps = {

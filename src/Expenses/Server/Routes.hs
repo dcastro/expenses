@@ -9,8 +9,11 @@ import CustomPrelude
 import Data.List qualified as List
 import Data.Time.Calendar.Month (Month)
 import Database.SQLite.Simple qualified as SQL
-import Expenses.Server.AppM (AppM, Env (..), runLogger)
+import Effectful.Reader.Static qualified as R
+import Expenses.Effects (AppM)
+import Expenses.Effects qualified as Effects
 import Expenses.Server.CronJob qualified as CronJob
+import Expenses.Server.Env (Env (..))
 import Expenses.Server.Options (ServerOptions (..))
 import Expenses.Server.Options qualified as Opt
 import Expenses.Server.Routes.AllAccounts qualified as AllAccounts
@@ -24,7 +27,7 @@ import Expenses.Server.Routes.ModifyTransaction qualified as ModifyTransaction
 import Expenses.Server.Routes.RunCron qualified as RunCron
 import Expenses.Server.Routes.Search qualified as Search
 import Expenses.Server.Routes.SplitTransactionItems qualified as SplitTransactionItems
-import Expenses.Server.Utils (throwJsonError)
+import Expenses.Server.Utils (throwJsonError')
 import Log
 import Log.Backend.StandardOutput (withStdOutLogger)
 import Network.HTTP.Types (hAuthorization, hContentType)
@@ -175,7 +178,15 @@ main = do
     user <- authHandler' fallbackUser request
     case Config.tryMkAdmin config user of
       Just admin -> pure admin
-      Nothing -> throwJsonError err403 [i|User is not an admin: #{user}|]
+      Nothing -> throwJsonError' err403 [i|User is not an admin: #{user}|]
+
+  runLogger :: Bool -> Logger -> LogT m a -> m a
+  runLogger isVerbose logger action =
+    runLogT
+      Effects.loggerName
+      logger
+      (if isVerbose then LogTrace else LogInfo)
+      action
 
 -- This type instance binds together the `AuthHandler Request Username` and `AuthProtect` endpoints.
 -- It tells the `HasServer` instance that our `Context` will supply a `Username` (via `AuthHandler`)
@@ -213,25 +224,19 @@ authHandler' fallbackUser request = do
   throw401 :: Text -> Maybe a -> Handler a
   throw401 errMsg = \case
     Just a -> pure a
-    Nothing -> throwJsonError err401 errMsg
+    Nothing -> throwJsonError' err401 errMsg
 
 api :: Proxy MyAPI
 api = Proxy
 
 mkApp :: Context '[SS.AuthHandler Wai.Request Username, SS.AuthHandler Wai.Request Admin] -> Bool -> Env -> Logger -> FilePath -> Application
 mkApp ctx isVerbose env logger resourcesDir =
-  mkServer logger resourcesDir
-    & serveWithContextT api ctx naturalTransformation
- where
-  naturalTransformation :: forall a. AppM a -> Handler a
-  naturalTransformation app =
-    app
-      & flip runReaderT env
-      & runLogger isVerbose logger
+  mkServer resourcesDir
+    & serveWithContextT api ctx (Effects.naturalTransformation isVerbose env logger)
 
-mkServer :: Logger -> FilePath -> API (AsServerT AppM)
+mkServer :: FilePath -> API (AsServerT AppM)
 -- mkServer :: Logger -> FilePath -> ServerT MyAPI AppM
-mkServer logger resourcesDir =
+mkServer resourcesDir =
   API
     { private = \username ->
         PrivateAPI
@@ -248,7 +253,7 @@ mkServer logger resourcesDir =
           { modifyTransaction = ModifyTransaction.modifyTransactionHandler admin
           , insertTransaction = InsertNew.insertTransactionHandler admin
           , splitTransactionItems = SplitTransactionItems.splitTransactionItemsHandler admin
-          , runCronSync = RunCron.runCronHandler logger admin
+          , runCronSync = RunCron.runCronHandler
           }
     , health = pure "OK"
     , static = getStaticHandler resourcesDir
@@ -261,5 +266,5 @@ getStaticHandler resourcesDir = do
 
 isAdminHandler :: Username -> AppM Bool
 isAdminHandler username = do
-  config <- asks (.config)
+  config <- R.asks @Env (.config)
   pure $ isJust $ Config.tryMkAdmin config username

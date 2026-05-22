@@ -19,6 +19,20 @@ packages:
   original:
     hackage: lens-5.3.3
 - completed:
+    hackage: log-effectful-1.0.1.0@sha256:79d1c821db1c1d95cf109f813f13a2588e45dbacb5f797eefc200ff7a5984923,2466
+    pantry-tree:
+      sha256: 5ab7c6b553ea50ce7b6218e86db9ff3632b0482dd00aaf749ebece93b968e0ca
+      size: 326
+  original:
+    hackage: log-effectful-1.0.1.0
+- completed:
+    hackage: monad-time-effectful-1.0.1.0@sha256:940716485c833cc04b4834d58c1edd04eab6556f01577372e850f6778d9ebf8a,1537
+    pantry-tree:
+      sha256: e4a7e7cd921d3e4c5cf9e3d1cd8901a78c120f28a3b8f193425d486c550089b9
+      size: 280
+  original:
+    hackage: monad-time-effectful-1.0.1.0
+- completed:
     hackage: universum-1.8.2.2@sha256:e174559461633b52fab4ccebcb5489c089de13a30fa0b568ce42837f1342ba55,6793
     pantry-tree:
       sha256: b44c2abf692b054c21538468335867d29cb5027105c73a6dffae7555a418212b

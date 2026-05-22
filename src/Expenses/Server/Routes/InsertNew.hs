@@ -3,12 +3,13 @@ module Expenses.Server.Routes.InsertNew where
 import CustomPrelude
 import Data.Aeson.TH (defaultOptions, deriveFromJSON)
 import Data.Time (Day, UTCTime)
-import Data.Time.Clock (getCurrentTime)
-import Data.UUID qualified as Uuid
-import Data.UUID.V4 qualified as Uuid
 import Database qualified as Db
+import Effectful
+import Effectful.Time qualified as Time
+import Expenses.Effects
+import Expenses.Effects.EventLog qualified as EventLog
+import Expenses.Effects.NextUUID qualified as Uuid
 import Expenses.Linear qualified as Linear
-import Expenses.Server.AppM (AppM, useConnection)
 import Expenses.Server.EventLog qualified as EventLog
 import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
 import Types (Admin (..), FECents, TagName, toBE)
@@ -29,10 +30,13 @@ $( mconcat
      ]
  )
 
-insertTransactionHandler :: Admin -> NewTransactionItem -> AppM GetTransactions.TransactionItem
+insertTransactionHandler ::
+  forall es.
+  (Db :> es, Time :> es, EventLog :> es, NextUUID :> es, Reader Env :> es, Concurrent :> es) =>
+  Admin -> NewTransactionItem -> Eff es GetTransactions.TransactionItem
 insertTransactionHandler admin newTxItem = do
-  now <- liftIO getCurrentTime
-  transactionId <- liftIO mkNewId
+  now <- Time.currentTime
+  transactionId <- mkNewId
   let
     transactionItem = mkTransactionItem transactionId newTxItem
     row = GetTransactions.convertItemToRow transactionItem
@@ -40,11 +44,11 @@ insertTransactionHandler admin newTxItem = do
   useConnection \conn -> do
     Db.insertTransactionJoinedRow conn row
 
-  EventLog.append $ mkEventLogAction admin now transactionId newTxItem
+  EventLog.appendEvent $ mkEventLogAction admin now transactionId newTxItem
 
   pure transactionItem
  where
-  mkNewId :: IO Text
+  mkNewId :: Eff es Text
   mkNewId = do
     uuid <- Uuid.nextRandom
     pure $ "EXP-" <> Uuid.toText uuid

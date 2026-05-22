@@ -1,22 +1,27 @@
 module Expenses.Server.Routes.SplitTransactionItems where
 
 import CustomPrelude
-import Data.Time.Clock (getCurrentTime)
 import Database qualified as Db
-import Expenses.Server.AppM (AppM, useConnection)
+import Effectful
+import Effectful.Log
+import Effectful.Time qualified as Time
+import Expenses.Effects
+import Expenses.Effects.EventLog qualified as EventLog
 import Expenses.Server.EventLog qualified as EventLog
 import Expenses.Server.Routes.GetTransactions (NewShortTransactionItem (..))
 import Expenses.Server.Utils (throwJsonError)
-import Log (logTrace_)
 import Servant (NoContent (..))
+import Servant qualified as S
 import Servant.Server (err400, err404)
 import Types (Admin (..), TransactionItemRecord (..), TransactionRecord (..), toBE)
 
-splitTransactionItemsHandler :: Admin -> Text -> [NewShortTransactionItem] -> AppM NoContent
+splitTransactionItemsHandler ::
+  (Time :> es, Reader Env :> es, Concurrent :> es, Db :> es, Error S.ServerError :> es, Log :> es, EventLog :> es) =>
+  Admin -> Text -> [NewShortTransactionItem] -> Eff es NoContent
 splitTransactionItemsHandler admin transactionId splitItems = do
   -- Load existing transaction items
   originalRecord <-
-    useConnection (\conn -> liftIO $ Db.getTransactionById conn transactionId)
+    useConnection (\conn -> Db.getTransactionById conn transactionId)
       >>= maybe
         (throwJsonError err404 [i|Transaction not found: #{transactionId}|])
         pure
@@ -40,9 +45,9 @@ splitTransactionItemsHandler admin transactionId splitItems = do
       logTrace_ [i|SplitTransactionItems: updated #{transactionId}|]
 
       -- Write to the event log
-      now <- liftIO getCurrentTime
+      now <- Time.currentTime
       for_ (originalRecord.items `zip` [0 ..]) \(item, idx) ->
-        EventLog.append
+        EventLog.appendEvent
           EventLog.Action
             { username = admin
             , ts = now
@@ -53,7 +58,7 @@ splitTransactionItemsHandler admin transactionId splitItems = do
             }
 
       for_ (splitItems `zip` [0 ..]) \(item, idx) ->
-        EventLog.append
+        EventLog.appendEvent
           EventLog.Action
             { username = admin
             , ts = now

@@ -9,6 +9,7 @@ import M06_RemoveQuotesFromIds qualified
 import M07_RemoveBabyColumn qualified
 import M08_MoveIsExpenseColumn qualified
 import System.Environment (getArgs)
+import System.Exit (die)
 
 main :: IO ()
 main = do

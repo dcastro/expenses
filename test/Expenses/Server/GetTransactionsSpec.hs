@@ -6,13 +6,15 @@ import Data.Map.Strict qualified as Map
 import Data.Time (MonthOfYear, fromGregorian)
 import Data.Time.Calendar.Month (pattern YearMonth)
 import Database qualified as Db
-import Expenses.Server.AppM (runLogger)
+import Effectful
+import Effectful.Concurrent (runConcurrent)
+import Effectful.Reader.Static (runReader)
+import Expenses.Effects.SQLite qualified as SQL
 import Expenses.Server.Routes.GetTransactions
 import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
 import Expenses.Server.Utils (MapAsList (..))
 import Expenses.Test.Util ()
 import Expenses.Test.Util qualified as Util
-import Servant.Server qualified as Servant
 import Test.Hspec (Spec, it)
 import Test.Hspec.Expectations.Pretty (shouldBe)
 import Test.Tasty
@@ -110,8 +112,9 @@ test_getTransactionsHandler = do
   goldenVsString "mkGroupStats golden test" "test/golden/getTransactionsHandler.json" do
     env <- Util.mkTestEnv
     resp <-
-      Servant.runHandler $
-        getTransactionsHandler (YearMonth 2025 08) (YearMonth 2025 09)
-          & flip runReaderT env
-          & runLogger False mempty
+      getTransactionsHandler (YearMonth 2025 08) (YearMonth 2025 09)
+        & SQL.runDb
+        & runReader env
+        & runConcurrent
+        & runEff
     pure $ J.encodePretty resp

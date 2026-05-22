@@ -2,14 +2,16 @@ module Expenses.Server.Routes.ModifyTransaction where
 
 import CustomPrelude
 import Data.Aeson.TH (defaultOptions, deriveFromJSON)
-import Data.Time.Clock (getCurrentTime)
 import Database qualified as Db
-import Expenses.Server.AppM (AppM, Env, useConnection)
+import Effectful
+import Effectful.Time qualified as Time
+import Expenses.Effects
+import Expenses.Effects.EventLog qualified as EventLog
 import Expenses.Server.EventLog
-import Expenses.Server.EventLog qualified as EventLog
 import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
 import Expenses.Server.Utils (throwJsonError)
 import Servant (err500)
+import Servant.Server qualified as S
 import Types (Admin (..), TagName)
 
 data ModifyTransaction = ModifyTransaction
@@ -45,13 +47,15 @@ $( mconcat
  )
 
 -- | Modifies a transaction / transaction item and returns the updated transaction items.
-modifyTransactionHandler :: Admin -> ModifyTransaction -> AppM GetTransactions.TransactionItem
+modifyTransactionHandler ::
+  (Time :> es, Reader Env :> es, Concurrent :> es, EventLog :> es, Db :> es, Error S.ServerError :> es) =>
+  Admin -> ModifyTransaction -> Eff es GetTransactions.TransactionItem
 modifyTransactionHandler admin ModifyTransaction{transactionId = txId, itemIndex, actionType} = do
-  now <- liftIO getCurrentTime
+  now <- Time.currentTime
 
-  let appendAction :: forall m. (MonadIO m, MonadReader Env m) => Text -> ActionType -> m ()
+  let appendAction :: forall es. (EventLog :> es) => Text -> ActionType -> Eff es ()
       appendAction txDesc actionType =
-        EventLog.append
+        EventLog.appendEvent
           Action
             { username = admin
             , ts = now

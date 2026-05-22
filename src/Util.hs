@@ -6,6 +6,9 @@ import Data.Text qualified as T
 import Data.Time qualified as Time
 import Database.SQLite.Simple (Connection)
 import Database.SQLite.Simple qualified as Db
+import Effectful
+import Effectful.Time qualified as ETime
+import Expenses.Effects
 import Log
 import System.Directory qualified as Dir
 import Text.Read qualified as Read
@@ -63,10 +66,10 @@ eurosToCents txt = do
       total = euros * 100 + cents
   sign total
 
-timed :: (MonadIO m) => (MonadLog m) => Text -> m a -> m a
+timed :: (Time :> es, Log :> es) => Text -> Eff es a -> Eff es a
 timed actionName action = do
-  start <- liftIO Time.getCurrentTime
+  start <- ETime.currentTime
   result <- action
-  end <- liftIO Time.getCurrentTime
+  end <- ETime.currentTime
   logTrace_ [i|Finished #{actionName} in: #{Time.diffUTCTime end start}|]
   pure result
