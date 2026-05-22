@@ -187,6 +187,29 @@
             self.packages.${system}.expenses-manager-server-rpi;
         };
 
+        devShells = {
+          # Fast shell for frontend work (Spago, Purs, Node, esbuild).
+          default = pkgs.mkShell {
+            buildInputs = [
+              pkgs.purs-unstable
+              pkgs.spago-unstable
+              pkgs.esbuild
+              pkgs.nodejs_22
+            ];
+          };
+
+          # Full shell with Haskell + frontend tooling.
+          hs = pkgs.mkShell {
+            inputsFrom = [ pkgs.expensesProject.shell ];
+            buildInputs = [
+              pkgs.purs-unstable
+              pkgs.spago-unstable
+              pkgs.esbuild
+              pkgs.nodejs_22
+            ];
+          };
+        };
+
         apps = {
           expenses-manager-service = {
             type = "app";

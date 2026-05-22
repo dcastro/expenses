@@ -27,6 +27,15 @@ nix-show:
 nix-run:
    nix run .#expenses-manager-service
 
+
+# Nix shell with the frontend tooling
+nix-shell:
+  nix develop
+
+# Nix shell with the frontend + haskell tooling
+nix-shell-hs:
+  nix develop .#full
+
 backup:
   sudo anacron -fnd expenses-backup
 
