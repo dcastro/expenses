@@ -51,12 +51,6 @@
 
           haskellNix.overlay
           (final: _prev: {
-            # Compatibility shim for overlays that still expect `pkgs.nodePackages`.
-            # Nixpkgs removed this set in 2026-03, but some generated manifests
-            # (including older PureScript overlays) still reference node-gyp here.
-            nodePackages =
-              final.lib.recurseIntoAttrs { node-gyp = final.node-gyp; };
-            nodePackages_latest = final.nodePackages;
 
             # This overlay adds our project to pkgs
             expensesProject = final.haskell-nix.project' {
