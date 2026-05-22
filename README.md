@@ -9,7 +9,7 @@ You can find a sample demo page here: <https://expenses-demo.diogocastro.com/>
 
 ## Tech stack
 
- * The backend is written in Haskell, using Servant.
+ * The backend is written in Haskell, using Servant. We use [`effectful`'s effect system](https://hackage.haskell.org/package/effectful-2.6.1.0#readme).
  * The frontend is written in Purescript, using Halogen.
  * The project is cross-compiled to AArch64 / ARM64 using `nix` and `haskell.nix`.
  * We deploy it to a Raspberry Pi Zero 2, where it is run as a `systemd` service.
