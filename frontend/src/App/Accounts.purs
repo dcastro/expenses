@@ -9,7 +9,6 @@ import Effect.Aff.Class (class MonadAff)
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
-import Halogen.HTML.Properties as HP
 import HtmlUtils (classes')
 import HtmlUtils as HtmlUtils
 
@@ -30,7 +29,6 @@ type State =
 
 data Action
   = Initialize
-  | Refresh
   | RenewRequisition String
 
 component :: forall q o m. MonadAff m => H.Component q Input o m
@@ -58,14 +56,6 @@ render state =
         [ HH.div [ classes' "level" ]
             [ HH.div [ classes' "level-left" ]
                 [ HH.h4 [ classes' "title is-4" ] [ HH.text "Accounts" ] ]
-            , HH.div [ classes' "level-right" ]
-                [ HH.button
-                    [ classes' "button is-light"
-                    , HE.onClick \_ -> Refresh
-                    , HP.disabled state.loading
-                    ]
-                    [ HH.text "Refresh" ]
-                ]
             ]
         , case state.errorMessage of
             Nothing -> HH.text ""
@@ -121,9 +111,6 @@ showStatus = case _ of
 handleAction :: forall o m. MonadAff m => Action -> H.HalogenM State Action () o m Unit
 handleAction = case _ of
   Initialize -> do
-    handleAction Refresh
-
-  Refresh -> do
     H.modify_ _ { loading = true, errorMessage = Nothing }
     items <- H.liftAff API.getSyncStatus
     H.modify_ _ { items = items, loading = false }
