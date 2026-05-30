@@ -23,6 +23,7 @@ import Expenses.Effects.Nordigen qualified as N
 import Expenses.Linear (liftConsume)
 import Expenses.Server.EventLog qualified as EventLog
 import Log
+import Servant.Auth.Client qualified as SA
 import System.Cron.Schedule (addJob, execSchedule)
 import System.FilePath ((</>))
 import Types
@@ -68,10 +69,11 @@ fetchAllAccounts ::
   (Reader Env :> es, FileSystem :> es, Nordigen :> es, Log :> es, Time :> es, Db :> es, Concurrent :> es) =>
   UTCTime -> Eff es [Db.TransactionJoinedRow]
 fetchAllAccounts now = do
+  authToken <- N.login
   config <- asks @Env (.config)
   join <$> forM config.accountInfos \acc ->
     do
-      fetchAccount now acc
+      fetchAccount authToken now acc
       -- NOTE: use the `*deep` version to catch any impure exceptions thrown by `getTransactionId`
       `Eff.catchSyncDeep` \err -> do
         -- Log the error, return no transactions, and move onto the next account
@@ -90,9 +92,9 @@ fetchAllAccounts now = do
 
 fetchAccount ::
   (Reader Env :> es, FileSystem :> es, Nordigen :> es, Log :> es, Time :> es, Db :> es, Concurrent :> es) =>
-  UTCTime -> AccountInfo -> Eff es [Db.TransactionJoinedRow]
-fetchAccount now acc = do
-  json <- N.getTransactions acc.accountId
+  SA.Token -> UTCTime -> AccountInfo -> Eff es [Db.TransactionJoinedRow]
+fetchAccount authToken now acc = do
+  json <- N.getTransactions authToken acc.accountId
 
   -- log response
   logTransactions now json acc

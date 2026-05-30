@@ -52,18 +52,20 @@ renewRequisitionHandler _admin accountId body = do
 
   -- Delete any requisitions that may exist for this institution.
   logInfo_ [i|Deleting existing requisitions for institution #{institutionId}...|]
-  requisitions <- N.listRequisitions
+  token <- N.login
+  requisitions <- N.listRequisitions token
   let existingForInstitution =
         requisitions.results
           & filter (\req -> institutionId == req.institutionId)
   for_ existingForInstitution \req ->
-    void $ N.deleteRequisition req.id
+    void $ N.deleteRequisition token req.id
 
   -- Create a new requisition for the institution
   logInfo_ [i|Creating new requisition for account #{accountId} and institution #{institutionId}...|]
   referenceUuid <- NextUUID.nextRandom
   created <-
     N.createRequisition
+      token
       CreateRequisitionRequest
         { redirect = body.redirect
         , institutionId
