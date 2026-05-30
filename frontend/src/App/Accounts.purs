@@ -53,7 +53,7 @@ render state =
   HH.section
     [
     ]
-    [ HH.section [ classes' "section" ]
+    [ HH.section [ classes' "section is-fullheight" ]
         [ HH.div [ classes' "level" ]
             [ HH.div [ classes' "level-left" ]
                 [ HH.h4 [ classes' "title is-4" ] [ HH.text "Accounts" ] ]
