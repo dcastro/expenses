@@ -24,7 +24,6 @@ type State =
   { isAdmin :: Boolean
   , items :: Array API.AccountSyncStatus
   , loading :: Boolean
-  , errorMessage :: Maybe String
   }
 
 data Action
@@ -38,7 +37,6 @@ component =
         { isAdmin
         , items: []
         , loading: false
-        , errorMessage: Nothing
         }
     , render
     , eval: H.mkEval H.defaultEval
@@ -57,11 +55,6 @@ render state =
             [ HH.div [ classes' "level-left" ]
                 [ HH.h4 [ classes' "title is-4" ] [ HH.text "Accounts" ] ]
             ]
-        , case state.errorMessage of
-            Nothing -> HH.text ""
-            Just msg ->
-              HH.article [ classes' "message is-danger" ]
-                [ HH.div [ classes' "message-body" ] [ HH.text msg ] ]
         , if state.loading then
             HH.p [ classes' "has-text-grey" ] [ HH.text "Loading account statuses..." ]
           else
@@ -111,7 +104,7 @@ showStatus = case _ of
 handleAction :: forall o m. MonadAff m => Action -> H.HalogenM State Action () o m Unit
 handleAction = case _ of
   Initialize -> do
-    H.modify_ _ { loading = true, errorMessage = Nothing }
+    H.modify_ _ { loading = true }
     items <- H.liftAff API.getSyncStatus
     H.modify_ _ { items = items, loading = false }
 
