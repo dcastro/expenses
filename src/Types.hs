@@ -111,6 +111,7 @@ newtype DetailsResponse = DetailsResponse
 data AccountInfo = AccountInfo
   { accountName :: Text
   , accountId :: Text
+  , institutionId :: Text
   , -- Whether transactions from this account should be treated as expenses.
     isExpenseAccount :: Bool
   , -- Credit accounts show transactions as positive numbers, and debit accounts as negative numbers.($)

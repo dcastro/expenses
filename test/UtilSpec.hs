@@ -76,6 +76,7 @@ unit_getIsExpense = do
         AccountInfo
           { accountId = "exp-acc-id"
           , accountName = "ExpenseAccount"
+          , institutionId = "inst-exp"
           , isExpenseAccount = True
           , flipSign = False
           }
@@ -83,6 +84,7 @@ unit_getIsExpense = do
         AccountInfo
           { accountId = "nonexp-acc-id"
           , accountName = "NonExpenseAccount"
+          , institutionId = "inst-nonexp"
           , isExpenseAccount = False
           , flipSign = False
           }
