@@ -203,9 +203,9 @@ data TransactionItemRecord = TransactionItemRecord
 $( mconcat
      [ deriveJSON (aesonDrop 0 snakeCase) ''NewTokenRequest
      , deriveJSON (aesonDrop 0 snakeCase) ''CreateRequisitionRequest
-     , deriveJSON defaultOptions ''CreateRequisitionResponse
-     , deriveJSON defaultOptions ''RequisitionsResponse
-     , deriveJSON defaultOptions ''Requisition
+     , deriveJSON (aesonDrop 0 snakeCase) ''CreateRequisitionResponse
+     , deriveJSON (aesonDrop 0 snakeCase) ''RequisitionsResponse
+     , deriveJSON (aesonDrop 0 snakeCase) ''Requisition
      , deriveJSON defaultOptions ''TransactionResponse
      , deriveJSON defaultOptions ''TransactionObj
      , deriveJSON defaultOptions ''ApiTransaction
