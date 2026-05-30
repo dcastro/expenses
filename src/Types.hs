@@ -128,6 +128,7 @@ newtype RequisitionsResponse = RequisitionsResponse
 data Requisition = Requisition
   { id :: Text
   , accounts :: [Text]
+  , institutionId :: Text
   }
   deriving stock (Show, Eq, Generic)
 

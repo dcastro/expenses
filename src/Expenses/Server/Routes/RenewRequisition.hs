@@ -50,13 +50,13 @@ renewRequisitionHandler _admin accountId body = do
         pure
       <&> (.institutionId)
 
-  -- Delete any requisitions that may exist for this account.
-  logInfo_ [i|Deleting existing requisitions for account #{accountId}...|]
+  -- Delete any requisitions that may exist for this institution.
+  logInfo_ [i|Deleting existing requisitions for institution #{institutionId}...|]
   requisitions <- N.listRequisitions
-  let existingForAccount =
+  let existingForInstitution =
         requisitions.results
-          & filter (\req -> accountId `elem` req.accounts)
-  for_ existingForAccount \req ->
+          & filter (\req -> institutionId == req.institutionId)
+  for_ existingForInstitution \req ->
     void $ N.deleteRequisition req.id
 
   -- Create a new requisition for the institution
