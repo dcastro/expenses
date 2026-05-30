@@ -8,6 +8,7 @@ import M05_RenameTags qualified
 import M06_RemoveQuotesFromIds qualified
 import M07_RemoveBabyColumn qualified
 import M08_MoveIsExpenseColumn qualified
+import M09_AddSyncAccountStatus qualified
 import System.Environment (getArgs)
 import System.Exit (die)
 
@@ -32,6 +33,8 @@ main = do
         SQL.withTransaction conn $ M07_RemoveBabyColumn.migrate conn
       ("8" : _) -> do
         SQL.withTransaction conn $ M08_MoveIsExpenseColumn.migrate conn
+      ("9" : _) -> do
+        SQL.withTransaction conn $ M09_AddSyncAccountStatus.migrate conn
       [] -> do
         die "Missing argument"
       args -> do
