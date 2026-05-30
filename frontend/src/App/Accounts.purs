@@ -9,6 +9,7 @@ import Effect.Aff.Class (class MonadAff)
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
+import Halogen.HTML.Properties as HP
 import HtmlUtils (classes')
 import HtmlUtils as HtmlUtils
 
@@ -24,6 +25,7 @@ type State =
   { isAdmin :: Boolean
   , items :: Array API.AccountSyncStatus
   , loading :: Boolean
+  , renewing :: Boolean
   }
 
 data Action
@@ -37,6 +39,7 @@ component =
         { isAdmin
         , items: []
         , loading: false
+        , renewing: false
         }
     , render
     , eval: H.mkEval H.defaultEval
@@ -88,6 +91,7 @@ renderRow state account =
         [ if state.isAdmin then
             HH.button
               [ classes' "button is-small is-primary"
+              , HP.disabled (state.loading || state.renewing)
               , HE.onClick \_ -> RenewRequisition account.accountId
               ]
               [ HH.text "Renew" ]
@@ -109,6 +113,7 @@ handleAction = case _ of
     H.modify_ _ { items = items, loading = false }
 
   RenewRequisition accountId -> do
+    H.modify_ _ { renewing = true }
     let redirectUrl = HtmlUtils.apiBaseUrl <> "#/accounts"
     response <- H.liftAff $ API.renewRequisition accountId { redirect: redirectUrl }
     H.liftEffect $ HtmlUtils.redirectTo response.link
