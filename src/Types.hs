@@ -106,6 +106,31 @@ instance FromField SyncStatus where
       Just st -> pure st
       Nothing -> SQL.returnError SQL.ConversionFailed f (toString [i|Invalid sync status in DB: #{txt}|])
 
+data CreateRequisitionRequest = CreateRequisitionRequest
+  { redirect :: Text
+  , institutionId :: Text
+  , reference :: Text
+  , userLanguage :: Text
+  }
+  deriving stock (Show, Eq, Generic)
+
+data CreateRequisitionResponse = CreateRequisitionResponse
+  { id :: Text
+  , link :: Text
+  }
+  deriving stock (Show, Eq, Generic)
+
+newtype RequisitionsResponse = RequisitionsResponse
+  { results :: [Requisition]
+  }
+  deriving stock (Show, Eq, Generic)
+
+data Requisition = Requisition
+  { id :: Text
+  , accounts :: [Text]
+  }
+  deriving stock (Show, Eq, Generic)
+
 newtype TransactionResponse = TransactionResponse
   { transactions :: TransactionObj
   }
@@ -177,6 +202,13 @@ data TransactionItemRecord = TransactionItemRecord
 
 $( mconcat
      [ deriveJSON (aesonDrop 0 snakeCase) ''NewTokenRequest
+     , deriveJSON (aesonDrop 0 snakeCase) ''CreateRequisitionRequest
+     , deriveJSON defaultOptions ''CreateRequisitionResponse
+     , deriveJSON defaultOptions ''RequisitionsResponse
+     , deriveJSON defaultOptions ''Requisition
+     , deriveJSON (aesonDrop 0 snakeCase) ''AccountSyncStatus
+     , deriveJSON (aesonDrop 0 snakeCase) ''RenewRequisitionBody
+     , deriveJSON (aesonDrop 0 snakeCase) ''RenewRequisitionResponse
      , deriveJSON defaultOptions ''TransactionResponse
      , deriveJSON defaultOptions ''TransactionObj
      , deriveJSON defaultOptions ''ApiTransaction

@@ -4,6 +4,9 @@ module Expenses.Effects.Nordigen (
   Nordigen,
   runNordigen,
   getTransactions,
+  createRequisition,
+  listRequisitions,
+  deleteRequisition,
 ) where
 
 import CustomPrelude
@@ -17,14 +20,23 @@ import Network.HTTP.Client (Manager)
 import Network.HTTP.Client qualified as Client
 import Network.HTTP.Client.TLS qualified as TLS
 import Nordigen qualified as N
+import Servant (NoContent)
 import Servant.Auth.Client qualified as SA
-import Types qualified as N
+import Types qualified as T
 
 data Nordigen :: Effect where
   GetTransactions ::
     -- | Account ID
     Text ->
     Nordigen m Value
+  CreateRequisition ::
+    T.CreateRequisitionRequest ->
+    Nordigen m T.CreateRequisitionResponse
+  ListRequisitions ::
+    Nordigen m T.RequisitionsResponse
+  DeleteRequisition ::
+    Text ->
+    Nordigen m NoContent
 
 makeEffect ''Nordigen
 
@@ -43,13 +55,22 @@ runNordigen action = do
     GetTransactions accountId -> do
       liftIO $ N.runNordigen manager do
         N.getTransactions token accountId
+    CreateRequisition req -> do
+      liftIO $ N.runNordigen manager do
+        N.createRequisition token req
+    ListRequisitions -> do
+      liftIO $ N.runNordigen manager do
+        N.listRequisitions token
+    DeleteRequisition requisitionId -> do
+      liftIO $ N.runNordigen manager do
+        N.deleteRequisition token requisitionId
 
 login :: Env -> Manager -> IO SA.Token
 login env manager = do
   ntr <- liftIO do
     N.runNordigen manager do
       N.getNewToken
-        N.NewTokenRequest
+        T.NewTokenRequest
           { secretId = env.nordigenSecretId
           , secretKey = env.nordigenSecretKey
           }
