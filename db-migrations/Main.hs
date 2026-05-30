@@ -15,27 +15,29 @@ import System.Exit (die)
 main :: IO ()
 main = do
   args <- getArgs
-  SQL.withConnection "/home/dc/.local/share/expenses-manager/expenses.db" \conn ->
-    case drop 1 args of
-      ("1" : _) -> do
-        SQL.withTransaction conn $ M01_AddItemCosts.migrate conn
-      ("2" : _) -> do
-        SQL.withTransaction conn $ M02_AddExpenseFlag.migrate conn
-      ("3" : _) -> do
-        SQL.withTransaction conn $ M03_AddTransactionsView.migrate conn
-      ("4" : _) -> do
-        SQL.withTransaction conn $ M04_NullableTags.migrate conn
-      ("5" : _) -> do
-        SQL.withTransaction conn $ M05_RenameTags.migrate conn
-      ("6" : _) -> do
-        SQL.withTransaction conn $ M06_RemoveQuotesFromIds.migrate conn
-      ("7" : _) -> do
-        SQL.withTransaction conn $ M07_RemoveBabyColumn.migrate conn
-      ("8" : _) -> do
-        SQL.withTransaction conn $ M08_MoveIsExpenseColumn.migrate conn
-      ("9" : _) -> do
-        SQL.withTransaction conn $ M09_AddSyncAccountStatus.migrate conn
-      [] -> do
-        die "Missing argument"
-      args -> do
-        die $ "Invalid migration number, args:" <> show args
+  case args of
+    (_target : dbPath : migrationId : _) ->
+      SQL.withConnection dbPath \conn ->
+        case migrationId of
+          "1" -> do
+            SQL.withTransaction conn $ M01_AddItemCosts.migrate conn
+          "2" -> do
+            SQL.withTransaction conn $ M02_AddExpenseFlag.migrate conn
+          "3" -> do
+            SQL.withTransaction conn $ M03_AddTransactionsView.migrate conn
+          "4" -> do
+            SQL.withTransaction conn $ M04_NullableTags.migrate conn
+          "5" -> do
+            SQL.withTransaction conn $ M05_RenameTags.migrate conn
+          "6" -> do
+            SQL.withTransaction conn $ M06_RemoveQuotesFromIds.migrate conn
+          "7" -> do
+            SQL.withTransaction conn $ M07_RemoveBabyColumn.migrate conn
+          "8" -> do
+            SQL.withTransaction conn $ M08_MoveIsExpenseColumn.migrate conn
+          "9" -> do
+            SQL.withTransaction conn $ M09_AddSyncAccountStatus.migrate conn
+          _ -> do
+            die $ "Invalid migration number: " <> show migrationId
+    _ -> do
+      die "Usage: db-migrations <db-path> <migration-id>"

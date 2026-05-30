@@ -36,9 +36,6 @@ nix-shell-hs:
 backup:
     sudo anacron -fnd expenses-backup
 
-copy-db-to-repo:
-    cp /home/dc/.local/share/expenses-manager/expenses.db db/db
-
 update-haskell-nix:
     nix flake update haskellNix
 
@@ -51,7 +48,8 @@ run-migration idx run_backup:
       ./scripts/backup.sh "_before_migration_{{ idx }}"; \
     fi
 
-    stack run expenses:exe:db-migrations -- {{ idx }}
+    stack run expenses:exe:db-migrations -- /home/dc/.local/share/expenses-manager/expenses.db {{ idx }}
+    stack run expenses:exe:db-migrations -- ./resources/test-app-dir/expenses.db {{ idx }}
 
 # Setup a cloudflare quick tunnel to test the local server
 quick-tunnel:
