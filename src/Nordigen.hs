@@ -46,7 +46,7 @@ data AccountRoutes routes = AccountRoutes
 type RequisitionRoutes :: forall k. k -> Type
 data RequisitionRoutes routes = RequisitionRoutes
   { list :: routes :- Get '[JSON] RequisitionsResponse
-  , create :: routes :- ReqBody '[JSON] CreateRequisitionRequest :> Post '[JSON] CreateRequisitionResponse
+  , create :: routes :- ReqBody '[JSON] CreateRequisitionRequest :> PostCreated '[JSON] CreateRequisitionResponse
   , delete :: routes :- Capture "requisitionId" Text :> DeleteNoContent
   }
   deriving stock (Generic)
