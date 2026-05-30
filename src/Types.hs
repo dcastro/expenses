@@ -9,7 +9,9 @@ import Data.Aeson.TH (defaultOptions, deriveJSON)
 import Data.Text qualified as T
 import Data.Time (Day)
 import Database.SQLite.Simple.FromField (FromField)
+import Database.SQLite.Simple.FromField qualified as SQL
 import Database.SQLite.Simple.ToField (ToField)
+import Database.SQLite.Simple.ToField qualified as SQL
 import Expenses.Linear (LinearToJSON)
 import Expenses.NonEmptyText (NonEmptyText)
 import Expenses.NonEmptyText qualified as NET
@@ -69,6 +71,67 @@ data NewTokenRequest = NewTokenRequest
   , secretKey :: Text
   }
 
+data SyncStatus
+  = SyncSuccess
+  | SyncError
+  deriving stock (Show, Eq, Ord, Enum, Bounded, Generic)
+
+syncStatusToText :: SyncStatus -> Text
+syncStatusToText = \case
+  SyncSuccess -> "success"
+  SyncError -> "error"
+
+syncStatusFromText :: Text -> Maybe SyncStatus
+syncStatusFromText = \case
+  "success" -> Just SyncSuccess
+  "error" -> Just SyncError
+  _ -> Nothing
+
+instance ToJSON SyncStatus where
+  toJSON = J.String . syncStatusToText
+
+instance FromJSON SyncStatus where
+  parseJSON = J.withText "SyncStatus" \txt ->
+    case syncStatusFromText txt of
+      Just st -> pure st
+      Nothing -> fail $ toString [i|Invalid sync status: #{txt}|]
+
+instance ToField SyncStatus where
+  toField = SQL.toField . syncStatusToText
+
+instance FromField SyncStatus where
+  fromField f = do
+    txt <- SQL.fromField @Text f
+    case syncStatusFromText txt of
+      Just st -> pure st
+      Nothing -> SQL.returnError SQL.ConversionFailed f (toString [i|Invalid sync status in DB: #{txt}|])
+
+data CreateRequisitionRequest = CreateRequisitionRequest
+  { redirect :: Text
+  , institutionId :: Text
+  , reference :: Text
+  , userLanguage :: Text
+  }
+  deriving stock (Show, Eq, Generic)
+
+data CreateRequisitionResponse = CreateRequisitionResponse
+  { id :: Text
+  , link :: Text
+  }
+  deriving stock (Show, Eq, Generic)
+
+newtype RequisitionsResponse = RequisitionsResponse
+  { results :: [Requisition]
+  }
+  deriving stock (Show, Eq, Generic)
+
+data Requisition = Requisition
+  { id :: Text
+  , accounts :: [Text]
+  , institutionId :: Text
+  }
+  deriving stock (Show, Eq, Generic)
+
 newtype TransactionResponse = TransactionResponse
   { transactions :: TransactionObj
   }
@@ -111,6 +174,7 @@ newtype DetailsResponse = DetailsResponse
 data AccountInfo = AccountInfo
   { accountName :: Text
   , accountId :: Text
+  , institutionId :: Text
   , -- Whether transactions from this account should be treated as expenses.
     isExpenseAccount :: Bool
   , -- Credit accounts show transactions as positive numbers, and debit accounts as negative numbers.($)
@@ -139,6 +203,10 @@ data TransactionItemRecord = TransactionItemRecord
 
 $( mconcat
      [ deriveJSON (aesonDrop 0 snakeCase) ''NewTokenRequest
+     , deriveJSON (aesonDrop 0 snakeCase) ''CreateRequisitionRequest
+     , deriveJSON (aesonDrop 0 snakeCase) ''CreateRequisitionResponse
+     , deriveJSON (aesonDrop 0 snakeCase) ''RequisitionsResponse
+     , deriveJSON (aesonDrop 0 snakeCase) ''Requisition
      , deriveJSON defaultOptions ''TransactionResponse
      , deriveJSON defaultOptions ''TransactionObj
      , deriveJSON defaultOptions ''ApiTransaction

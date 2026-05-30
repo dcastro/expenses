@@ -20,6 +20,20 @@ CREATE TABLE
     UNIQUE (transaction_id, item_index)
   );
 
+CREATE TABLE
+  sync_account_status (
+    account_id TEXT PRIMARY KEY,
+    account_name TEXT NOT NULL,
+    last_sync_finished_at DATETIME NOT NULL,
+    last_sync_status TEXT NOT NULL,
+    last_sync_error TEXT,
+    last_synced_transaction_count INTEGER NOT NULL,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL
+  );
+
+CREATE INDEX
+  idx_sync_account_status_status ON sync_account_status (last_sync_status);
+
 CREATE VIEW
   _transactions_with_items AS
 SELECT

@@ -14,9 +14,12 @@ import Utils as Utils
 import Web.Event.Event (Event)
 import Web.Event.Event as E
 import Web.Event.EventTarget (EventTarget)
+import Web.HTML as HTML
 import Web.HTML.HTMLElement as HTMLElement
 import Web.HTML.HTMLInputElement as HTMLInputElement
 import Web.HTML.HTMLTextAreaElement as HTMLTextAreaElement
+import Web.HTML.Location as Location
+import Web.HTML.Window as Window
 
 classes' :: forall r i. String -> IProp (class :: String | r) i
 classes' str =
@@ -104,3 +107,8 @@ isInputElement event = do
       Just elem -> HTMLElement.isContentEditable elem
 
 foreign import apiBaseUrl :: String
+
+redirectTo :: String -> Effect Unit
+redirectTo url = do
+  location <- Window.location =<< HTML.window
+  Location.setHref url location

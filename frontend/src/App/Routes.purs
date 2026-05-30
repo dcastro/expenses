@@ -28,6 +28,7 @@ data AppRoute
   = SingleMonth ModalFlag
   | MonthRange ModalFlag
   | Search SearchAppRoute
+  | Accounts ModalFlag
 
 derive instance Eq AppRoute
 derive instance Generic AppRoute _
@@ -54,6 +55,7 @@ routeCodec = root $ sum
   { "SingleMonth": "single-month" / modalParams
   , "MonthRange": "month-range" / modalParams
   , "Search": "search" / searchParamsCodec
+  , "Accounts": "accounts" / modalParams
   }
   where
   modalParams :: RouteDuplex' ModalFlag
@@ -89,17 +91,24 @@ isSearchRoute = case _ of
   Search _ -> true
   _ -> false
 
+isAccountsRoute :: AppRoute -> Boolean
+isAccountsRoute = case _ of
+  Accounts _ -> true
+  _ -> false
+
 isModalOpen :: AppRoute -> Boolean
 isModalOpen = case _ of
   SingleMonth flag -> flag.newTx
   MonthRange flag -> flag.newTx
   Search record -> record.newTx
+  Accounts flag -> flag.newTx
 
 setModalOpen :: Boolean -> AppRoute -> AppRoute
 setModalOpen isOpen = case _ of
   SingleMonth flag -> SingleMonth (flag { newTx = isOpen })
   MonthRange flag -> MonthRange (flag { newTx = isOpen })
   Search record -> Search (record { newTx = isOpen })
+  Accounts flag -> Accounts (flag { newTx = isOpen })
 
 getSearchRoute :: AppRoute -> Maybe SearchRoute
 getSearchRoute = case _ of

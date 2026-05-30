@@ -21,6 +21,11 @@ data Routes routes = Routes
           :> "accounts"
           :> Capture "accountId" Text
           :> NamedRoutes AccountRoutes
+  , requisitions ::
+      routes
+        :- S.Auth '[JWT] Text
+          :> "requisitions"
+          :> NamedRoutes RequisitionRoutes
   , login ::
       routes
         :- "token"
@@ -35,6 +40,14 @@ data AccountRoutes routes = AccountRoutes
   { transactions :: routes :- "transactions" :> Get '[JSON] Value
   , balances :: routes :- "balances" :> Get '[JSON] BalancesResponse
   , details :: routes :- "details" :> Get '[JSON] DetailsResponse
+  }
+  deriving stock (Generic)
+
+type RequisitionRoutes :: forall k. k -> Type
+data RequisitionRoutes routes = RequisitionRoutes
+  { list :: routes :- Get '[JSON] RequisitionsResponse
+  , create :: routes :- ReqBody '[JSON] CreateRequisitionRequest :> PostCreated '[JSON] CreateRequisitionResponse
+  , delete :: routes :- Capture "requisitionId" Text :> DeleteNoContent
   }
   deriving stock (Generic)
 
@@ -73,6 +86,29 @@ getDetails token accountId =
 getNewToken :: NewTokenRequest -> ClientM NewTokenResponse
 getNewToken req =
   routes // (.login) /: req
+
+createRequisition :: Token -> CreateRequisitionRequest -> ClientM CreateRequisitionResponse
+createRequisition token req =
+  routes
+    // (.requisitions)
+    /: token
+    // (.create)
+    /: req
+
+listRequisitions :: Token -> ClientM RequisitionsResponse
+listRequisitions token =
+  routes
+    // (.requisitions)
+    /: token
+    // (.list)
+
+deleteRequisition :: Token -> Text -> ClientM NoContent
+deleteRequisition token requisitionId =
+  routes
+    // (.requisitions)
+    /: token
+    // (.delete)
+    /: requisitionId
 
 runNordigen :: Manager -> ClientM a -> IO a
 runNordigen manager act = do
