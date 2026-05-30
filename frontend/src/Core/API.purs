@@ -55,6 +55,12 @@ allAccounts = do
     <#> statusCodeIs 200
     <#> decodeJson
 
+getSyncStatus :: Aff (Array AccountSyncStatus)
+getSyncStatus = do
+  get (HtmlUtils.apiBaseUrl <> "sync-status")
+    <#> statusCodeIs 200
+    <#> decodeJson
+
 getDates :: Aff DateRange
 getDates = do
   get (HtmlUtils.apiBaseUrl <> "dates")
@@ -87,6 +93,13 @@ splitTransaction transactionId items = do
   _ <- post (Just body) (HtmlUtils.apiBaseUrl <> "transactions/" <> transactionId <> "/split")
     <#> statusCodeIs 204
   pure unit
+
+renewRequisition :: TransactionId -> RenewRequisitionBody -> Aff RenewRequisitionResponse
+renewRequisition accountId payload = do
+  let body = RequestBody.json $ J.encodeJson payload
+  post (Just body) (HtmlUtils.apiBaseUrl <> "accounts/" <> accountId <> "/renew-requisition")
+    <#> statusCodeIs 200
+    <#> decodeJson
 
 ----------------------------------------------------------------------------
 -- Utils

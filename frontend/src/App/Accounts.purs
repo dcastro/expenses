@@ -1,0 +1,147 @@
+module App.Accounts where
+
+import Prelude
+
+import Core.API as API
+import Core.APITypes as API
+import Data.Maybe (Maybe(..), fromMaybe)
+import Effect.Aff.Class (class MonadAff)
+import Halogen as H
+import Halogen.HTML as HH
+import Halogen.HTML.Events as HE
+import Halogen.HTML.Properties as HP
+import HtmlUtils (classes')
+import HtmlUtils as HtmlUtils
+
+type Slot id = forall query. H.Slot query Output id
+
+type Input =
+  { enabled :: Boolean
+  , isAdmin :: Boolean
+  }
+
+type Output = Void
+
+type State =
+  { enabled :: Boolean
+  , isAdmin :: Boolean
+  , items :: Array API.AccountSyncStatus
+  , loading :: Boolean
+  , errorMessage :: Maybe String
+  }
+
+data Action
+  = Initialize
+  | Receive Input
+  | Refresh
+  | RenewRequisition String
+
+component :: forall q o m. MonadAff m => H.Component q Input o m
+component =
+  H.mkComponent
+    { initialState: \{ enabled, isAdmin } ->
+        { enabled
+        , isAdmin
+        , items: []
+        , loading: false
+        , errorMessage: Nothing
+        }
+    , render
+    , eval: H.mkEval H.defaultEval
+        { handleAction = handleAction
+        , initialize = Just Initialize
+        , receive = Just <<< Receive
+        }
+    }
+
+render :: forall m. MonadAff m => State -> H.ComponentHTML Action () m
+render state =
+  HH.section
+    [ HP.style $ if state.enabled then "" else "display: none"
+    ]
+    [ HH.section [ classes' "section" ]
+        [ HH.div [ classes' "level" ]
+            [ HH.div [ classes' "level-left" ]
+                [ HH.h4 [ classes' "title is-4" ] [ HH.text "Accounts" ] ]
+            , HH.div [ classes' "level-right" ]
+                [ HH.button
+                    [ classes' "button is-light"
+                    , HE.onClick \_ -> Refresh
+                    , HP.disabled state.loading
+                    ]
+                    [ HH.text "Refresh" ]
+                ]
+            ]
+        , case state.errorMessage of
+            Nothing -> HH.text ""
+            Just msg ->
+              HH.article [ classes' "message is-danger" ]
+                [ HH.div [ classes' "message-body" ] [ HH.text msg ] ]
+        , if state.loading then
+            HH.p [ classes' "has-text-grey" ] [ HH.text "Loading account statuses..." ]
+          else
+            HH.table [ classes' "table is-fullwidth is-striped" ]
+              [ HH.thead []
+                  [ HH.tr []
+                      [ HH.th [] [ HH.text "Account" ]
+                      , HH.th [] [ HH.text "Institution" ]
+                      , HH.th [] [ HH.text "Last Sync" ]
+                      , HH.th [] [ HH.text "Status" ]
+                      , HH.th [] [ HH.text "Transactions" ]
+                      , HH.th [] [ HH.text "Error" ]
+                      , HH.th [] [ HH.text "Actions" ]
+                      ]
+                  ]
+              , HH.tbody [] (state.items <#> renderRow state)
+              ]
+        ]
+    ]
+
+renderRow :: forall w. State -> API.AccountSyncStatus -> HH.HTML w Action
+renderRow state account =
+  HH.tr []
+    [ HH.td [] [ HH.text account.accountName ]
+    , HH.td [ classes' "is-family-monospace" ] [ HH.text account.institutionId ]
+    , HH.td [] [ HH.text $ fromMaybe "Never" account.lastSyncFinishedAt ]
+    , HH.td [] [ HH.text $ fromMaybe "Never" (showStatus <$> account.lastSyncStatus) ]
+    , HH.td [] [ HH.text $ fromMaybe "-" (show <$> account.lastSyncedTransactionCount) ]
+    , HH.td [ classes' "is-size-7" ] [ HH.text $ fromMaybe "" account.lastSyncError ]
+    , HH.td []
+        [ if state.isAdmin then
+            HH.button
+              [ classes' "button is-small is-primary"
+              , HE.onClick \_ -> RenewRequisition account.accountId
+              ]
+              [ HH.text "Renew" ]
+          else
+            HH.text ""
+        ]
+    ]
+
+showStatus :: API.SyncStatus -> String
+showStatus = case _ of
+  API.SyncSuccess -> "Success"
+  API.SyncError -> "Error"
+
+handleAction :: forall o m. MonadAff m => Action -> H.HalogenM State Action () o m Unit
+handleAction = case _ of
+  Initialize -> do
+    state <- H.get
+    when state.enabled do
+      handleAction Refresh
+
+  Receive input -> do
+    prevEnabled <- H.gets _.enabled
+    H.modify_ _ { enabled = input.enabled, isAdmin = input.isAdmin }
+    when (input.enabled && not prevEnabled) do
+      handleAction Refresh
+
+  Refresh -> do
+    H.modify_ _ { loading = true, errorMessage = Nothing }
+    items <- H.liftAff API.getSyncStatus
+    H.modify_ _ { items = items, loading = false }
+
+  RenewRequisition accountId -> do
+    let redirectUrl = HtmlUtils.apiBaseUrl <> "#/accounts"
+    response <- H.liftAff $ API.renewRequisition accountId { redirect: redirectUrl }
+    H.liftEffect $ HtmlUtils.redirectTo response.link

@@ -229,6 +229,47 @@ type DateRange =
   }
 
 ----------------------------------------------------------------------------
+-- GET /sync-status
+----------------------------------------------------------------------------
+
+data SyncStatus
+  = SyncSuccess
+  | SyncError
+
+derive instance Eq SyncStatus
+
+instance DecodeJson SyncStatus where
+  decodeJson json = do
+    status :: String <- J.decodeJson json
+    case status of
+      "success" -> Right SyncSuccess
+      "error" -> Right SyncError
+      _ -> Left $ J.UnexpectedValue json
+
+type AccountSyncStatus =
+  { accountId :: String
+  , accountName :: String
+  , institutionId :: String
+  , lastSyncFinishedAt :: Maybe String
+  , lastSyncStatus :: Maybe SyncStatus
+  , lastSyncError :: Maybe String
+  , lastSyncedTransactionCount :: Maybe Int
+  }
+
+----------------------------------------------------------------------------
+-- POST /accounts/:accountId/renew-requisition
+----------------------------------------------------------------------------
+
+type RenewRequisitionBody =
+  { redirect :: String
+  }
+
+type RenewRequisitionResponse =
+  { id :: String
+  , link :: String
+  }
+
+----------------------------------------------------------------------------
 -- POST /transactions/:id/split
 ----------------------------------------------------------------------------
 
