@@ -20,10 +20,12 @@ import Expenses.Server.Routes.AllAccounts qualified as AllAccounts
 import Expenses.Server.Routes.AllTags qualified as AllTags
 import Expenses.Server.Routes.GetAvailableDateRange (DateRange)
 import Expenses.Server.Routes.GetAvailableDateRange qualified as GetAvailableDateRange
+import Expenses.Server.Routes.GetSyncAccountStatus qualified as GetSyncAccountStatus
 import Expenses.Server.Routes.GetTransactionItems qualified as GetTransactionItems
 import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
 import Expenses.Server.Routes.InsertNew qualified as InsertNew
 import Expenses.Server.Routes.ModifyTransaction qualified as ModifyTransaction
+import Expenses.Server.Routes.RenewRequisition qualified as RenewRequisition
 import Expenses.Server.Routes.RunCron qualified as RunCron
 import Expenses.Server.Routes.Search qualified as Search
 import Expenses.Server.Routes.SplitTransactionItems qualified as SplitTransactionItems
@@ -86,6 +88,7 @@ data PrivateAPI mode = PrivateAPI
           :> Post '[JSON] (Vector GetTransactions.TransactionItem)
   , allTags :: mode :- "tags" :> Get '[JSON] (Set TagName)
   , allAccounts :: mode :- "accounts" :> Get '[JSON] [Text]
+  , syncAccountStatus :: mode :- "sync-status" :> Get '[JSON] [GetSyncAccountStatus.AccountSyncStatus]
   , getAvailableDateRange :: mode :- "dates" :> Get '[JSON] DateRange
   }
   deriving stock (Generic)
@@ -110,6 +113,13 @@ data AdminAPI mode = AdminAPI
           :> ReqBody '[JSON] [GetTransactions.NewShortTransactionItem]
           :> PostNoContent
   , runCronSync :: mode :- "sync" :> PostNoContent
+  , renewRequisition ::
+      mode
+        :- "accounts"
+          :> Capture "accountId" Text
+          :> "renew-requisition"
+          :> ReqBody '[JSON] RenewRequisition.RenewRequisitionBody
+          :> Post '[JSON] RenewRequisition.RenewRequisitionResponse
   }
   deriving stock (Generic)
 
@@ -246,6 +256,7 @@ mkServer resourcesDir =
           , isAdmin = isAdminHandler username
           , allTags = AllTags.allTagsHandler
           , allAccounts = AllAccounts.allAccountsHandler
+          , syncAccountStatus = GetSyncAccountStatus.getSyncAccountStatusHandler
           , getAvailableDateRange = GetAvailableDateRange.getAvailableDateRangeHandler
           }
     , admin = \admin ->
@@ -254,6 +265,7 @@ mkServer resourcesDir =
           , insertTransaction = InsertNew.insertTransactionHandler admin
           , splitTransactionItems = SplitTransactionItems.splitTransactionItemsHandler admin
           , runCronSync = RunCron.runCronHandler
+          , renewRequisition = RenewRequisition.renewRequisitionHandler admin
           }
     , health = pure "OK"
     , static = getStaticHandler resourcesDir

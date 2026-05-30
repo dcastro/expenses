@@ -206,9 +206,6 @@ $( mconcat
      , deriveJSON defaultOptions ''CreateRequisitionResponse
      , deriveJSON defaultOptions ''RequisitionsResponse
      , deriveJSON defaultOptions ''Requisition
-     , deriveJSON (aesonDrop 0 snakeCase) ''AccountSyncStatus
-     , deriveJSON (aesonDrop 0 snakeCase) ''RenewRequisitionBody
-     , deriveJSON (aesonDrop 0 snakeCase) ''RenewRequisitionResponse
      , deriveJSON defaultOptions ''TransactionResponse
      , deriveJSON defaultOptions ''TransactionObj
      , deriveJSON defaultOptions ''ApiTransaction
