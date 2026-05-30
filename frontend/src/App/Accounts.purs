@@ -54,10 +54,8 @@ render state =
     [
     ]
     [ HH.section [ classes' "section is-fullheight" ]
-        [ HH.div [ classes' "level" ]
-            [ HH.div [ classes' "level-left" ]
-                [ HH.h4 [ classes' "title is-4" ] [ HH.text "Accounts" ] ]
-            ]
+        [ HH.h4 [ classes' "title is-4 has-text-centered" ]
+            [ HH.text "Accounts" ]
         , if state.loading then
             HH.p [ classes' "has-text-grey" ] [ HH.text "Loading account statuses..." ]
           else
