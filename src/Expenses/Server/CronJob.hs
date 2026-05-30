@@ -65,7 +65,7 @@ nordigenJob' = do
     logInfo_ [i|[Cron] Nordigen sync succeeded. Transactions inserted: #{length newTxRows}.|]
 
 fetchAllAccounts ::
-  (Reader Env :> es, FileSystem :> es, Nordigen :> es, Log :> es) =>
+  (Reader Env :> es, FileSystem :> es, Nordigen :> es, Log :> es, Time :> es, Db :> es, Concurrent :> es) =>
   UTCTime -> Eff es [Db.TransactionJoinedRow]
 fetchAllAccounts now = do
   config <- asks @Env (.config)
@@ -79,10 +79,17 @@ fetchAllAccounts now = do
           [i|
             [Cron] Failed to fetch account: #{acc ^. accountName}:
             #{displayException err}|]
+        finishedAt <- Time.currentTime
+        updateSyncAccountStatus
+          acc
+          finishedAt
+          SyncError
+          (Just $ T.pack $ displayException err)
+          0
         pure []
 
 fetchAccount ::
-  (Reader Env :> es, FileSystem :> es, Nordigen :> es, Log :> es) =>
+  (Reader Env :> es, FileSystem :> es, Nordigen :> es, Log :> es, Time :> es, Db :> es, Concurrent :> es) =>
   UTCTime -> AccountInfo -> Eff es [Db.TransactionJoinedRow]
 fetchAccount now acc = do
   json <- N.getTransactions acc.accountId
@@ -100,13 +107,47 @@ fetchAccount now acc = do
                 . each
                 . to fixTransaction
       config <- asks @Env (.config)
-      pure $ apiToRow config acc <$> apiTxs
+      let rows = apiToRow config acc <$> apiTxs
+      finishedAt <- Time.currentTime
+      updateSyncAccountStatus
+        acc
+        finishedAt
+        SyncSuccess
+        Nothing
+        (length rows)
+      pure rows
     J.Error err -> do
       logAttention_
         [i|
           [Cron] Failed to decode Nordigen's response for account: #{acc ^. accountName}:
             #{err}|]
+      finishedAt <- Time.currentTime
+      updateSyncAccountStatus
+        acc
+        finishedAt
+        SyncError
+        (Just $ T.pack err)
+        0
       pure []
+
+updateSyncAccountStatus ::
+  (Reader Env :> es, Db :> es, Concurrent :> es) =>
+  AccountInfo ->
+  UTCTime ->
+  SyncStatus ->
+  Maybe Text ->
+  Int ->
+  Eff es ()
+updateSyncAccountStatus acc finishedAt status err txCount =
+  useConnection \conn ->
+    Db.upsertSyncAccountStatus
+      conn
+      acc.accountId
+      acc.accountName
+      finishedAt
+      status
+      err
+      txCount
 
 -- | Manually fix mistakes in the API response.
 fixTransaction :: ApiTransaction -> ApiTransaction

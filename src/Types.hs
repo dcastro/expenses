@@ -9,7 +9,9 @@ import Data.Aeson.TH (defaultOptions, deriveJSON)
 import Data.Text qualified as T
 import Data.Time (Day)
 import Database.SQLite.Simple.FromField (FromField)
+import Database.SQLite.Simple.FromField qualified as SQL
 import Database.SQLite.Simple.ToField (ToField)
+import Database.SQLite.Simple.ToField qualified as SQL
 import Expenses.Linear (LinearToJSON)
 import Expenses.NonEmptyText (NonEmptyText)
 import Expenses.NonEmptyText qualified as NET
@@ -68,6 +70,41 @@ data NewTokenRequest = NewTokenRequest
   { secretId :: Text
   , secretKey :: Text
   }
+
+data SyncStatus
+  = SyncSuccess
+  | SyncError
+  deriving stock (Show, Eq, Ord, Enum, Bounded, Generic)
+
+syncStatusToText :: SyncStatus -> Text
+syncStatusToText = \case
+  SyncSuccess -> "success"
+  SyncError -> "error"
+
+syncStatusFromText :: Text -> Maybe SyncStatus
+syncStatusFromText = \case
+  "success" -> Just SyncSuccess
+  "error" -> Just SyncError
+  _ -> Nothing
+
+instance ToJSON SyncStatus where
+  toJSON = J.String . syncStatusToText
+
+instance FromJSON SyncStatus where
+  parseJSON = J.withText "SyncStatus" \txt ->
+    case syncStatusFromText txt of
+      Just st -> pure st
+      Nothing -> fail $ toString [i|Invalid sync status: #{txt}|]
+
+instance ToField SyncStatus where
+  toField = SQL.toField . syncStatusToText
+
+instance FromField SyncStatus where
+  fromField f = do
+    txt <- SQL.fromField @Text f
+    case syncStatusFromText txt of
+      Just st -> pure st
+      Nothing -> SQL.returnError SQL.ConversionFailed f (toString [i|Invalid sync status in DB: #{txt}|])
 
 newtype TransactionResponse = TransactionResponse
   { transactions :: TransactionObj

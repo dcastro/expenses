@@ -88,6 +88,28 @@ instance ToRow TransactionItemRow where
   toRow TransactionItemRow{transactionId, itemIndex, itemAmountCents, tag, details, isExpense} =
     toRow (transactionId, itemIndex, itemAmountCents, tag, details, isExpense)
 
+data SyncAccountStatusRow = SyncAccountStatusRow
+  { accountId :: Text
+  , accountName :: Text
+  , lastSyncFinishedAt :: UTCTime
+  , lastSyncStatus :: SyncStatus
+  , lastSyncError :: Maybe Text
+  , lastSyncedTransactionCount :: Int
+  , updatedAt :: UTCTime
+  }
+  deriving stock (Show, Eq)
+
+instance FromRow SyncAccountStatusRow where
+  fromRow =
+    SyncAccountStatusRow
+      <$> field
+      <*> field
+      <*> field
+      <*> field
+      <*> field
+      <*> field
+      <*> field
+
 filterNewTxs :: (Db :> es) => Connection -> [TransactionJoinedRow] -> Eff es [TransactionJoinedRow]
 filterNewTxs conn txs = do
   let txIds = map (.transactionId) txs
@@ -441,6 +463,55 @@ getAllAccounts conn = do
         FROM transactions
         ORDER BY account
       |]
+
+----------------------------------------------------------------------------
+-- Sync account status
+----------------------------------------------------------------------------
+
+upsertSyncAccountStatus ::
+  (Db :> es) =>
+  Connection ->
+  Text ->
+  Text ->
+  UTCTime ->
+  SyncStatus ->
+  Maybe Text ->
+  Int ->
+  Eff es ()
+upsertSyncAccountStatus conn accountId accountName finishedAt status err txCount = do
+  SQL.execute
+    conn
+    [sql|
+      INSERT INTO sync_account_status
+        (account_id, account_name, last_sync_finished_at, last_sync_status, last_sync_error, last_synced_transaction_count)
+      VALUES
+        (?, ?, ?, ?, ?, ?)
+      ON CONFLICT(account_id) DO UPDATE SET
+        account_name = excluded.account_name,
+        last_sync_finished_at = excluded.last_sync_finished_at,
+        last_sync_status = excluded.last_sync_status,
+        last_sync_error = excluded.last_sync_error,
+        last_synced_transaction_count = excluded.last_synced_transaction_count,
+        updated_at = CURRENT_TIMESTAMP
+    |]
+    (accountId, accountName, finishedAt, status, err, txCount)
+
+getSyncAccountStatuses :: (Db :> es) => Connection -> Eff es [SyncAccountStatusRow]
+getSyncAccountStatuses conn =
+  SQL.query_
+    conn
+    [sql|
+      SELECT
+        account_id,
+        account_name,
+        last_sync_finished_at,
+        last_sync_status,
+        last_sync_error,
+        last_synced_transaction_count,
+        updated_at
+      FROM sync_account_status
+      ORDER BY account_name ASC
+    |]
 
 ----------------------------------------------------------------------------
 -- Modify transactions
