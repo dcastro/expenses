@@ -5,6 +5,7 @@ import CustomPrelude
 import Data.Aeson.TH (defaultOptions, deriveFromJSON, deriveToJSON)
 import Data.List qualified as List
 import Effectful
+import Effectful.Log
 import Effectful.Reader.Static qualified as R
 import Expenses.Effects
 import Expenses.Effects.NextUUID qualified as NextUUID
@@ -31,7 +32,7 @@ $( mconcat
  )
 
 renewRequisitionHandler ::
-  (Reader Env :> es, Nordigen :> es, Error ServerError :> es, NextUUID :> es) =>
+  (Reader Env :> es, Nordigen :> es, Error ServerError :> es, NextUUID :> es, Log :> es) =>
   Admin ->
   Text ->
   RenewRequisitionBody ->
@@ -50,6 +51,7 @@ renewRequisitionHandler _admin accountId body = do
       <&> (.institutionId)
 
   -- Delete any requisitions that may exist for this account.
+  logInfo_ [i|Deleting existing requisitions for account #{accountId}...|]
   requisitions <- N.listRequisitions
   let existingForAccount =
         requisitions.results
@@ -58,6 +60,7 @@ renewRequisitionHandler _admin accountId body = do
     void $ N.deleteRequisition req.id
 
   -- Create a new requisition for the institution
+  logInfo_ [i|Creating new requisition for account #{accountId} and institution #{institutionId}...|]
   referenceUuid <- NextUUID.nextRandom
   created <-
     N.createRequisition
