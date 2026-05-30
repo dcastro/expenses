@@ -214,6 +214,9 @@ render state =
           { transactions: state.transactions
           , minMonth: state.minMonth
           , maxMonth: state.maxMonth
+          -- NOTE: regarding the `enabled` flag.
+          -- The zoomcharts plugin gets buggy if you keep re-rendering it.
+          -- To avoid that, we keep the component mounted at all times, and just set `display: none` when it's not the active route.
           , enabled: Routes.isSingleMonth state.currentRoute
           , isAdmin: state.isAdmin
           , allTags: state.allTags
@@ -241,13 +244,13 @@ render state =
           , allTags: state.allTags
           , allAccounts: state.allAccounts
           }
-      , HH.slot_
-          _accounts
-          unit
-          Accounts.component
-          { enabled: Routes.isAccountsRoute state.currentRoute
-          , isAdmin: state.isAdmin
-          }
+      , HtmlUtils.displayIf (Routes.isAccountsRoute state.currentRoute) $
+          HH.slot_
+            _accounts
+            unit
+            Accounts.component
+            { isAdmin: state.isAdmin
+            }
       , HtmlUtils.displayIf (Routes.isModalOpen state.currentRoute) $
           HH.slot
             _newTransactionModal

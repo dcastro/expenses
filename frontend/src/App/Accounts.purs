@@ -16,15 +16,13 @@ import HtmlUtils as HtmlUtils
 type Slot id = forall query. H.Slot query Output id
 
 type Input =
-  { enabled :: Boolean
-  , isAdmin :: Boolean
+  { isAdmin :: Boolean
   }
 
 type Output = Void
 
 type State =
-  { enabled :: Boolean
-  , isAdmin :: Boolean
+  { isAdmin :: Boolean
   , items :: Array API.AccountSyncStatus
   , loading :: Boolean
   , errorMessage :: Maybe String
@@ -32,16 +30,14 @@ type State =
 
 data Action
   = Initialize
-  | Receive Input
   | Refresh
   | RenewRequisition String
 
 component :: forall q o m. MonadAff m => H.Component q Input o m
 component =
   H.mkComponent
-    { initialState: \{ enabled, isAdmin } ->
-        { enabled
-        , isAdmin
+    { initialState: \{ isAdmin } ->
+        { isAdmin
         , items: []
         , loading: false
         , errorMessage: Nothing
@@ -50,14 +46,13 @@ component =
     , eval: H.mkEval H.defaultEval
         { handleAction = handleAction
         , initialize = Just Initialize
-        , receive = Just <<< Receive
         }
     }
 
 render :: forall m. MonadAff m => State -> H.ComponentHTML Action () m
 render state =
   HH.section
-    [ HP.style $ if state.enabled then "" else "display: none"
+    [
     ]
     [ HH.section [ classes' "section" ]
         [ HH.div [ classes' "level" ]
@@ -126,15 +121,7 @@ showStatus = case _ of
 handleAction :: forall o m. MonadAff m => Action -> H.HalogenM State Action () o m Unit
 handleAction = case _ of
   Initialize -> do
-    state <- H.get
-    when state.enabled do
-      handleAction Refresh
-
-  Receive input -> do
-    prevEnabled <- H.gets _.enabled
-    H.modify_ _ { enabled = input.enabled, isAdmin = input.isAdmin }
-    when (input.enabled && not prevEnabled) do
-      handleAction Refresh
+    handleAction Refresh
 
   Refresh -> do
     H.modify_ _ { loading = true, errorMessage = Nothing }
