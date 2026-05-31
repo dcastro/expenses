@@ -30,11 +30,13 @@ type State =
   , missingAccounts :: Array API.MissingInstitutionAccounts
   , loading :: Boolean
   , renewing :: Boolean
+  , syncing :: Boolean
   }
 
 data Action
   = Initialize
   | RenewRequisition String
+  | SyncNow
 
 component :: forall q o m. MonadAff m => H.Component q Input o m
 component =
@@ -45,6 +47,7 @@ component =
         , missingAccounts: []
         , loading: false
         , renewing: false
+        , syncing: false
         }
     , render
     , eval: H.mkEval H.defaultEval
@@ -61,6 +64,16 @@ render state =
     [ HH.section [ classes' "section is-fullheight" ]
         [ HH.h4 [ classes' "title is-4 has-text-centered" ]
             [ HH.text "Accounts" ]
+        , if state.isAdmin then
+            HH.div [ classes' "is-flex is-justify-content-flex-end mb-3" ]
+              [ HH.button
+                  [ classes' $ "button is-small is-info" # HtmlUtils.addClassIf state.syncing "is-loading"
+                  , HP.disabled (state.loading || state.renewing || state.syncing)
+                  , HE.onClick \_ -> SyncNow
+                  ]
+                  [ HH.text "Sync now" ]
+              ]
+          else HH.text ""
         , renderMissingAccountsWarning state
         , if state.loading then
             HH.p [ classes' "has-text-grey" ] [ HH.text "Loading account statuses..." ]
@@ -108,7 +121,7 @@ renderInstitution state institution =
         , if state.isAdmin then
             HH.button
               [ classes' "button is-small is-primary"
-              , HP.disabled (state.loading || state.renewing)
+              , HP.disabled (state.loading || state.renewing || state.syncing)
               , HE.onClick \_ -> RenewRequisition institution.institutionId
               ]
               [ HH.text "Renew" ]
@@ -158,3 +171,9 @@ handleAction = case _ of
     let redirectUrl = HtmlUtils.apiBaseUrl <> "#" <> (RouteDuplex.print Routes.routeCodec (Routes.Accounts Routes.defaultModalFlag))
     response <- H.liftAff $ API.renewRequisition institutionId { redirect: redirectUrl }
     H.liftEffect $ HtmlUtils.redirectTo response.link
+
+  SyncNow -> do
+    H.modify_ _ { syncing = true }
+    H.liftAff API.triggerSync
+    syncStatus <- H.liftAff API.getSyncAccountStatus
+    H.modify_ _ { institutions = syncStatus.institutions, missingAccounts = syncStatus.missingAccounts, syncing = false }

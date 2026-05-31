@@ -101,6 +101,12 @@ renewRequisition institutionId payload = do
     <#> statusCodeIs 200
     <#> decodeJson
 
+triggerSync :: Aff Unit
+triggerSync = do
+  _ <- post Nothing (HtmlUtils.apiBaseUrl <> "sync")
+    <#> statusCodeIs 204
+  pure unit
+
 ----------------------------------------------------------------------------
 -- Utils
 ----------------------------------------------------------------------------
