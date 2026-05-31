@@ -31,20 +31,12 @@ $( mconcat
  )
 
 renewRequisitionHandler ::
-  (Reader Env :> es, Nordigen :> es, Error ServerError :> es, NextUUID :> es, Log :> es) =>
+  (Nordigen :> es, NextUUID :> es, Log :> es) =>
   Admin ->
   Text ->
   RenewRequisitionBody ->
   Eff es RenewRequisitionResponse
 renewRequisitionHandler _admin institutionId body = do
-  env <- R.ask @Env
-  let AppConfig{institutions} = env.config
-
-  -- Validate institution exists in config before attempting renewal.
-  unless
-    (institutions & any (\institution -> institution.institutionId == institutionId))
-    (throwJsonError err404 [i|Institution not found in config: #{institutionId}|])
-
   -- Delete any requisitions that may exist for this institution.
   logInfo_ [i|Deleting existing requisitions for institution #{institutionId}...|]
   token <- N.login
