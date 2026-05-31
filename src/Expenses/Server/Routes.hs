@@ -20,7 +20,7 @@ import Expenses.Server.Routes.AllAccounts qualified as AllAccounts
 import Expenses.Server.Routes.AllTags qualified as AllTags
 import Expenses.Server.Routes.GetAvailableDateRange (DateRange)
 import Expenses.Server.Routes.GetAvailableDateRange qualified as GetAvailableDateRange
-import Expenses.Server.Routes.GetSyncAccountStatus qualified as GetSyncAccountStatus
+import Expenses.Server.Routes.GetSyncStatus qualified as GetSyncStatus
 import Expenses.Server.Routes.GetTransactionItems qualified as GetTransactionItems
 import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
 import Expenses.Server.Routes.InsertNew qualified as InsertNew
@@ -88,7 +88,7 @@ data PrivateAPI mode = PrivateAPI
           :> Post '[JSON] (Vector GetTransactions.TransactionItem)
   , allTags :: mode :- "tags" :> Get '[JSON] (Set TagName)
   , allAccounts :: mode :- "accounts" :> Get '[JSON] [Text]
-  , syncAccountStatus :: mode :- "sync-status" :> Get '[JSON] GetSyncAccountStatus.SyncAccountStatusResponse
+  , syncStatus :: mode :- "sync-status" :> Get '[JSON] GetSyncStatus.SyncStatusResponse
   , getAvailableDateRange :: mode :- "dates" :> Get '[JSON] DateRange
   }
   deriving stock (Generic)
@@ -256,7 +256,7 @@ mkServer resourcesDir =
           , isAdmin = isAdminHandler username
           , allTags = AllTags.allTagsHandler
           , allAccounts = AllAccounts.allAccountsHandler
-          , syncAccountStatus = GetSyncAccountStatus.getSyncAccountStatusHandler
+          , syncStatus = GetSyncStatus.getSyncStatusHandler
           , getAvailableDateRange = GetAvailableDateRange.getAvailableDateRangeHandler
           }
     , admin = \admin ->

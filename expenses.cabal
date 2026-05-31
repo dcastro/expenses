@@ -37,7 +37,7 @@ library
       Expenses.Server.Routes.AllAccounts
       Expenses.Server.Routes.AllTags
       Expenses.Server.Routes.GetAvailableDateRange
-      Expenses.Server.Routes.GetSyncAccountStatus
+      Expenses.Server.Routes.GetSyncStatus
       Expenses.Server.Routes.GetTransactionItems
       Expenses.Server.Routes.GetTransactions
       Expenses.Server.Routes.InsertNew

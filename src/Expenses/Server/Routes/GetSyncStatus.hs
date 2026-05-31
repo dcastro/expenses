@@ -1,4 +1,4 @@
-module Expenses.Server.Routes.GetSyncAccountStatus where
+module Expenses.Server.Routes.GetSyncStatus where
 
 import Config (AppConfig (..))
 import Config qualified
@@ -45,7 +45,7 @@ data MissingInstitutionAccounts = MissingInstitutionAccounts
   }
   deriving stock (Show, Eq, Generic)
 
-data SyncAccountStatusResponse = SyncAccountStatusResponse
+data SyncStatusResponse = SyncStatusResponse
   { institutions :: [InstitutionSyncStatus]
   , missingAccounts :: [MissingInstitutionAccounts]
   }
@@ -55,14 +55,14 @@ $( mconcat
      [ deriveToJSON defaultOptions ''AccountSyncStatus
      , deriveToJSON defaultOptions ''InstitutionSyncStatus
      , deriveToJSON defaultOptions ''MissingInstitutionAccounts
-     , deriveToJSON defaultOptions ''SyncAccountStatusResponse
+     , deriveToJSON defaultOptions ''SyncStatusResponse
      ]
  )
 
-getSyncAccountStatusHandler ::
+getSyncStatusHandler ::
   (Db :> es, Reader Env :> es, Concurrent :> es, Nordigen :> es) =>
-  Eff es SyncAccountStatusResponse
-getSyncAccountStatusHandler = do
+  Eff es SyncStatusResponse
+getSyncStatusHandler = do
   env <- R.ask @Env
   if env.demoMode
     then pure $ demoResponse env.config
@@ -118,12 +118,12 @@ getSyncAccountStatusHandler = do
                 }
 
       pure
-        SyncAccountStatusResponse
+        SyncStatusResponse
           { institutions = institutionStatuses
           , missingAccounts = missingAccounts
           }
 
-demoResponse :: AppConfig -> SyncAccountStatusResponse
+demoResponse :: AppConfig -> SyncStatusResponse
 demoResponse AppConfig{institutions} =
   let
     institutionStatuses =
@@ -143,7 +143,7 @@ demoResponse AppConfig{institutions} =
                   }
           }
    in
-    SyncAccountStatusResponse
+    SyncStatusResponse
       { institutions = institutionStatuses
       , missingAccounts = []
       }
