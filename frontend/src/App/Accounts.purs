@@ -2,6 +2,7 @@ module App.Accounts where
 
 import Prelude
 
+import App.Routes as Routes
 import Core.API as API
 import Core.APITypes as API
 import Data.Array as Arr
@@ -13,6 +14,7 @@ import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import HtmlUtils (classes')
 import HtmlUtils as HtmlUtils
+import Routing.Duplex as RouteDuplex
 
 type Slot id = forall query. H.Slot query Output id
 
@@ -155,6 +157,6 @@ handleAction = case _ of
 
   RenewRequisition institutionId -> do
     H.modify_ _ { renewing = true }
-    let redirectUrl = HtmlUtils.apiBaseUrl <> "#/accounts"
+    let redirectUrl = HtmlUtils.apiBaseUrl <> "#" <> (RouteDuplex.print Routes.routeCodec (Routes.Accounts Routes.defaultModalFlag))
     response <- H.liftAff $ API.renewRequisition institutionId { redirect: redirectUrl }
     H.liftEffect $ HtmlUtils.redirectTo response.link
