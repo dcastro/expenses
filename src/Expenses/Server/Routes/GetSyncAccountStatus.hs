@@ -13,7 +13,7 @@ import Effectful
 import Effectful.Reader.Static qualified as R
 import Expenses.Effects
 import Expenses.Effects.Nordigen qualified as N
-import Types (AccountInfo (..), InstitutionAccountInfo (..), InstitutionInfo (..), Requisition (..), RequisitionsResponse (..), SyncStatus)
+import Types (InstitutionAccountInfo (..), InstitutionInfo (..), Requisition (..), RequisitionsResponse (..), SyncStatus)
 
 data AccountSyncStatus = AccountSyncStatus
   { accountId :: Text

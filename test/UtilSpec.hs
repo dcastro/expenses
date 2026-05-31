@@ -73,18 +73,16 @@ unit_getIsExpense = do
           , notExpenses = ["ATM"]
           }
   let accExpense =
-        AccountInfo
+        InstitutionAccountInfo
           { accountId = "exp-acc-id"
           , accountName = "ExpenseAccount"
-          , institutionId = "inst-exp"
           , isExpenseAccount = True
           , flipSign = False
           }
   let accNonExpense =
-        AccountInfo
+        InstitutionAccountInfo
           { accountId = "nonexp-acc-id"
           , accountName = "NonExpenseAccount"
-          , institutionId = "inst-nonexp"
           , isExpenseAccount = False
           , flipSign = False
           }

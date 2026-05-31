@@ -92,7 +92,7 @@ fetchAllAccounts now = do
 
 fetchAccount ::
   (Reader Env :> es, FileSystem :> es, Nordigen :> es, Log :> es, Time :> es, Db :> es, Concurrent :> es) =>
-  SA.Token -> UTCTime -> AccountInfo -> Eff es [Db.TransactionJoinedRow]
+  SA.Token -> UTCTime -> InstitutionAccountInfo -> Eff es [Db.TransactionJoinedRow]
 fetchAccount authToken now acc = do
   json <- N.getTransactions authToken acc.accountId
 
@@ -134,7 +134,7 @@ fetchAccount authToken now acc = do
 
 updateSyncAccountStatus ::
   (Reader Env :> es, Db :> es, Concurrent :> es) =>
-  AccountInfo ->
+  InstitutionAccountInfo ->
   UTCTime ->
   SyncStatus ->
   Maybe Text ->
@@ -183,7 +183,7 @@ fixTransaction tx =
        in tx{bookingDate = date, valueDate = date}
     else tx
 
-logTransactions :: (FileSystem :> es, Reader Env :> es) => UTCTime -> Value -> AccountInfo -> Eff es ()
+logTransactions :: (FileSystem :> es, Reader Env :> es) => UTCTime -> Value -> InstitutionAccountInfo -> Eff es ()
 logTransactions now transactions acc = do
   logsDir <- asks @Env (.logsDir)
   let accountDir = logsDir </> toString acc.accountName
@@ -236,7 +236,7 @@ mkEventLogAction
                 }
         }
 
-apiToRow :: AppConfig -> AccountInfo -> ApiTransaction -> Db.TransactionJoinedRow
+apiToRow :: AppConfig -> InstitutionAccountInfo -> ApiTransaction -> Db.TransactionJoinedRow
 apiToRow config acc tx = do
   let txAmount = tx.transactionAmount.amount & fixSign acc & Util.eurosToCents & BECents
   let txId = getTransactionId tx
@@ -258,7 +258,7 @@ apiToRow config acc tx = do
   pickCategory desc =
     config.categoryPatterns ^? each . filtered (\entry -> entry.pattern_ `T.isInfixOf` desc) . to (.tag)
 
-  fixSign :: AccountInfo -> Text -> Text
+  fixSign :: InstitutionAccountInfo -> Text -> Text
   fixSign ai amt =
     if ai.flipSign
       then
@@ -275,7 +275,7 @@ apiToRow config acc tx = do
         error [i|Transaction does not have a 'transactionId' or a 'entryReference': '#{J.encodeToTextBuilder t}'|]
 
 -- Determines whether a transaction should be considered an expense.
-getIsExpense :: AppConfig -> AccountInfo -> Text -> Text -> Bool
+getIsExpense :: AppConfig -> InstitutionAccountInfo -> Text -> Text -> Bool
 getIsExpense config acc txId txDesc =
   if
     | not acc.isExpenseAccount -> False

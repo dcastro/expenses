@@ -42,17 +42,9 @@ loadAppConfig :: (MonadIO m) => FilePath -> m AppConfig
 loadAppConfig path = do
   Y.decodeFileThrow path
 
-allAccountInfos :: AppConfig -> [AccountInfo]
+allAccountInfos :: AppConfig -> [InstitutionAccountInfo]
 allAccountInfos AppConfig{institutions} =
-  institutions >>= \InstitutionInfo{institutionId, accounts} ->
-    accounts <&> \InstitutionAccountInfo{accountName, accountId, isExpenseAccount, flipSign} ->
-      AccountInfo
-        { accountName
-        , accountId
-        , institutionId
-        , isExpenseAccount
-        , flipSign
-        }
+  institutions >>= (.accounts)
 
 allGroupedTags :: AppConfig -> Set.Set TagName
 allGroupedTags AppConfig{allTagGroups} =
