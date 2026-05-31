@@ -4,6 +4,7 @@ import CustomPrelude
 import Data.Aeson.TH (defaultOptions, deriveFromJSON, deriveToJSON)
 import Effectful
 import Effectful.Log
+import Effectful.Reader.Static qualified as R
 import Expenses.Effects
 import Expenses.Effects.NextUUID qualified as NextUUID
 import Expenses.Effects.Nordigen qualified as N
@@ -27,13 +28,23 @@ $( mconcat
  )
 
 renewRequisitionHandler ::
-  (Nordigen :> es, NextUUID :> es, Log :> es) =>
+  (Nordigen :> es, NextUUID :> es, Log :> es, Reader Env :> es) =>
   Admin ->
   Text ->
   RenewRequisitionBody ->
   Eff es RenewRequisitionResponse
 renewRequisitionHandler _admin institutionId body = do
-  -- Delete any requisitions that may exist for this institution.
+  env <- R.ask @Env
+  if env.demoMode
+    then pure RenewRequisitionResponse{id = "demo-requisition-id", link = "https://www.google.com"}
+    else renewRequisition institutionId body
+
+renewRequisition ::
+  (Nordigen :> es, NextUUID :> es, Log :> es) =>
+  Text ->
+  RenewRequisitionBody ->
+  Eff es RenewRequisitionResponse
+renewRequisition institutionId body = do
   logInfo_ [i|Deleting existing requisitions for institution #{institutionId}...|]
   token <- N.login
   requisitions <- N.listRequisitions token
@@ -43,7 +54,6 @@ renewRequisitionHandler _admin institutionId body = do
   for_ existingForInstitution \req ->
     void $ N.deleteRequisition token req.id
 
-  -- Create a new requisition for the institution
   logInfo_ [i|Creating new requisition for institution #{institutionId}...|]
   referenceUuid <- NextUUID.nextRandom
   created <-
