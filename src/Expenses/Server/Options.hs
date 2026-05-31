@@ -27,8 +27,13 @@ data ServerOptions = ServerOptions
   , eventLogPath :: FilePath
   , configPath :: FilePath
   , runCron :: Bool
+  -- ^ Whether to run the Nordigen cron job.
   , user :: Maybe Username
+  {- ^ If set, and if the auth header is missing, the server authenticate the request as this user.
+  For development and testing only.
+  -}
   , resourcesDir :: FilePath
+  -- ^ Path to the directory containing static resources (e.g. the frontend bundle).
   , logsDir :: FilePath
   , isVerbose :: Bool
   , nordigenSecretId :: Text

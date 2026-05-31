@@ -115,19 +115,19 @@ renderInstitution state institution =
           else
             HH.text ""
         ]
-    , HH.table [ classes' "table is-fullwidth is-striped" ]
-        [ HH.thead []
-            [ HH.tr []
-                [ HH.th [] [ HH.text "Account" ]
-                , HH.th [] [ HH.text "Account ID" ]
-                , HH.th [] [ HH.text "Requisition" ]
-                , HH.th [] [ HH.text "Last Sync" ]
-                , HH.th [] [ HH.text "Status" ]
-                , HH.th [] [ HH.text "Transactions" ]
-                , HH.th [] [ HH.text "Error" ]
+    , HH.div [ classes' "table-container" ]
+        [ HH.table [ classes' "table is-fullwidth is-striped" ]
+            [ HH.thead []
+                [ HH.tr []
+                    [ HH.th [] [ HH.text "Account" ]
+                    , HH.th [] [ HH.text "Account ID" ]
+                    , HH.th [] [ HH.text "Requisition" ]
+                    , HH.th [] [ HH.text "Last Sync Status" ]
+                    , HH.th [] [ HH.text "Error" ]
+                    ]
                 ]
+            , HH.tbody [] (institution.accountStatuses <#> renderAccountRow)
             ]
-        , HH.tbody [] (institution.accountStatuses <#> renderAccountRow)
         ]
     ]
 
@@ -137,9 +137,7 @@ renderAccountRow account =
     [ HH.td [] [ HH.text account.accountName ]
     , HH.td [ classes' "is-family-monospace" ] [ HH.text account.accountId ]
     , HH.td [ classes' "is-family-monospace" ] [ HH.text $ fromMaybe "-" account.requisitionStatus ]
-    , HH.td [] [ HH.text $ fromMaybe "Never" account.lastSyncFinishedAt ]
     , HH.td [] [ HH.text $ fromMaybe "Never" (showStatus <$> account.lastSyncStatus) ]
-    , HH.td [] [ HH.text $ fromMaybe "-" (show <$> account.lastSyncedTransactionCount) ]
     , HH.td [ classes' "is-size-7" ] [ HH.text $ fromMaybe "" account.lastSyncError ]
     ]
 
