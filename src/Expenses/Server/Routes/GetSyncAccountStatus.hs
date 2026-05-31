@@ -14,7 +14,6 @@ import Types (InstitutionAccountInfo (..), InstitutionInfo (..), SyncStatus)
 data AccountSyncStatus = AccountSyncStatus
   { accountId :: Text
   , accountName :: Text
-  , institutionId :: Text
   , lastSyncFinishedAt :: Maybe UTCTime
   , lastSyncStatus :: Maybe SyncStatus
   , lastSyncError :: Maybe Text
@@ -63,7 +62,6 @@ getSyncAccountStatusHandler = do
                   AccountSyncStatus
                     { accountId = accountId
                     , accountName = accountName
-                    , institutionId = institutionId
                     , lastSyncFinishedAt = Nothing
                     , lastSyncStatus = Nothing
                     , lastSyncError = Nothing
@@ -73,7 +71,6 @@ getSyncAccountStatusHandler = do
                   AccountSyncStatus
                     { accountId = accountId
                     , accountName = accountName
-                    , institutionId = institutionId
                     , lastSyncFinishedAt = Just row.lastSyncFinishedAt
                     , lastSyncStatus = Just row.lastSyncStatus
                     , lastSyncError = row.lastSyncError
