@@ -7,28 +7,24 @@ cronSchedule: '0 2 * * *'
 
 institutions:
   - institutionId: 'MILLENIUMBCP_BCOMPTPL'
-    institutionName: 'Millennium'
     accounts:
       - accountName: 'Millennium'
         accountId: '8ec90740-af12-4abc-b12c-3a4cf08af69d'
         isExpenseAccount: true
         flipSign: false
   - institutionId: 'CAIXA_CENTRAL_DE_CREDITO_AGRICOLA_CCCMPTPL'
-    institutionName: 'Moey'
     accounts:
       - accountName: 'Moey'
         accountId: '909fc097-248d-48e5-8665-3e00430935ce'
         isExpenseAccount: true
         flipSign: false
   - institutionId: 'BANCOACTIVOBANK_ACTVPTPL'
-    institutionName: 'Activo'
     accounts:
       - accountName: 'Activo'
         accountId: '8b683d99-56cf-4cf5-bb05-7fd182877f9a'
         isExpenseAccount: false
         flipSign: false
   # - institutionId: 'CETELEM_CETMPTP1XXX'
-  #   institutionName: 'Black'
   #   accounts:
   #     - accountName: 'Black'
   #       accountId: '9e01653c-1c47-450f-89b5-6f90766424df'

@@ -88,7 +88,7 @@ data PrivateAPI mode = PrivateAPI
           :> Post '[JSON] (Vector GetTransactions.TransactionItem)
   , allTags :: mode :- "tags" :> Get '[JSON] (Set TagName)
   , allAccounts :: mode :- "accounts" :> Get '[JSON] [Text]
-  , syncAccountStatus :: mode :- "sync-status" :> Get '[JSON] [GetSyncAccountStatus.AccountSyncStatus]
+  , syncAccountStatus :: mode :- "sync-status" :> Get '[JSON] [GetSyncAccountStatus.InstitutionSyncStatus]
   , getAvailableDateRange :: mode :- "dates" :> Get '[JSON] DateRange
   }
   deriving stock (Generic)

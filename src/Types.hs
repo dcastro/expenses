@@ -185,7 +185,6 @@ data AccountInfo = AccountInfo
 
 data InstitutionInfo = InstitutionInfo
   { institutionId :: Text
-  , institutionName :: Text
   , accounts :: [InstitutionAccountInfo]
   }
   deriving stock (Eq, Show)

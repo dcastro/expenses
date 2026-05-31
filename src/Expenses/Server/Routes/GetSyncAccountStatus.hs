@@ -1,6 +1,6 @@
 module Expenses.Server.Routes.GetSyncAccountStatus where
 
-import Config qualified
+import Config (AppConfig (..))
 import CustomPrelude
 import Data.Aeson.TH (defaultOptions, deriveToJSON)
 import Data.Map qualified as Map
@@ -9,7 +9,7 @@ import Database qualified as Db
 import Effectful
 import Effectful.Reader.Static qualified as R
 import Expenses.Effects
-import Types (AccountInfo (..), SyncStatus)
+import Types (InstitutionAccountInfo (..), InstitutionInfo (..), SyncStatus)
 
 data AccountSyncStatus = AccountSyncStatus
   { accountId :: Text
@@ -22,17 +22,24 @@ data AccountSyncStatus = AccountSyncStatus
   }
   deriving stock (Show, Eq, Generic)
 
+data InstitutionSyncStatus = InstitutionSyncStatus
+  { institutionId :: Text
+  , accountStatuses :: [AccountSyncStatus]
+  }
+  deriving stock (Show, Eq, Generic)
+
 $( mconcat
      [ deriveToJSON defaultOptions ''AccountSyncStatus
+     , deriveToJSON defaultOptions ''InstitutionSyncStatus
      ]
  )
 
 getSyncAccountStatusHandler ::
   (Db :> es, Reader Env :> es, Concurrent :> es) =>
-  Eff es [AccountSyncStatus]
+  Eff es [InstitutionSyncStatus]
 getSyncAccountStatusHandler = do
   env <- R.ask @Env
-  let accountInfos = Config.allAccountInfos env.config
+  let AppConfig{institutions} = env.config
 
   -- Get the sync status for all accounts from the database, and index it by account ID for easy lookup.
   syncRows <-
@@ -44,27 +51,32 @@ getSyncAccountStatusHandler = do
           <&> (\row -> (row.accountId, row))
           & Map.fromList
 
-  --  Get all the accounts from the config, and pair with the corresponding sync status from the database (if it exists).
+  -- Get all configured institutions/accounts, and pair each account with corresponding DB sync status (if it exists).
   pure $
-    accountInfos <&> \AccountInfo{accountId, accountName, institutionId} ->
-      case Map.lookup accountId syncByAccountId of
-        Nothing ->
-          AccountSyncStatus
-            { accountId = accountId
-            , accountName = accountName
-            , institutionId = institutionId
-            , lastSyncFinishedAt = Nothing
-            , lastSyncStatus = Nothing
-            , lastSyncError = Nothing
-            , lastSyncedTransactionCount = Nothing
-            }
-        Just row ->
-          AccountSyncStatus
-            { accountId = accountId
-            , accountName = accountName
-            , institutionId = institutionId
-            , lastSyncFinishedAt = Just row.lastSyncFinishedAt
-            , lastSyncStatus = Just row.lastSyncStatus
-            , lastSyncError = row.lastSyncError
-            , lastSyncedTransactionCount = Just row.lastSyncedTransactionCount
-            }
+    institutions <&> \InstitutionInfo{institutionId, accounts} ->
+      InstitutionSyncStatus
+        { institutionId
+        , accountStatuses =
+            accounts <&> \InstitutionAccountInfo{accountId, accountName} ->
+              case Map.lookup accountId syncByAccountId of
+                Nothing ->
+                  AccountSyncStatus
+                    { accountId = accountId
+                    , accountName = accountName
+                    , institutionId = institutionId
+                    , lastSyncFinishedAt = Nothing
+                    , lastSyncStatus = Nothing
+                    , lastSyncError = Nothing
+                    , lastSyncedTransactionCount = Nothing
+                    }
+                Just row ->
+                  AccountSyncStatus
+                    { accountId = accountId
+                    , accountName = accountName
+                    , institutionId = institutionId
+                    , lastSyncFinishedAt = Just row.lastSyncFinishedAt
+                    , lastSyncStatus = Just row.lastSyncStatus
+                    , lastSyncError = row.lastSyncError
+                    , lastSyncedTransactionCount = Just row.lastSyncedTransactionCount
+                    }
+        }
