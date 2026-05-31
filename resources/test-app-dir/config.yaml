@@ -3,7 +3,7 @@ admins:
 
 cronSchedule: '0 2 * * *'
 
-accountInfos: []
+institutions: []
 
 allTagGroups:
   Rent:

@@ -2,8 +2,8 @@
 default:
     just --list
 
-run:
-    stack run expenses-manager-server -- --user test --verbose
+run *ARGS:
+    stack run expenses-manager-server -- --user test --verbose {{ ARGS }}
 
 run-user-dir:
     stack run expenses-manager-server -- --user test --verbose --app-dir /home/dc/.local/share/expenses-manager

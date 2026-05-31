@@ -9,7 +9,7 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/home/dc/.nix-profile/bin/expenses-manager-server --port 8083 --app-dir /home/dc/.local/share/expenses-manager-demo
+ExecStart=/home/dc/.nix-profile/bin/expenses-manager-server --port 8083 --app-dir /home/dc/.local/share/expenses-manager-demo --demo-mode
 # If the server process dies, the service will be restarted
 Restart=always
 StandardOutput=journal

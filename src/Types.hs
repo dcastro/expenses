@@ -129,6 +129,7 @@ data Requisition = Requisition
   { id :: Text
   , accounts :: [Text]
   , institutionId :: Text
+  , status :: Maybe Text
   }
   deriving stock (Show, Eq, Generic)
 
@@ -171,10 +172,15 @@ newtype DetailsResponse = DetailsResponse
   { account :: J.Object
   }
 
-data AccountInfo = AccountInfo
+data InstitutionInfo = InstitutionInfo
+  { institutionId :: Text
+  , accounts :: [InstitutionAccountInfo]
+  }
+  deriving stock (Eq, Show)
+
+data InstitutionAccountInfo = InstitutionAccountInfo
   { accountName :: Text
   , accountId :: Text
-  , institutionId :: Text
   , -- Whether transactions from this account should be treated as expenses.
     isExpenseAccount :: Bool
   , -- Credit accounts show transactions as positive numbers, and debit accounts as negative numbers.($)
@@ -214,7 +220,8 @@ $( mconcat
      , deriveJSON defaultOptions ''NewTokenResponse
      , deriveJSON defaultOptions ''BalancesResponse
      , deriveJSON defaultOptions ''DetailsResponse
-     , deriveJSON defaultOptions ''AccountInfo
+     , deriveJSON defaultOptions ''InstitutionInfo
+     , deriveJSON defaultOptions ''InstitutionAccountInfo
      ]
  )
 
@@ -223,7 +230,8 @@ makeLensesWith classIdFields ''TransactionObj
 makeLensesWith classIdFields ''ApiTransaction
 makeLensesWith classIdFields ''Amount
 makeLensesWith classIdFields ''NewTokenResponse
-makeLensesWith classIdFields ''AccountInfo
+makeLensesWith classIdFields ''InstitutionInfo
+makeLensesWith classIdFields ''InstitutionAccountInfo
 makeLensesWith classIdFields ''TransactionRecord
 makeLensesWith classIdFields ''TransactionItemRecord
 makeLensesWith classIdFields ''FECents

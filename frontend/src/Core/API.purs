@@ -55,8 +55,8 @@ allAccounts = do
     <#> statusCodeIs 200
     <#> decodeJson
 
-getSyncStatus :: Aff (Array AccountSyncStatus)
-getSyncStatus = do
+getSyncAccountStatus :: Aff SyncAccountStatusResponse
+getSyncAccountStatus = do
   get (HtmlUtils.apiBaseUrl <> "sync-status")
     <#> statusCodeIs 200
     <#> decodeJson
@@ -94,10 +94,10 @@ splitTransaction transactionId items = do
     <#> statusCodeIs 204
   pure unit
 
-renewRequisition :: TransactionId -> RenewRequisitionBody -> Aff RenewRequisitionResponse
-renewRequisition accountId payload = do
+renewRequisition :: String -> RenewRequisitionBody -> Aff RenewRequisitionResponse
+renewRequisition institutionId payload = do
   let body = RequestBody.json $ J.encodeJson payload
-  post (Just body) (HtmlUtils.apiBaseUrl <> "accounts/" <> accountId <> "/renew-requisition")
+  post (Just body) (HtmlUtils.apiBaseUrl <> "institutions/" <> institutionId <> "/renew-requisition")
     <#> statusCodeIs 200
     <#> decodeJson
 

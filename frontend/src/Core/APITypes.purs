@@ -232,6 +232,11 @@ type DateRange =
 -- GET /sync-status
 ----------------------------------------------------------------------------
 
+type SyncAccountStatusResponse =
+  { institutions :: Array InstitutionSyncStatus
+  , missingAccounts :: Array MissingInstitutionAccounts
+  }
+
 data SyncStatus
   = SyncSuccess
   | SyncError
@@ -249,15 +254,26 @@ instance DecodeJson SyncStatus where
 type AccountSyncStatus =
   { accountId :: String
   , accountName :: String
-  , institutionId :: String
+  , requisitionStatus :: Maybe String
   , lastSyncFinishedAt :: Maybe String
   , lastSyncStatus :: Maybe SyncStatus
   , lastSyncError :: Maybe String
   , lastSyncedTransactionCount :: Maybe Int
   }
 
+type InstitutionSyncStatus =
+  { institutionId :: String
+  , accountStatuses :: Array AccountSyncStatus
+  }
+
+type MissingInstitutionAccounts =
+  { institutionId :: String
+  , institutionName :: String
+  , missingAccountIds :: Array String
+  }
+
 ----------------------------------------------------------------------------
--- POST /accounts/:accountId/renew-requisition
+-- POST /institutions/:institutionId/renew-requisition
 ----------------------------------------------------------------------------
 
 type RenewRequisitionBody =

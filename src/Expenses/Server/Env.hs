@@ -8,6 +8,7 @@ data Env = Env
   { dbConn :: MVar SQL.Connection
   , eventLogPath :: FilePath
   , logsDir :: FilePath
+  , demoMode :: Bool
   , nordigenSecretId :: Text
   , nordigenSecretKey :: Text
   , config :: AppConfig

@@ -16,6 +16,7 @@ data RawServerOptions = RawServerOptions
   { port :: Int
   , appDir :: FilePath
   , runCron :: Bool
+  , demoMode :: Bool
   , user :: Maybe Username
   , isVerbose :: Bool
   }
@@ -27,8 +28,17 @@ data ServerOptions = ServerOptions
   , eventLogPath :: FilePath
   , configPath :: FilePath
   , runCron :: Bool
+  -- ^ Whether to run the Nordigen cron job.
+  , demoMode :: Bool
+  {- ^ Whether to run in demo mode: https://expenses-demo.diogocastro.com/
+  In this mode, we use fake data instead of syncing with Nordigen.
+  -}
   , user :: Maybe Username
+  {- ^ If set, and if the auth header is missing, the server authenticate the request as this user.
+  For development and testing only.
+  -}
   , resourcesDir :: FilePath
+  -- ^ Path to the directory containing static resources (e.g. the frontend bundle).
   , logsDir :: FilePath
   , isVerbose :: Bool
   , nordigenSecretId :: Text
@@ -40,7 +50,7 @@ mkServerOptions :: (MonadIO m, MonadLog m) => m ServerOptions
 mkServerOptions = do
   nordigenSecretId <- liftIO $ getEnv "EXPENSES_NORDIGEN_SECRET_ID"
   nordigenSecretKey <- liftIO $ getEnv "EXPENSES_NORDIGEN_SECRET_KEY"
-  RawServerOptions{port, appDir, runCron, user, isVerbose} <- liftIO parseRawServerOptions
+  RawServerOptions{port, appDir, runCron, demoMode, user, isVerbose} <- liftIO parseRawServerOptions
 
   appDir <- liftIO $ Dir.canonicalizePath appDir
 
@@ -59,6 +69,7 @@ mkServerOptions = do
   logInfo_ [i|Starting server on port #{port}|]
   logInfo_ [i|Fallback user: #{fallbackUserLog}|]
   logInfo_ [i|Cron job enabled: #{runCron}|]
+  logInfo_ [i|Demo mode: #{demoMode}|]
   logInfo_ [i|DB path: #{dbPath}|]
   logInfo_ [i|Config: #{configPath}|]
   logInfo_ [i|Event log path: #{eventLogPath}|]
@@ -74,6 +85,7 @@ mkServerOptions = do
       , eventLogPath
       , configPath
       , runCron
+      , demoMode
       , user
       , resourcesDir
       , logsDir
@@ -114,6 +126,10 @@ parseRawServerOptions = execParser opts
       <*> switch
         ( long "cron"
             <> help "Run the Nordigen cron job"
+        )
+      <*> switch
+        ( long "demo-mode"
+            <> help "Run in demo mode (use fake data instead of syncing with Nordigen)"
         )
       <*> optional
         ( option

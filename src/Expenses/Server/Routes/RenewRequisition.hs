@@ -1,17 +1,13 @@
 module Expenses.Server.Routes.RenewRequisition where
 
-import Config (AppConfig (..))
 import CustomPrelude
 import Data.Aeson.TH (defaultOptions, deriveFromJSON, deriveToJSON)
-import Data.List qualified as List
 import Effectful
 import Effectful.Log
 import Effectful.Reader.Static qualified as R
 import Expenses.Effects
 import Expenses.Effects.NextUUID qualified as NextUUID
 import Expenses.Effects.Nordigen qualified as N
-import Expenses.Server.Utils (throwJsonError)
-import Servant (err404)
 import Types
 
 data RenewRequisitionBody = RenewRequisitionBody
@@ -32,25 +28,23 @@ $( mconcat
  )
 
 renewRequisitionHandler ::
-  (Reader Env :> es, Nordigen :> es, Error ServerError :> es, NextUUID :> es, Log :> es) =>
+  (Nordigen :> es, NextUUID :> es, Log :> es, Reader Env :> es) =>
   Admin ->
   Text ->
   RenewRequisitionBody ->
   Eff es RenewRequisitionResponse
-renewRequisitionHandler _admin accountId body = do
+renewRequisitionHandler _admin institutionId body = do
   env <- R.ask @Env
-  let AppConfig{accountInfos = accounts} = env.config
+  if env.demoMode
+    then pure RenewRequisitionResponse{id = "demo-requisition-id", link = "https://www.google.com"}
+    else renewRequisition institutionId body
 
-  -- Find the institution ID for the account from the config
-  institutionId <-
-    accounts
-      & List.find (\acc -> acc.accountId == accountId)
-      & maybe
-        (throwJsonError err404 [i|Account not found in config: #{accountId}|])
-        pure
-      <&> (.institutionId)
-
-  -- Delete any requisitions that may exist for this institution.
+renewRequisition ::
+  (Nordigen :> es, NextUUID :> es, Log :> es) =>
+  Text ->
+  RenewRequisitionBody ->
+  Eff es RenewRequisitionResponse
+renewRequisition institutionId body = do
   logInfo_ [i|Deleting existing requisitions for institution #{institutionId}...|]
   token <- N.login
   requisitions <- N.listRequisitions token
@@ -60,8 +54,7 @@ renewRequisitionHandler _admin accountId body = do
   for_ existingForInstitution \req ->
     void $ N.deleteRequisition token req.id
 
-  -- Create a new requisition for the institution
-  logInfo_ [i|Creating new requisition for account #{accountId} and institution #{institutionId}...|]
+  logInfo_ [i|Creating new requisition for institution #{institutionId}...|]
   referenceUuid <- NextUUID.nextRandom
   created <-
     N.createRequisition
