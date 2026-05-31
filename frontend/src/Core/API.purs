@@ -10,7 +10,6 @@ import Affjax.ResponseFormat as AJ
 import Affjax.Web as AW
 import Core.YearMonth (YearMonth)
 import Core.YearMonth as YM
-import Data.Array (concatMap)
 import Data.Argonaut as J
 import Data.Either (Either(..))
 import Data.HTTP.Method (Method(..))
@@ -56,20 +55,9 @@ allAccounts = do
     <#> statusCodeIs 200
     <#> decodeJson
 
-getSyncStatus :: Aff (Array AccountSyncStatus)
-getSyncStatus = do
-  getInstitutionSyncStatus
-    <#> concatMap _.accountStatuses
-
-getInstitutionSyncStatus :: Aff (Array InstitutionSyncStatus)
-getInstitutionSyncStatus = do
+getSyncAccountStatus :: Aff SyncAccountStatusResponse
+getSyncAccountStatus = do
   get (HtmlUtils.apiBaseUrl <> "sync-status")
-    <#> statusCodeIs 200
-    <#> decodeJson
-
-checkMissingAccounts :: Aff (Array MissingInstitutionAccounts)
-checkMissingAccounts = do
-  get (HtmlUtils.apiBaseUrl <> "check-missing-accounts")
     <#> statusCodeIs 200
     <#> decodeJson
 

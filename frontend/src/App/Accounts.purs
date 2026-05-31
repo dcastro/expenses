@@ -150,9 +150,8 @@ handleAction :: forall o m. MonadAff m => Action -> H.HalogenM State Action () o
 handleAction = case _ of
   Initialize -> do
     H.modify_ _ { loading = true }
-    institutions <- H.liftAff API.getInstitutionSyncStatus
-    missingAccounts <- H.liftAff API.checkMissingAccounts
-    H.modify_ _ { institutions = institutions, missingAccounts = missingAccounts, loading = false }
+    syncStatus <- H.liftAff API.getSyncAccountStatus
+    H.modify_ _ { institutions = syncStatus.institutions, missingAccounts = syncStatus.missingAccounts, loading = false }
 
   RenewRequisition institutionId -> do
     H.modify_ _ { renewing = true }

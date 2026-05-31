@@ -232,6 +232,11 @@ type DateRange =
 -- GET /sync-status
 ----------------------------------------------------------------------------
 
+type SyncAccountStatusResponse =
+  { institutions :: Array InstitutionSyncStatus
+  , missingAccounts :: Array MissingInstitutionAccounts
+  }
+
 data SyncStatus
   = SyncSuccess
   | SyncError
@@ -260,10 +265,6 @@ type InstitutionSyncStatus =
   { institutionId :: String
   , accountStatuses :: Array AccountSyncStatus
   }
-
-----------------------------------------------------------------------------
--- GET /check-missing-accounts
-----------------------------------------------------------------------------
 
 type MissingInstitutionAccounts =
   { institutionId :: String

@@ -1,9 +1,12 @@
 module Expenses.Server.Routes.GetSyncAccountStatus where
 
 import Config (AppConfig (..))
+import Config qualified
 import CustomPrelude
 import Data.Aeson.TH (defaultOptions, deriveToJSON)
+import Data.List qualified as List
 import Data.Map qualified as Map
+import Data.Set qualified as Set
 import Data.Time (UTCTime)
 import Database qualified as Db
 import Effectful
@@ -29,15 +32,30 @@ data InstitutionSyncStatus = InstitutionSyncStatus
   }
   deriving stock (Show, Eq, Generic)
 
+data MissingInstitutionAccounts = MissingInstitutionAccounts
+  { institutionId :: Text
+  , institutionName :: Text
+  , missingAccountIds :: [Text]
+  }
+  deriving stock (Show, Eq, Generic)
+
+data SyncAccountStatusResponse = SyncAccountStatusResponse
+  { institutions :: [InstitutionSyncStatus]
+  , missingAccounts :: [MissingInstitutionAccounts]
+  }
+  deriving stock (Show, Eq, Generic)
+
 $( mconcat
      [ deriveToJSON defaultOptions ''AccountSyncStatus
      , deriveToJSON defaultOptions ''InstitutionSyncStatus
+     , deriveToJSON defaultOptions ''MissingInstitutionAccounts
+     , deriveToJSON defaultOptions ''SyncAccountStatusResponse
      ]
  )
 
 getSyncAccountStatusHandler ::
   (Db :> es, Reader Env :> es, Concurrent :> es, Nordigen :> es) =>
-  Eff es [InstitutionSyncStatus]
+  Eff es SyncAccountStatusResponse
 getSyncAccountStatusHandler = do
   env <- R.ask @Env
   let AppConfig{institutions} = env.config
@@ -45,6 +63,8 @@ getSyncAccountStatusHandler = do
   token <- N.login
   RequisitionsResponse{results = requisitions} <- N.listRequisitions token
   let requisitionStatusByAccountId = mkRequisitionStatusByAccountId requisitions
+  let configuredAccountIds = Config.configuredAccountIds env.config
+  let missingAccounts = mkMissingInstitutionAccounts configuredAccountIds requisitions
 
   -- Get the sync status for all accounts from the database, and index it by account ID for easy lookup.
   syncRows <-
@@ -57,34 +77,40 @@ getSyncAccountStatusHandler = do
           & Map.fromList
 
   -- Get all configured institutions/accounts, and pair each account with corresponding DB sync status (if it exists).
-  pure $
-    institutions <&> \InstitutionInfo{institutionId, accounts} ->
-      InstitutionSyncStatus
-        { institutionId
-        , accountStatuses =
-            accounts <&> \InstitutionAccountInfo{accountId, accountName} ->
-              case Map.lookup accountId syncByAccountId of
-                Nothing ->
-                  AccountSyncStatus
-                    { accountId = accountId
-                    , accountName = accountName
-                    , requisitionStatus = Map.lookup accountId requisitionStatusByAccountId
-                    , lastSyncFinishedAt = Nothing
-                    , lastSyncStatus = Nothing
-                    , lastSyncError = Nothing
-                    , lastSyncedTransactionCount = Nothing
-                    }
-                Just row ->
-                  AccountSyncStatus
-                    { accountId = accountId
-                    , accountName = accountName
-                    , requisitionStatus = Map.lookup accountId requisitionStatusByAccountId
-                    , lastSyncFinishedAt = Just row.lastSyncFinishedAt
-                    , lastSyncStatus = Just row.lastSyncStatus
-                    , lastSyncError = row.lastSyncError
-                    , lastSyncedTransactionCount = Just row.lastSyncedTransactionCount
-                    }
-        }
+  let institutionStatuses =
+        institutions <&> \InstitutionInfo{institutionId, accounts} ->
+          InstitutionSyncStatus
+            { institutionId
+            , accountStatuses =
+                accounts <&> \InstitutionAccountInfo{accountId, accountName} ->
+                  case Map.lookup accountId syncByAccountId of
+                    Nothing ->
+                      AccountSyncStatus
+                        { accountId = accountId
+                        , accountName = accountName
+                        , requisitionStatus = Map.lookup accountId requisitionStatusByAccountId
+                        , lastSyncFinishedAt = Nothing
+                        , lastSyncStatus = Nothing
+                        , lastSyncError = Nothing
+                        , lastSyncedTransactionCount = Nothing
+                        }
+                    Just row ->
+                      AccountSyncStatus
+                        { accountId = accountId
+                        , accountName = accountName
+                        , requisitionStatus = Map.lookup accountId requisitionStatusByAccountId
+                        , lastSyncFinishedAt = Just row.lastSyncFinishedAt
+                        , lastSyncStatus = Just row.lastSyncStatus
+                        , lastSyncError = row.lastSyncError
+                        , lastSyncedTransactionCount = Just row.lastSyncedTransactionCount
+                        }
+            }
+
+  pure
+    SyncAccountStatusResponse
+      { institutions = institutionStatuses
+      , missingAccounts = missingAccounts
+      }
 
 mkRequisitionStatusByAccountId :: [Requisition] -> Map.Map Text Text
 mkRequisitionStatusByAccountId requisitions =
@@ -99,6 +125,7 @@ mkRequisitionStatusByAccountId requisitions =
       )
       Map.empty
 
+-- | See: https://developer.gocardless.com/bank-account-data/statuses/
 expandRequisitionStatus :: Text -> Maybe Text
 expandRequisitionStatus = \case
   "CR" -> Just "CREATED"
@@ -110,3 +137,30 @@ expandRequisitionStatus = \case
   "LN" -> Just "LINKED"
   "EX" -> Just "EXPIRED"
   _ -> Nothing
+
+mkMissingInstitutionAccounts :: Set.Set Text -> [Requisition] -> [MissingInstitutionAccounts]
+mkMissingInstitutionAccounts configuredAccountIds requisitions =
+  let
+    missingByInstitution =
+      requisitions
+        & foldl'
+          ( \acc Requisition{accounts, institutionId} ->
+              let
+                missingForReq =
+                  accounts
+                    & filter (\accountId -> accountId `Set.notMember` configuredAccountIds)
+                    & Set.fromList
+               in
+                if Set.null missingForReq
+                  then acc
+                  else Map.insertWith Set.union institutionId missingForReq acc
+          )
+          Map.empty
+   in
+    Map.toAscList missingByInstitution
+      <&> \(institutionId, missingIds) ->
+        MissingInstitutionAccounts
+          { institutionId
+          , institutionName = institutionId
+          , missingAccountIds = missingIds & Set.toList & List.sort
+          }
