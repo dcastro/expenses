@@ -13,7 +13,7 @@ import Effectful
 import Effectful.Reader.Static qualified as R
 import Expenses.Effects
 import Expenses.Effects.Nordigen qualified as N
-import Types (InstitutionAccountInfo (..), InstitutionInfo (..), Requisition (..), RequisitionsResponse (..), SyncStatus)
+import Types (AccountInfo (..), InstitutionAccountInfo (..), InstitutionInfo (..), Requisition (..), RequisitionsResponse (..), SyncStatus)
 
 data AccountSyncStatus = AccountSyncStatus
   { accountId :: Text
@@ -32,6 +32,12 @@ data InstitutionSyncStatus = InstitutionSyncStatus
   }
   deriving stock (Show, Eq, Generic)
 
+{- | The accounts that are missing from the configuration, but have an active requisition in Nordigen.
+This likely means that the user has given consent for these accounts, but they haven't been added to the configuration yet,
+so they won't be synced.
+
+The frontend reminds the user to add them to the config.
+-}
 data MissingInstitutionAccounts = MissingInstitutionAccounts
   { institutionId :: Text
   , institutionName :: Text
@@ -59,12 +65,14 @@ getSyncAccountStatusHandler ::
 getSyncAccountStatusHandler = do
   env <- R.ask @Env
   let AppConfig{institutions} = env.config
-
   token <- N.login
   RequisitionsResponse{results = requisitions} <- N.listRequisitions token
+
+  -- Get the status of each institution requisition, indexed by account ID.
   let requisitionStatusByAccountId = mkRequisitionStatusByAccountId requisitions
-  let configuredAccountIds = Config.configuredAccountIds env.config
-  let missingAccounts = mkMissingInstitutionAccounts configuredAccountIds requisitions
+
+  -- Get the list of connected accounts that are missing from the config
+  let missingAccounts = mkMissingInstitutionAccounts env.config requisitions
 
   -- Get the sync status for all accounts from the database, and index it by account ID for easy lookup.
   syncRows <-
@@ -124,23 +132,29 @@ mkRequisitionStatusByAccountId requisitions =
                 & foldl' (\acc2 accountId -> Map.insertWith (\_ old -> old) accountId longStatus acc2) acc
       )
       Map.empty
+ where
+  --  See: https://developer.gocardless.com/bank-account-data/statuses/
+  expandRequisitionStatus :: Text -> Maybe Text
+  expandRequisitionStatus = \case
+    "CR" -> Just "CREATED"
+    "GC" -> Just "GIVING_CONSENT"
+    "UA" -> Just "UNDERGOING_AUTHENTICATION"
+    "RJ" -> Just "REJECTED"
+    "SA" -> Just "SELECTING_ACCOUNTS"
+    "GA" -> Just "GRANTING_ACCESS"
+    "LN" -> Just "LINKED"
+    "EX" -> Just "EXPIRED"
+    _ -> Nothing
 
--- | See: https://developer.gocardless.com/bank-account-data/statuses/
-expandRequisitionStatus :: Text -> Maybe Text
-expandRequisitionStatus = \case
-  "CR" -> Just "CREATED"
-  "GC" -> Just "GIVING_CONSENT"
-  "UA" -> Just "UNDERGOING_AUTHENTICATION"
-  "RJ" -> Just "REJECTED"
-  "SA" -> Just "SELECTING_ACCOUNTS"
-  "GA" -> Just "GRANTING_ACCESS"
-  "LN" -> Just "LINKED"
-  "EX" -> Just "EXPIRED"
-  _ -> Nothing
-
-mkMissingInstitutionAccounts :: Set.Set Text -> [Requisition] -> [MissingInstitutionAccounts]
-mkMissingInstitutionAccounts configuredAccountIds requisitions =
+mkMissingInstitutionAccounts :: AppConfig -> [Requisition] -> [MissingInstitutionAccounts]
+mkMissingInstitutionAccounts config requisitions =
   let
+    configuredAccountIds =
+      config
+        & Config.allAccountInfos
+        <&> (.accountId)
+        & Set.fromList
+
     missingByInstitution =
       requisitions
         & foldl'

@@ -54,13 +54,6 @@ allAccountInfos AppConfig{institutions} =
         , flipSign
         }
 
-configuredAccountIds :: AppConfig -> Set.Set Text
-configuredAccountIds config =
-  config
-    & allAccountInfos
-    <&> (.accountId)
-    & Set.fromList
-
 allGroupedTags :: AppConfig -> Set.Set TagName
 allGroupedTags AppConfig{allTagGroups} =
   Set.fromList $ concat $ HM.elems allTagGroups
