@@ -183,6 +183,24 @@ data AccountInfo = AccountInfo
   }
   deriving stock (Eq, Show)
 
+data InstitutionInfo = InstitutionInfo
+  { institutionId :: Text
+  , institutionName :: Text
+  , accounts :: [InstitutionAccountInfo]
+  }
+  deriving stock (Eq, Show)
+
+data InstitutionAccountInfo = InstitutionAccountInfo
+  { accountName :: Text
+  , accountId :: Text
+  , -- Whether transactions from this account should be treated as expenses.
+    isExpenseAccount :: Bool
+  , -- Credit accounts show transactions as positive numbers, and debit accounts as negative numbers.($)
+    -- For credit accounts, we should set `flip sign = true`.
+    flipSign :: Bool
+  }
+  deriving stock (Eq, Show)
+
 data TransactionRecord = TransactionRecord
   { transactionId :: Text
   , account :: Text
@@ -215,6 +233,8 @@ $( mconcat
      , deriveJSON defaultOptions ''BalancesResponse
      , deriveJSON defaultOptions ''DetailsResponse
      , deriveJSON defaultOptions ''AccountInfo
+     , deriveJSON defaultOptions ''InstitutionInfo
+     , deriveJSON defaultOptions ''InstitutionAccountInfo
      ]
  )
 
@@ -224,6 +244,8 @@ makeLensesWith classIdFields ''ApiTransaction
 makeLensesWith classIdFields ''Amount
 makeLensesWith classIdFields ''NewTokenResponse
 makeLensesWith classIdFields ''AccountInfo
+makeLensesWith classIdFields ''InstitutionInfo
+makeLensesWith classIdFields ''InstitutionAccountInfo
 makeLensesWith classIdFields ''TransactionRecord
 makeLensesWith classIdFields ''TransactionItemRecord
 makeLensesWith classIdFields ''FECents

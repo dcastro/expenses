@@ -64,7 +64,7 @@ unit_getIsExpense :: IO ()
 unit_getIsExpense = do
   let config =
         AppConfig
-          { accountInfos = []
+          { institutions = []
           , admins = []
           , allTagGroups = mempty
           , ungroupedTags = mempty

@@ -1,6 +1,6 @@
 module Expenses.Server.Routes.GetSyncAccountStatus where
 
-import Config (AppConfig (..))
+import Config qualified
 import CustomPrelude
 import Data.Aeson.TH (defaultOptions, deriveToJSON)
 import Data.Map qualified as Map
@@ -32,7 +32,7 @@ getSyncAccountStatusHandler ::
   Eff es [AccountSyncStatus]
 getSyncAccountStatusHandler = do
   env <- R.ask @Env
-  let AppConfig{accountInfos} = env.config
+  let accountInfos = Config.allAccountInfos env.config
 
   -- Get the sync status for all accounts from the database, and index it by account ID for easy lookup.
   syncRows <-

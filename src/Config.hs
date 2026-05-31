@@ -15,7 +15,7 @@ cronUser :: Admin
 cronUser = Admin $ Username $ NET.unsafeFromText "cron"
 
 data AppConfig = AppConfig
-  { accountInfos :: [AccountInfo]
+  { institutions :: [InstitutionInfo]
   , admins :: [Text]
   , allTagGroups :: HashMap TagGroupName [TagName]
   , ungroupedTags :: [TagName]
@@ -41,6 +41,25 @@ $( mconcat
 loadAppConfig :: (MonadIO m) => FilePath -> m AppConfig
 loadAppConfig path = do
   Y.decodeFileThrow path
+
+allAccountInfos :: AppConfig -> [AccountInfo]
+allAccountInfos AppConfig{institutions} =
+  institutions >>= \InstitutionInfo{institutionId, accounts} ->
+    accounts <&> \InstitutionAccountInfo{accountName, accountId, isExpenseAccount, flipSign} ->
+      AccountInfo
+        { accountName
+        , accountId
+        , institutionId
+        , isExpenseAccount
+        , flipSign
+        }
+
+configuredAccountIds :: AppConfig -> Set.Set Text
+configuredAccountIds config =
+  config
+    & allAccountInfos
+    <&> (.accountId)
+    & Set.fromList
 
 allGroupedTags :: AppConfig -> Set.Set TagName
 allGroupedTags AppConfig{allTagGroups} =

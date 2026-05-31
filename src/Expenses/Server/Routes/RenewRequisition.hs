@@ -1,6 +1,6 @@
 module Expenses.Server.Routes.RenewRequisition where
 
-import Config (AppConfig (..))
+import Config qualified
 import CustomPrelude
 import Data.Aeson.TH (defaultOptions, deriveFromJSON, deriveToJSON)
 import Data.List qualified as List
@@ -39,7 +39,7 @@ renewRequisitionHandler ::
   Eff es RenewRequisitionResponse
 renewRequisitionHandler _admin accountId body = do
   env <- R.ask @Env
-  let AppConfig{accountInfos = accounts} = env.config
+  let accounts = Config.allAccountInfos env.config
 
   -- Find the institution ID for the account from the config
   institutionId <-

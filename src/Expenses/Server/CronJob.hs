@@ -71,7 +71,7 @@ fetchAllAccounts ::
 fetchAllAccounts now = do
   authToken <- N.login
   config <- asks @Env (.config)
-  join <$> forM config.accountInfos \acc ->
+  join <$> forM (Config.allAccountInfos config) \acc ->
     do
       fetchAccount authToken now acc
       -- NOTE: use the `*deep` version to catch any impure exceptions thrown by `getTransactionId`
