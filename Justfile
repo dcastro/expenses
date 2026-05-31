@@ -3,7 +3,7 @@ default:
     just --list
 
 run:
-    stack run expenses-manager-server -- --user test --verbose
+    watchexec --clear --exts hs,yaml -- stack run expenses-manager-server -- --user test --verbose
 
 run-user-dir:
     stack run expenses-manager-server -- --user test --verbose --app-dir /home/dc/.local/share/expenses-manager
