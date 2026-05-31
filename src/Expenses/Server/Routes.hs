@@ -18,6 +18,7 @@ import Expenses.Server.Options (ServerOptions (..))
 import Expenses.Server.Options qualified as Opt
 import Expenses.Server.Routes.AllAccounts qualified as AllAccounts
 import Expenses.Server.Routes.AllTags qualified as AllTags
+import Expenses.Server.Routes.CheckMissingAccounts qualified as CheckMissingAccounts
 import Expenses.Server.Routes.GetAvailableDateRange (DateRange)
 import Expenses.Server.Routes.GetAvailableDateRange qualified as GetAvailableDateRange
 import Expenses.Server.Routes.GetSyncAccountStatus qualified as GetSyncAccountStatus
@@ -89,6 +90,7 @@ data PrivateAPI mode = PrivateAPI
   , allTags :: mode :- "tags" :> Get '[JSON] (Set TagName)
   , allAccounts :: mode :- "accounts" :> Get '[JSON] [Text]
   , syncAccountStatus :: mode :- "sync-status" :> Get '[JSON] [GetSyncAccountStatus.InstitutionSyncStatus]
+  , checkMissingAccounts :: mode :- "check-missing-accounts" :> Get '[JSON] [CheckMissingAccounts.MissingInstitutionAccounts]
   , getAvailableDateRange :: mode :- "dates" :> Get '[JSON] DateRange
   }
   deriving stock (Generic)
@@ -257,6 +259,7 @@ mkServer resourcesDir =
           , allTags = AllTags.allTagsHandler
           , allAccounts = AllAccounts.allAccountsHandler
           , syncAccountStatus = GetSyncAccountStatus.getSyncAccountStatusHandler
+          , checkMissingAccounts = CheckMissingAccounts.checkMissingAccountsHandler
           , getAvailableDateRange = GetAvailableDateRange.getAvailableDateRangeHandler
           }
     , admin = \admin ->

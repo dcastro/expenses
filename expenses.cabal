@@ -36,6 +36,7 @@ library
       Expenses.Server.Routes
       Expenses.Server.Routes.AllAccounts
       Expenses.Server.Routes.AllTags
+      Expenses.Server.Routes.CheckMissingAccounts
       Expenses.Server.Routes.GetAvailableDateRange
       Expenses.Server.Routes.GetSyncAccountStatus
       Expenses.Server.Routes.GetTransactionItems
