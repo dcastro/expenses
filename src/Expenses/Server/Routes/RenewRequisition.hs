@@ -1,16 +1,12 @@
 module Expenses.Server.Routes.RenewRequisition where
 
-import Config (AppConfig (..))
 import CustomPrelude
 import Data.Aeson.TH (defaultOptions, deriveFromJSON, deriveToJSON)
 import Effectful
 import Effectful.Log
-import Effectful.Reader.Static qualified as R
 import Expenses.Effects
 import Expenses.Effects.NextUUID qualified as NextUUID
 import Expenses.Effects.Nordigen qualified as N
-import Expenses.Server.Utils (throwJsonError)
-import Servant (err404)
 import Types
 
 data RenewRequisitionBody = RenewRequisitionBody
