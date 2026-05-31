@@ -6,7 +6,7 @@
   - [Install app in the RPI](#install-app-in-the-rpi)
   - [Add anacron job](#add-anacron-job)
   - [Configure Raspberry Pi connect](#configure-raspberry-pi-connect)
-  - [Renew bank logins](#renew-bank-logins)
+  - [Add / Renew bank logins](#add--renew-bank-logins)
 
 
 # Setup
@@ -148,10 +148,10 @@ sudo anacron -fnd expenses-backup
 * https://www.raspberrypi.com/documentation/services/connect.html
 * https://connect.raspberrypi.com/devices
 
-## Renew bank logins
+## Add / Renew bank logins
 
-Bank access must be renewed every 3 months.
-
-```sh
-just renew-logins
-```
+* Add new bank institutions to the config file.
+  * NB: run [this script](../scripts/list-banks.sh) to get a list of supported institutions
+* Launch the app, go to the Accounts page, click "Renew" to connect to the institution.
+* The app will display the IDs of the accounts you connected to.
+* Add those account IDs to the config file.
