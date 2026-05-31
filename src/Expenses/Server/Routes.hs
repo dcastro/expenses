@@ -115,8 +115,8 @@ data AdminAPI mode = AdminAPI
   , runCronSync :: mode :- "sync" :> PostNoContent
   , renewRequisition ::
       mode
-        :- "accounts"
-          :> Capture "accountId" Text
+        :- "institutions"
+          :> Capture "institutionId" Text
           :> "renew-requisition"
           :> ReqBody '[JSON] RenewRequisition.RenewRequisitionBody
           :> Post '[JSON] RenewRequisition.RenewRequisitionResponse

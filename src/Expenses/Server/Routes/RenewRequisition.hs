@@ -1,9 +1,8 @@
 module Expenses.Server.Routes.RenewRequisition where
 
-import Config qualified
+import Config (AppConfig (..))
 import CustomPrelude
 import Data.Aeson.TH (defaultOptions, deriveFromJSON, deriveToJSON)
-import Data.List qualified as List
 import Effectful
 import Effectful.Log
 import Effectful.Reader.Static qualified as R
@@ -37,18 +36,14 @@ renewRequisitionHandler ::
   Text ->
   RenewRequisitionBody ->
   Eff es RenewRequisitionResponse
-renewRequisitionHandler _admin accountId body = do
+renewRequisitionHandler _admin institutionId body = do
   env <- R.ask @Env
-  let accounts = Config.allAccountInfos env.config
+  let AppConfig{institutions} = env.config
 
-  -- Find the institution ID for the account from the config
-  institutionId <-
-    accounts
-      & List.find (\acc -> acc.accountId == accountId)
-      & maybe
-        (throwJsonError err404 [i|Account not found in config: #{accountId}|])
-        pure
-      <&> (.institutionId)
+  -- Validate institution exists in config before attempting renewal.
+  unless
+    (institutions & any (\institution -> institution.institutionId == institutionId))
+    (throwJsonError err404 [i|Institution not found in config: #{institutionId}|])
 
   -- Delete any requisitions that may exist for this institution.
   logInfo_ [i|Deleting existing requisitions for institution #{institutionId}...|]
@@ -61,7 +56,7 @@ renewRequisitionHandler _admin accountId body = do
     void $ N.deleteRequisition token req.id
 
   -- Create a new requisition for the institution
-  logInfo_ [i|Creating new requisition for account #{accountId} and institution #{institutionId}...|]
+  logInfo_ [i|Creating new requisition for institution #{institutionId}...|]
   referenceUuid <- NextUUID.nextRandom
   created <-
     N.createRequisition
