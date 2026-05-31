@@ -38,6 +38,7 @@ mkTestEnv = do
       { dbConn
       , eventLogPath = "/dev/null"
       , logsDir = "/dev/null"
+      , demoMode = False
       , nordigenSecretId = ""
       , nordigenSecretKey = ""
       , config

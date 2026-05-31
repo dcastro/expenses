@@ -164,7 +164,7 @@ main = do
           }
 
   mkEnv :: (MonadIO m, MonadLog m) => ServerOptions -> Logger -> m Env
-  mkEnv ServerOptions{dbPath, eventLogPath, logsDir, isVerbose, nordigenSecretId, nordigenSecretKey, configPath} logger = do
+  mkEnv ServerOptions{dbPath, eventLogPath, logsDir, demoMode, isVerbose, nordigenSecretId, nordigenSecretKey, configPath} logger = do
     Util.checkDbExists dbPath
     dbConn <- liftIO $ SQL.open dbPath
     liftIO $ SQL.setTrace dbConn $ Just \t ->
@@ -172,7 +172,7 @@ main = do
         logTrace_ [i|SQL:\n#{t}|]
     dbConnMutex <- liftIO $ M.newMVar dbConn
     config <- Config.loadAppConfig configPath
-    pure Env{dbConn = dbConnMutex, eventLogPath, logsDir, nordigenSecretId, nordigenSecretKey, config}
+    pure Env{dbConn = dbConnMutex, eventLogPath, logsDir, demoMode, nordigenSecretId, nordigenSecretKey, config}
 
   mkAuthContext :: AppConfig -> Maybe Username -> Context '[SS.AuthHandler Wai.Request Username, SS.AuthHandler Wai.Request Admin]
   mkAuthContext config fallbackUser =

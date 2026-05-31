@@ -13,7 +13,7 @@ import Effectful
 import Effectful.Reader.Static qualified as R
 import Expenses.Effects
 import Expenses.Effects.Nordigen qualified as N
-import Types (InstitutionAccountInfo (..), InstitutionInfo (..), Requisition (..), RequisitionsResponse (..), SyncStatus)
+import Types (InstitutionAccountInfo (..), InstitutionInfo (..), Requisition (..), RequisitionsResponse (..), SyncStatus (..))
 
 data AccountSyncStatus = AccountSyncStatus
   { accountId :: Text
@@ -64,60 +64,88 @@ getSyncAccountStatusHandler ::
   Eff es SyncAccountStatusResponse
 getSyncAccountStatusHandler = do
   env <- R.ask @Env
-  let AppConfig{institutions} = env.config
-  token <- N.login
-  RequisitionsResponse{results = requisitions} <- N.listRequisitions token
+  if env.demoMode
+    then pure $ demoResponse env.config
+    else do
+      let AppConfig{institutions} = env.config
+      token <- N.login
+      RequisitionsResponse{results = requisitions} <- N.listRequisitions token
 
-  -- Get the status of each institution requisition, indexed by account ID.
-  let requisitionStatusByAccountId = mkRequisitionStatusByAccountId requisitions
+      -- Get the status of each institution requisition, indexed by account ID.
+      let requisitionStatusByAccountId = mkRequisitionStatusByAccountId requisitions
 
-  -- Get the list of connected accounts that are missing from the config
-  let missingAccounts = mkMissingInstitutionAccounts env.config requisitions
+      -- Get the list of connected accounts that are missing from the config
+      let missingAccounts = mkMissingInstitutionAccounts env.config requisitions
 
-  -- Get the sync status for all accounts from the database, and index it by account ID for easy lookup.
-  syncRows <-
-    useConnection \conn ->
-      Db.getSyncAccountStatuses conn
+      -- Get the sync status for all accounts from the database, and index it by account ID for easy lookup.
+      syncRows <-
+        useConnection \conn ->
+          Db.getSyncAccountStatuses conn
 
-  let syncByAccountId =
-        syncRows
-          <&> (\row -> (row.accountId, row))
-          & Map.fromList
+      let syncByAccountId =
+            syncRows
+              <&> (\row -> (row.accountId, row))
+              & Map.fromList
 
-  -- Get all configured institutions/accounts, and pair each account with corresponding DB sync status (if it exists).
-  let institutionStatuses =
-        institutions <&> \InstitutionInfo{institutionId, accounts} ->
-          InstitutionSyncStatus
-            { institutionId
-            , accountStatuses =
-                accounts <&> \InstitutionAccountInfo{accountId, accountName} ->
-                  case Map.lookup accountId syncByAccountId of
-                    Nothing ->
-                      AccountSyncStatus
-                        { accountId = accountId
-                        , accountName = accountName
-                        , requisitionStatus = Map.lookup accountId requisitionStatusByAccountId
-                        , lastSyncFinishedAt = Nothing
-                        , lastSyncStatus = Nothing
-                        , lastSyncError = Nothing
-                        , lastSyncedTransactionCount = Nothing
-                        }
-                    Just row ->
-                      AccountSyncStatus
-                        { accountId = accountId
-                        , accountName = accountName
-                        , requisitionStatus = Map.lookup accountId requisitionStatusByAccountId
-                        , lastSyncFinishedAt = Just row.lastSyncFinishedAt
-                        , lastSyncStatus = Just row.lastSyncStatus
-                        , lastSyncError = row.lastSyncError
-                        , lastSyncedTransactionCount = Just row.lastSyncedTransactionCount
-                        }
-            }
+      -- Get all configured institutions/accounts, and pair each account with corresponding DB sync status (if it exists).
+      let institutionStatuses =
+            institutions <&> \InstitutionInfo{institutionId, accounts} ->
+              InstitutionSyncStatus
+                { institutionId
+                , accountStatuses =
+                    accounts <&> \InstitutionAccountInfo{accountId, accountName} ->
+                      case Map.lookup accountId syncByAccountId of
+                        Nothing ->
+                          AccountSyncStatus
+                            { accountId = accountId
+                            , accountName = accountName
+                            , requisitionStatus = Map.lookup accountId requisitionStatusByAccountId
+                            , lastSyncFinishedAt = Nothing
+                            , lastSyncStatus = Nothing
+                            , lastSyncError = Nothing
+                            , lastSyncedTransactionCount = Nothing
+                            }
+                        Just row ->
+                          AccountSyncStatus
+                            { accountId = accountId
+                            , accountName = accountName
+                            , requisitionStatus = Map.lookup accountId requisitionStatusByAccountId
+                            , lastSyncFinishedAt = Just row.lastSyncFinishedAt
+                            , lastSyncStatus = Just row.lastSyncStatus
+                            , lastSyncError = row.lastSyncError
+                            , lastSyncedTransactionCount = Just row.lastSyncedTransactionCount
+                            }
+                }
 
-  pure
+      pure
+        SyncAccountStatusResponse
+          { institutions = institutionStatuses
+          , missingAccounts = missingAccounts
+          }
+
+demoResponse :: AppConfig -> SyncAccountStatusResponse
+demoResponse AppConfig{institutions} =
+  let
+    institutionStatuses =
+      institutions <&> \InstitutionInfo{institutionId, accounts} ->
+        InstitutionSyncStatus
+          { institutionId
+          , accountStatuses =
+              accounts <&> \InstitutionAccountInfo{accountId, accountName} ->
+                AccountSyncStatus
+                  { accountId
+                  , accountName
+                  , requisitionStatus = Just "LINKED"
+                  , lastSyncFinishedAt = Nothing
+                  , lastSyncStatus = Just SyncSuccess
+                  , lastSyncError = Nothing
+                  , lastSyncedTransactionCount = Nothing
+                  }
+          }
+   in
     SyncAccountStatusResponse
       { institutions = institutionStatuses
-      , missingAccounts = missingAccounts
+      , missingAccounts = []
       }
 
 mkRequisitionStatusByAccountId :: [Requisition] -> Map.Map Text Text
