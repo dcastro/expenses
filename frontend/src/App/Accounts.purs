@@ -64,21 +64,21 @@ render state =
     [ HH.section [ classes' "section is-fullheight" ]
         [ HH.h4 [ classes' "title is-4 has-text-centered" ]
             [ HH.text "Accounts" ]
+        , renderMissingAccountsWarning state
+        , if state.loading then
+            HH.p [ classes' "has-text-grey" ] [ HH.text "Loading account statuses..." ]
+          else
+            HH.div [] (state.institutions <#> renderInstitution state)
         , if state.isAdmin then
-            HH.div [ classes' "is-flex is-justify-content-flex-end mb-3" ]
+            HH.div []
               [ HH.button
-                  [ classes' $ "button is-small is-info" # HtmlUtils.addClassIf state.syncing "is-loading"
+                  [ classes' $ "button is-primary" # HtmlUtils.addClassIf state.syncing "is-loading"
                   , HP.disabled (state.loading || state.renewing || state.syncing)
                   , HE.onClick \_ -> SyncNow
                   ]
                   [ HH.text "Sync now" ]
               ]
           else HH.text ""
-        , renderMissingAccountsWarning state
-        , if state.loading then
-            HH.p [ classes' "has-text-grey" ] [ HH.text "Loading account statuses..." ]
-          else
-            HH.div [] (state.institutions <#> renderInstitution state)
         ]
     ]
 
