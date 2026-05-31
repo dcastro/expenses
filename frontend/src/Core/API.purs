@@ -10,6 +10,7 @@ import Affjax.ResponseFormat as AJ
 import Affjax.Web as AW
 import Core.YearMonth (YearMonth)
 import Core.YearMonth as YM
+import Data.Array (concatMap)
 import Data.Argonaut as J
 import Data.Either (Either(..))
 import Data.HTTP.Method (Method(..))
@@ -57,7 +58,18 @@ allAccounts = do
 
 getSyncStatus :: Aff (Array AccountSyncStatus)
 getSyncStatus = do
+  getInstitutionSyncStatus
+    <#> concatMap _.accountStatuses
+
+getInstitutionSyncStatus :: Aff (Array InstitutionSyncStatus)
+getInstitutionSyncStatus = do
   get (HtmlUtils.apiBaseUrl <> "sync-status")
+    <#> statusCodeIs 200
+    <#> decodeJson
+
+checkMissingAccounts :: Aff (Array MissingInstitutionAccounts)
+checkMissingAccounts = do
+  get (HtmlUtils.apiBaseUrl <> "check-missing-accounts")
     <#> statusCodeIs 200
     <#> decodeJson
 
@@ -94,10 +106,10 @@ splitTransaction transactionId items = do
     <#> statusCodeIs 204
   pure unit
 
-renewRequisition :: TransactionId -> RenewRequisitionBody -> Aff RenewRequisitionResponse
-renewRequisition accountId payload = do
+renewRequisition :: String -> RenewRequisitionBody -> Aff RenewRequisitionResponse
+renewRequisition institutionId payload = do
   let body = RequestBody.json $ J.encodeJson payload
-  post (Just body) (HtmlUtils.apiBaseUrl <> "accounts/" <> accountId <> "/renew-requisition")
+  post (Just body) (HtmlUtils.apiBaseUrl <> "institutions/" <> institutionId <> "/renew-requisition")
     <#> statusCodeIs 200
     <#> decodeJson
 

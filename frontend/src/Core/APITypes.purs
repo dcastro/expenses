@@ -256,8 +256,23 @@ type AccountSyncStatus =
   , lastSyncedTransactionCount :: Maybe Int
   }
 
+type InstitutionSyncStatus =
+  { institutionId :: String
+  , accountStatuses :: Array AccountSyncStatus
+  }
+
 ----------------------------------------------------------------------------
--- POST /accounts/:accountId/renew-requisition
+-- GET /check-missing-accounts
+----------------------------------------------------------------------------
+
+type MissingInstitutionAccounts =
+  { institutionId :: String
+  , institutionName :: String
+  , missingAccountIds :: Array String
+  }
+
+----------------------------------------------------------------------------
+-- POST /institutions/:institutionId/renew-requisition
 ----------------------------------------------------------------------------
 
 type RenewRequisitionBody =
