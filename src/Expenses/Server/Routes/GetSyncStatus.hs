@@ -65,7 +65,7 @@ getSyncStatusHandler ::
 getSyncStatusHandler = do
   env <- R.ask @Env
   if env.demoMode
-    then pure $ demoResponse env.config
+    then pure demoResponse
     else do
       let AppConfig{institutions} = env.config
       token <- N.login
@@ -123,30 +123,27 @@ getSyncStatusHandler = do
           , missingAccounts = missingAccounts
           }
 
-demoResponse :: AppConfig -> SyncStatusResponse
-demoResponse AppConfig{institutions} =
-  let
-    institutionStatuses =
-      institutions <&> \InstitutionInfo{institutionId, accounts} ->
-        InstitutionSyncStatus
-          { institutionId
-          , accountStatuses =
-              accounts <&> \InstitutionAccountInfo{accountId, accountName} ->
-                AccountSyncStatus
-                  { accountId
-                  , accountName
-                  , requisitionStatus = Just "LINKED"
-                  , lastSyncFinishedAt = Nothing
-                  , lastSyncStatus = Just SyncSuccess
-                  , lastSyncError = Nothing
-                  , lastSyncedTransactionCount = Nothing
-                  }
-          }
-   in
-    SyncStatusResponse
-      { institutions = institutionStatuses
-      , missingAccounts = []
-      }
+demoResponse :: SyncStatusResponse
+demoResponse =
+  SyncStatusResponse
+    { institutions =
+        [ InstitutionSyncStatus
+            { institutionId = "demo-institution-id"
+            , accountStatuses =
+                [ AccountSyncStatus
+                    { accountId = "demo-account-id"
+                    , accountName = "Demo Account"
+                    , requisitionStatus = Just "LINKED"
+                    , lastSyncFinishedAt = Nothing
+                    , lastSyncStatus = Just SyncSuccess
+                    , lastSyncError = Nothing
+                    , lastSyncedTransactionCount = Nothing
+                    }
+                ]
+            }
+        ]
+    , missingAccounts = []
+    }
 
 mkRequisitionStatusByAccountId :: [Requisition] -> Map.Map Text Text
 mkRequisitionStatusByAccountId requisitions =
