@@ -16,94 +16,109 @@ import Data.HTTP.Method (Method(..))
 import Data.Maybe (Maybe(..))
 import Data.Newtype (unwrap)
 import Effect.Aff (Aff)
+import Effect.Class (liftEffect)
 import HtmlUtils as HtmlUtils
 import Partial.Unsafe (unsafeCrashWith)
 
 getHealth :: Aff Unit
 getHealth = do
-  _ <- get $ HtmlUtils.apiBaseUrl <> "health"
+  baseUrl <- liftEffect HtmlUtils.apiBaseUrl
+  _ <- get $ baseUrl <> "health"
   pure unit
 
 isAdmin :: Aff Boolean
 isAdmin = do
-  get (HtmlUtils.apiBaseUrl <> "is-admin")
+  baseUrl <- liftEffect HtmlUtils.apiBaseUrl
+  get (baseUrl <> "is-admin")
     <#> statusCodeIs 200
     <#> decodeJson
 
 getTransactions :: YearMonth -> YearMonth -> Aff GetTransactions
 getTransactions from to = do
-  get (HtmlUtils.apiBaseUrl <> "transactions?start=" <> YM.formatYearMonth from <> "&end=" <> YM.formatYearMonth to)
+  baseUrl <- liftEffect HtmlUtils.apiBaseUrl
+  get (baseUrl <> "transactions?start=" <> YM.formatYearMonth from <> "&end=" <> YM.formatYearMonth to)
     <#> statusCodeIs 200
     <#> decodeJson
 
 search :: RawSearchParams -> Aff (Array TransactionItem)
 search params = do
+  baseUrl <- liftEffect HtmlUtils.apiBaseUrl
   let body = RequestBody.json $ J.encodeJson params
-  post (Just body) (HtmlUtils.apiBaseUrl <> "search")
+  post (Just body) (baseUrl <> "search")
     <#> statusCodeIs 200
     <#> decodeJson
 
 allTags :: Aff (Array TagName)
 allTags = do
-  get (HtmlUtils.apiBaseUrl <> "tags")
+  baseUrl <- liftEffect HtmlUtils.apiBaseUrl
+  get (baseUrl <> "tags")
     <#> statusCodeIs 200
     <#> decodeJson
 
 allAccounts :: Aff (Array String)
 allAccounts = do
-  get (HtmlUtils.apiBaseUrl <> "accounts")
+  baseUrl <- liftEffect HtmlUtils.apiBaseUrl
+  get (baseUrl <> "accounts")
     <#> statusCodeIs 200
     <#> decodeJson
 
 getSyncAccountStatus :: Aff SyncAccountStatusResponse
 getSyncAccountStatus = do
-  get (HtmlUtils.apiBaseUrl <> "sync-status")
+  baseUrl <- liftEffect HtmlUtils.apiBaseUrl
+  get (baseUrl <> "sync-status")
     <#> statusCodeIs 200
     <#> decodeJson
 
 getDates :: Aff DateRange
 getDates = do
-  get (HtmlUtils.apiBaseUrl <> "dates")
+  baseUrl <- liftEffect HtmlUtils.apiBaseUrl
+  get (baseUrl <> "dates")
     <#> statusCodeIs 200
     <#> decodeJson
 
 createTransaction :: NewTransactionItem -> Aff Unit
 createTransaction newTransaction = do
+  baseUrl <- liftEffect HtmlUtils.apiBaseUrl
   let body = RequestBody.json $ J.encodeJson newTransaction
-  _ <- post (Just body) (HtmlUtils.apiBaseUrl <> "transactions")
+  _ <- post (Just body) (baseUrl <> "transactions")
     <#> statusCodeIs 200
   pure unit
 
 updateTransaction :: ModifyTransaction -> Aff TransactionItem
 updateTransaction body = do
+  baseUrl <- liftEffect HtmlUtils.apiBaseUrl
   let reqBody = RequestBody.json $ J.encodeJson body
-  put (Just reqBody) (HtmlUtils.apiBaseUrl <> "transactions")
+  put (Just reqBody) (baseUrl <> "transactions")
     <#> statusCodeIs 200
     <#> decodeJson
 
 getTransactionItems :: TransactionId -> Aff (Array ShortTransactionItem)
 getTransactionItems transactionId = do
-  get (HtmlUtils.apiBaseUrl <> "transactions/" <> transactionId <> "/items")
+  baseUrl <- liftEffect HtmlUtils.apiBaseUrl
+  get (baseUrl <> "transactions/" <> transactionId <> "/items")
     <#> statusCodeIs 200
     <#> decodeJson
 
 splitTransaction :: TransactionId -> Array NewShortTransactionItem -> Aff Unit
 splitTransaction transactionId items = do
+  baseUrl <- liftEffect HtmlUtils.apiBaseUrl
   let body = RequestBody.json $ J.encodeJson items
-  _ <- post (Just body) (HtmlUtils.apiBaseUrl <> "transactions/" <> transactionId <> "/split")
+  _ <- post (Just body) (baseUrl <> "transactions/" <> transactionId <> "/split")
     <#> statusCodeIs 204
   pure unit
 
 renewRequisition :: String -> RenewRequisitionBody -> Aff RenewRequisitionResponse
 renewRequisition institutionId payload = do
+  baseUrl <- liftEffect HtmlUtils.apiBaseUrl
   let body = RequestBody.json $ J.encodeJson payload
-  post (Just body) (HtmlUtils.apiBaseUrl <> "institutions/" <> institutionId <> "/renew-requisition")
+  post (Just body) (baseUrl <> "institutions/" <> institutionId <> "/renew-requisition")
     <#> statusCodeIs 200
     <#> decodeJson
 
 triggerSync :: Aff Unit
 triggerSync = do
-  _ <- post Nothing (HtmlUtils.apiBaseUrl <> "sync")
+  baseUrl <- liftEffect HtmlUtils.apiBaseUrl
+  _ <- post Nothing (baseUrl <> "sync")
     <#> statusCodeIs 204
   pure unit
 

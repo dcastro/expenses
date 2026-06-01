@@ -45,6 +45,7 @@
             "web-events",
             "web-html",
             "web-storage",
+            "web-url",
             "yoga-json"
           ]
         },
@@ -2701,6 +2702,17 @@
         "unsafe-coerce",
         "web-events",
         "web-html"
+      ]
+    },
+    "web-url": {
+      "type": "registry",
+      "version": "2.0.0",
+      "integrity": "sha256-gl6kHPEtZFxprPQcky2sNRX9fhDICkM0gj8ldMhrYbs=",
+      "dependencies": [
+        "maybe",
+        "partial",
+        "prelude",
+        "tuples"
       ]
     },
     "web-xhr": {

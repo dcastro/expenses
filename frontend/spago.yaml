@@ -3,14 +3,23 @@ package:
   dependencies:
     - aff
     - aff-promise
+    - affjax
+    - affjax-web
+    - argonaut
+    - argonaut-generic
     - arrays
+    - b64
     - console
     - datetime
     - debug
     - effect
     - either
+    - formatters
     - halogen
+    - halogen-router
     - halogen-subscriptions
+    - js-date
+    - js-promise-aff
     - lists
     - maybe
     - newtype
@@ -20,28 +29,20 @@ package:
     - prelude
     - random
     - record
+    - routing-duplex
     - strings
     - stringutils
     - tailrec
     - tuples
     - unsafe-coerce
+    - untagged-union
+    - validation
+    - web-clipboard
     - web-events
     - web-html
     - web-storage
+    - web-url
     - yoga-json
-    - affjax
-    - affjax-web
-    - argonaut
-    - argonaut-generic
-    - js-date
-    - formatters
-    - untagged-union
-    - halogen-router
-    - routing-duplex
-    - web-clipboard
-    - js-promise-aff
-    - b64
-    - validation
 
   test:
     main: Test.Main

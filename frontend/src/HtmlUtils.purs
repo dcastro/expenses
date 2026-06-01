@@ -20,6 +20,7 @@ import Web.HTML.HTMLInputElement as HTMLInputElement
 import Web.HTML.HTMLTextAreaElement as HTMLTextAreaElement
 import Web.HTML.Location as Location
 import Web.HTML.Window as Window
+import Web.URL as URL
 
 classes' :: forall r i. String -> IProp (class :: String | r) i
 classes' str =
@@ -106,7 +107,23 @@ isInputElement event = do
       Nothing -> pure false
       Just elem -> HTMLElement.isContentEditable elem
 
-foreign import apiBaseUrl :: String
+-- Returns the base URL for the backend
+apiBaseUrl :: Effect String
+apiBaseUrl = do
+  loc <- HTML.window >>= Window.location
+  href <- Location.href loc
+  case URL.fromAbsolute href of
+    Nothing -> pure href
+    Just url -> do
+      -- The window.location.href could be:
+      --  * http://localhost:1234/ if we're running in live reload mode with `just run`, in which case the backend is available on `http://localhost:8081/`
+      --  * http://localhost:8081/ if the static files are being served by the servant server
+      --  * http://192.168.1.244:8082/ if the static files are being served by the systemd service, from the raspberry pi's nix store
+      --
+      -- In the 1st case, we want to replace the port with 8081, and use that URL to send requests to the backend.
+      -- In all other cases, we want to use the same base URL.
+      let adjustedUrl = if URL.port url == "1234" then URL.setPort "8081" url else url
+      pure $ URL.origin adjustedUrl <> "/"
 
 redirectTo :: String -> Effect Unit
 redirectTo url = do
