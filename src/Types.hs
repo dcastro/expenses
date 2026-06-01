@@ -129,7 +129,7 @@ data Requisition = Requisition
   { id :: Text
   , accounts :: [Text]
   , institutionId :: Text
-  , status :: Maybe Text
+  , status :: Text
   }
   deriving stock (Show, Eq, Generic)
 

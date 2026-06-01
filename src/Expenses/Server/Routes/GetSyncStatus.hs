@@ -149,7 +149,7 @@ mkRequisitionStatusByInstitutionId requisitions =
   requisitions
     & foldl'
       ( \acc Requisition{institutionId, status} ->
-          case status >>= expandRequisitionStatus of
+          case expandRequisitionStatus status of
             Nothing -> acc
             Just longStatus -> Map.insert institutionId longStatus acc
       )
