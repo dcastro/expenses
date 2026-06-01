@@ -18,7 +18,6 @@ import Types (InstitutionAccountInfo (..), InstitutionInfo (..), Requisition (..
 data AccountSyncStatus = AccountSyncStatus
   { accountId :: Text
   , accountName :: Text
-  , requisitionStatus :: Maybe Text
   , lastSyncFinishedAt :: Maybe UTCTime
   , lastSyncStatus :: Maybe SyncStatus
   , lastSyncError :: Maybe Text
@@ -28,6 +27,7 @@ data AccountSyncStatus = AccountSyncStatus
 
 data InstitutionSyncStatus = InstitutionSyncStatus
   { institutionId :: Text
+  , requisitionStatus :: Maybe Text
   , accountStatuses :: [AccountSyncStatus]
   }
   deriving stock (Show, Eq, Generic)
@@ -71,8 +71,8 @@ getSyncStatusHandler = do
       token <- N.login
       RequisitionsResponse{results = requisitions} <- N.listRequisitions token
 
-      -- Get the status of each institution requisition, indexed by account ID.
-      let requisitionStatusByAccountId = mkRequisitionStatusByAccountId requisitions
+      -- Get the status of each institution's requisition, indexed by institution ID.
+      let requisitionStatusByInstitutionId = mkRequisitionStatusByInstitutionId requisitions
 
       -- Get the list of connected accounts that are missing from the config
       let missingAccounts = mkMissingInstitutionAccounts env.config requisitions
@@ -92,6 +92,7 @@ getSyncStatusHandler = do
             institutions <&> \InstitutionInfo{institutionId, accounts} ->
               InstitutionSyncStatus
                 { institutionId
+                , requisitionStatus = Map.lookup institutionId requisitionStatusByInstitutionId
                 , accountStatuses =
                     accounts <&> \InstitutionAccountInfo{accountId, accountName} ->
                       case Map.lookup accountId syncByAccountId of
@@ -99,7 +100,6 @@ getSyncStatusHandler = do
                           AccountSyncStatus
                             { accountId = accountId
                             , accountName = accountName
-                            , requisitionStatus = Map.lookup accountId requisitionStatusByAccountId
                             , lastSyncFinishedAt = Nothing
                             , lastSyncStatus = Nothing
                             , lastSyncError = Nothing
@@ -109,7 +109,6 @@ getSyncStatusHandler = do
                           AccountSyncStatus
                             { accountId = accountId
                             , accountName = accountName
-                            , requisitionStatus = Map.lookup accountId requisitionStatusByAccountId
                             , lastSyncFinishedAt = Just row.lastSyncFinishedAt
                             , lastSyncStatus = Just row.lastSyncStatus
                             , lastSyncError = row.lastSyncError
@@ -129,11 +128,11 @@ demoResponse =
     { institutions =
         [ InstitutionSyncStatus
             { institutionId = "demo-institution-id"
+            , requisitionStatus = Just "LINKED"
             , accountStatuses =
                 [ AccountSyncStatus
                     { accountId = "demo-account-id"
                     , accountName = "Demo Account"
-                    , requisitionStatus = Just "LINKED"
                     , lastSyncFinishedAt = Nothing
                     , lastSyncStatus = Just SyncSuccess
                     , lastSyncError = Nothing
@@ -145,16 +144,14 @@ demoResponse =
     , missingAccounts = []
     }
 
-mkRequisitionStatusByAccountId :: [Requisition] -> Map.Map Text Text
-mkRequisitionStatusByAccountId requisitions =
+mkRequisitionStatusByInstitutionId :: [Requisition] -> Map.Map Text Text
+mkRequisitionStatusByInstitutionId requisitions =
   requisitions
     & foldl'
-      ( \acc Requisition{accounts, status} ->
+      ( \acc Requisition{institutionId, status} ->
           case status >>= expandRequisitionStatus of
             Nothing -> acc
-            Just longStatus ->
-              accounts
-                & foldl' (\acc2 accountId -> Map.insertWith (\_ old -> old) accountId longStatus acc2) acc
+            Just longStatus -> Map.insert institutionId longStatus acc
       )
       Map.empty
  where

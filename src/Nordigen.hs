@@ -12,6 +12,10 @@ import Types
 {-
   * Named routes cookbook:
       https://docs.servant.dev/en/inserting_doc_namedroutes/cookbook/namedRoutes/NamedRoutes.html
+
+  * GoCardless / Nordigen API docs:
+      https://developer.gocardless.com/api-reference/#core-endpoints-requisitions
+      https://developer.gocardless.com/bank-account-data/endpoints/
  -}
 type Routes :: forall k. k -> Type
 data Routes routes = Routes

@@ -114,9 +114,13 @@ renderInstitution :: forall w. State -> API.InstitutionSyncStatus -> HH.HTML w A
 renderInstitution state institution =
   HH.div [ classes' "mb-5" ]
     [ HH.div [ classes' "is-flex is-justify-content-space-between is-align-items-center mb-2" ]
-        [ HH.h5 [ classes' "title is-5 mb-0" ]
-            [ HH.text "Institution: "
-            , HH.span [ classes' "is-family-monospace" ] [ HH.text institution.institutionId ]
+        [ HH.div []
+            [ HH.h5 [ classes' "title is-5 mb-0" ]
+                [ HH.text "Institution: "
+                , HH.span [ classes' "is-family-monospace" ] [ HH.text institution.institutionId ]
+                ]
+            , HH.p [ classes' "is-size-7 has-text-grey" ]
+                [ HH.text $ "Requisition status: " <> fromMaybe "-" institution.requisitionStatus ]
             ]
         , if state.isAdmin then
             HH.button
@@ -134,7 +138,6 @@ renderInstitution state institution =
                 [ HH.tr []
                     [ HH.th [] [ HH.text "Account" ]
                     , HH.th [] [ HH.text "Account ID" ]
-                    , HH.th [] [ HH.text "Requisition" ]
                     , HH.th [] [ HH.text "Last Sync Status" ]
                     , HH.th [] [ HH.text "Error" ]
                     ]
@@ -149,7 +152,6 @@ renderAccountRow account =
   HH.tr []
     [ HH.td [] [ HH.text account.accountName ]
     , HH.td [ classes' "is-family-monospace" ] [ HH.text account.accountId ]
-    , HH.td [ classes' "is-family-monospace" ] [ HH.text $ fromMaybe "-" account.requisitionStatus ]
     , HH.td [] [ HH.text $ fromMaybe "Never" (showStatus <$> account.lastSyncStatus) ]
     , HH.td [ classes' "is-size-7" ] [ HH.text $ fromMaybe "" account.lastSyncError ]
     ]

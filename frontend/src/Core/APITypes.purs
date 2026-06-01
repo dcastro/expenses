@@ -254,7 +254,6 @@ instance DecodeJson SyncStatus where
 type AccountSyncStatus =
   { accountId :: String
   , accountName :: String
-  , requisitionStatus :: Maybe String
   , lastSyncFinishedAt :: Maybe String
   , lastSyncStatus :: Maybe SyncStatus
   , lastSyncError :: Maybe String
@@ -263,6 +262,7 @@ type AccountSyncStatus =
 
 type InstitutionSyncStatus =
   { institutionId :: String
+  , requisitionStatus :: Maybe String
   , accountStatuses :: Array AccountSyncStatus
   }
 
