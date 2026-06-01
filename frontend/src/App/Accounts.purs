@@ -29,10 +29,12 @@ type Output = Void
 type State =
   { isAdmin :: Boolean
   , institutions :: Array API.InstitutionSyncStatus
+  -- Accounts that the user has connected to, but are missing from their config.
   , missingAccounts :: Array API.MissingInstitutionAccounts
-  , loading :: Boolean
-  , renewing :: Boolean
-  , syncing :: Boolean
+  , loading :: Boolean -- Whether the account statuses are currently being loaded from the server
+  , renewing :: Boolean -- Whether a requisition renewal is currently in progress
+  , syncing :: Boolean -- Whether we're currently syncing accounts
+  -- Set of account IDs for which the sync error details are currently expanded in the UI
   , expandedErrors :: Set String
   }
 
@@ -116,10 +118,15 @@ renderMissingAccountsWarning state =
 
 renderInstitution :: forall w. State -> API.InstitutionSyncStatus -> HH.HTML w Action
 renderInstitution state institution =
-  HH.div [ classes' "box mb-4" ]
-    [ HH.div [ classes' "is-flex is-justify-content-space-between is-align-items-center mb-3" ]
+  HH.div [ classes' "box" ]
+    -- NOTE: `is-justify-content-space-between`: put the "Renew" button on the right, separated from the institution name and requisition status tag.
+    [ HH.div [ classes' "is-flex is-justify-content-space-between mb-3" ]
         [ HH.div
-            [ classes' "is-flex is-align-items-center"
+            -- NOTE: `is-flex` on this div allows the institution name and requisition status tag to be on the same line,
+            -- and for the institution name to take up all available space while the tag takes up only as much space as it needs.
+            -- NOTE: `min-width: 0` is necessary for the institution name to
+            -- properly truncate with an ellipsis when it's too long for the available space.
+            [ classes' "is-flex"
             , HP.style "min-width: 0; flex: 1; margin-right: 1rem"
             ]
             [ HH.span
@@ -159,7 +166,7 @@ requisitionStatusTagClass = case _ of
 
 renderAccount :: forall w. State -> API.AccountSyncStatus -> HH.HTML w Action
 renderAccount state account =
-  HH.div [ classes' "py-1" ]
+  HH.div []
     [ HH.div [ classes' "is-flex is-justify-content-space-between is-align-items-center" ]
         [ HH.span []
             [ HH.text account.accountName
