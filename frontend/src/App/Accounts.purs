@@ -117,15 +117,26 @@ renderInstitution :: forall w. State -> API.InstitutionSyncStatus -> HH.HTML w A
 renderInstitution state institution =
   HH.div [ classes' "box mb-4" ]
     [ HH.div [ classes' "is-flex is-justify-content-space-between is-align-items-center mb-3" ]
-        [ HH.div [ classes' "is-flex is-align-items-center" ]
-            [ HH.span [ classes' "has-text-weight-semibold is-size-5 is-family-monospace mr-2" ]
+        [ HH.div
+            [ classes' "is-flex is-align-items-center"
+            , HP.style "min-width: 0; flex: 1; margin-right: 1rem"
+            ]
+            [ HH.span
+                [ classes' "has-text-weight-semibold is-size-6 is-family-monospace mr-2"
+                , HP.style "overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0"
+                , HP.title institution.institutionId
+                ]
                 [ HH.text institution.institutionId ]
-            , HH.span [ classes' $ "tag " <> requisitionStatusTagClass institution.requisitionStatus ]
+            , HH.span
+                [ classes' $ "tag " <> requisitionStatusTagClass institution.requisitionStatus
+                , HP.style "flex-shrink: 0"
+                ]
                 [ HH.text $ fromMaybe "UNKNOWN" institution.requisitionStatus ]
             ]
         , if state.isAdmin then
             HH.button
               [ classes' "button is-small"
+              , HP.style "flex-shrink: 0"
               , HP.disabled (state.loading || state.renewing || state.syncing)
               , HE.onClick \_ -> RenewRequisition institution.institutionId
               ]
