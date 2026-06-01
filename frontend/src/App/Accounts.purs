@@ -93,25 +93,26 @@ renderMissingAccountsWarning state =
     HH.article [ classes' "message is-warning" ]
       [ HH.div [ classes' "message-header" ]
           [ HH.text "Missing configured accounts" ]
-      , HH.div [ classes' "message-body" ]
-          [ HH.p [] [ HH.text "Some accounts are enabled in Nordigen requisitions but not present in config. Add these account IDs to config:" ]
+      -- NOTE: the `content` class sets the style for the `ul` lists.
+      , HH.div [ classes' "message-body content" ]
+          [ HH.p [] [ HH.text "You have connected to these institutions, but some accounts are missing from your config:" ]
           , HH.ul [] (state.missingAccounts <#> renderMissingInstitution)
           ]
       ]
-
-renderMissingInstitution :: forall w. API.MissingInstitutionAccounts -> HH.HTML w Action
-renderMissingInstitution missingInstitution =
-  HH.li []
-    [ HH.p []
-        [ HH.text "Institution: "
-        , HH.span [ classes' "is-family-monospace" ] [ HH.text missingInstitution.institutionName ]
-        ]
-    , HH.ul []
-        ( missingInstitution.missingAccountIds
-            <#> \accountId ->
-              HH.li [ classes' "is-family-monospace" ] [ HH.text accountId ]
-        )
-    ]
+  where
+  renderMissingInstitution :: API.MissingInstitutionAccounts -> HH.HTML w Action
+  renderMissingInstitution missingInstitution =
+    HH.li []
+      [ HH.p []
+          [ HH.text "Institution: "
+          , HH.span [ classes' "is-family-monospace" ] [ HH.text missingInstitution.institutionName ]
+          ]
+      , HH.ul []
+          ( missingInstitution.missingAccountIds
+              <#> \accountId ->
+                HH.li [ classes' "is-family-monospace" ] [ HH.text accountId ]
+          )
+      ]
 
 renderInstitution :: forall w. State -> API.InstitutionSyncStatus -> HH.HTML w Action
 renderInstitution state institution =
