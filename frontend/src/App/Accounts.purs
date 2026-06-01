@@ -208,7 +208,7 @@ handleAction = case _ of
 
   RenewRequisition institutionId -> do
     H.modify_ _ { renewing = true }
-    baseUrl <- H.liftEffect HtmlUtils.apiBaseUrl
+    baseUrl <- H.liftEffect HtmlUtils.frontendBaseUrl
     let redirectUrl = baseUrl <> "#" <> (RouteDuplex.print Routes.routeCodec (Routes.Accounts Routes.defaultModalFlag))
     response <- H.liftAff $ API.renewRequisition institutionId { redirect: redirectUrl }
     H.liftEffect $ HtmlUtils.redirectTo response.link

@@ -125,6 +125,14 @@ apiBaseUrl = do
       let adjustedUrl = if URL.port url == "1234" then URL.setPort "8081" url else url
       pure $ URL.origin adjustedUrl <> "/"
 
+frontendBaseUrl :: Effect String
+frontendBaseUrl = do
+  loc <- HTML.window >>= Window.location
+  href <- Location.href loc
+  case URL.fromAbsolute href of
+    Nothing -> pure href
+    Just url -> pure $ URL.origin url <> "/"
+
 redirectTo :: String -> Effect Unit
 redirectTo url = do
   location <- Window.location =<< HTML.window
