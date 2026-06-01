@@ -127,12 +127,34 @@ demoResponse =
   SyncStatusResponse
     { institutions =
         [ InstitutionSyncStatus
-            { institutionId = "demo-institution-id"
+            { institutionId = "demo-institution-id-1"
             , requisitionStatus = Just "LINKED"
             , accountStatuses =
                 [ AccountSyncStatus
-                    { accountId = "demo-account-id"
-                    , accountName = "Demo Account"
+                    { accountId = "demo-account-id-1"
+                    , accountName = "Demo Account #1"
+                    , lastSyncFinishedAt = Nothing
+                    , lastSyncStatus = Just SyncSuccess
+                    , lastSyncError = Nothing
+                    , lastSyncedTransactionCount = Nothing
+                    }
+                ]
+            }
+        , InstitutionSyncStatus
+            { institutionId = "demo-institution-id-2"
+            , requisitionStatus = Just "LINKED"
+            , accountStatuses =
+                [ AccountSyncStatus
+                    { accountId = "demo-account-id-2"
+                    , accountName = "Demo Account #2"
+                    , lastSyncFinishedAt = Nothing
+                    , lastSyncStatus = Just SyncSuccess
+                    , lastSyncError = Nothing
+                    , lastSyncedTransactionCount = Nothing
+                    }
+                , AccountSyncStatus
+                    { accountId = "demo-account-id-3"
+                    , accountName = "Demo Account #3"
                     , lastSyncFinishedAt = Nothing
                     , lastSyncStatus = Just SyncSuccess
                     , lastSyncError = Nothing

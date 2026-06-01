@@ -7,6 +7,8 @@ import Core.API as API
 import Core.APITypes as API
 import Data.Array as Arr
 import Data.Maybe (Maybe(..), fromMaybe)
+import Data.Set (Set)
+import Data.Set as Set
 import Effect.Aff.Class (class MonadAff)
 import Halogen as H
 import Halogen.HTML as HH
@@ -31,12 +33,14 @@ type State =
   , loading :: Boolean
   , renewing :: Boolean
   , syncing :: Boolean
+  , expandedErrors :: Set String
   }
 
 data Action
   = Initialize
   | RenewRequisition String
   | SyncNow
+  | ToggleError String
 
 component :: forall q o m. MonadAff m => H.Component q Input o m
 component =
@@ -48,6 +52,7 @@ component =
         , loading: false
         , renewing: false
         , syncing: false
+        , expandedErrors: Set.empty
         }
     , render
     , eval: H.mkEval H.defaultEval
@@ -58,9 +63,7 @@ component =
 
 render :: forall m. MonadAff m => State -> H.ComponentHTML Action () m
 render state =
-  HH.section
-    [
-    ]
+  HH.section []
     [ HH.section [ classes' "section is-fullheight" ]
         [ HH.h4 [ classes' "title is-4 has-text-centered" ]
             [ HH.text "Accounts" ]
@@ -70,7 +73,7 @@ render state =
           else
             HH.div [] (state.institutions <#> renderInstitution state)
         , if state.isAdmin then
-            HH.div []
+            HH.div [ classes' "mt-4" ]
               [ HH.button
                   [ classes' $ "button is-primary" # HtmlUtils.addClassIf state.syncing "is-loading"
                   , HP.disabled (state.loading || state.renewing || state.syncing)
@@ -112,19 +115,17 @@ renderMissingInstitution missingInstitution =
 
 renderInstitution :: forall w. State -> API.InstitutionSyncStatus -> HH.HTML w Action
 renderInstitution state institution =
-  HH.div [ classes' "mb-5" ]
-    [ HH.div [ classes' "is-flex is-justify-content-space-between is-align-items-center mb-2" ]
-        [ HH.div []
-            [ HH.h5 [ classes' "title is-5 mb-0" ]
-                [ HH.text "Institution: "
-                , HH.span [ classes' "is-family-monospace" ] [ HH.text institution.institutionId ]
-                ]
-            , HH.p [ classes' "is-size-7 has-text-grey" ]
-                [ HH.text $ "Requisition status: " <> fromMaybe "-" institution.requisitionStatus ]
+  HH.div [ classes' "box mb-4" ]
+    [ HH.div [ classes' "is-flex is-justify-content-space-between is-align-items-center mb-3" ]
+        [ HH.div [ classes' "is-flex is-align-items-center" ]
+            [ HH.span [ classes' "has-text-weight-semibold is-size-5 is-family-monospace mr-2" ]
+                [ HH.text institution.institutionId ]
+            , HH.span [ classes' $ "tag " <> requisitionStatusTagClass institution.requisitionStatus ]
+                [ HH.text $ fromMaybe "UNKNOWN" institution.requisitionStatus ]
             ]
         , if state.isAdmin then
             HH.button
-              [ classes' "button is-small is-primary"
+              [ classes' "button is-small"
               , HP.disabled (state.loading || state.renewing || state.syncing)
               , HE.onClick \_ -> RenewRequisition institution.institutionId
               ]
@@ -132,34 +133,51 @@ renderInstitution state institution =
           else
             HH.text ""
         ]
-    , HH.div [ classes' "table-container" ]
-        [ HH.table [ classes' "table is-fullwidth is-striped" ]
-            [ HH.thead []
-                [ HH.tr []
-                    [ HH.th [] [ HH.text "Account" ]
-                    , HH.th [] [ HH.text "Account ID" ]
-                    , HH.th [] [ HH.text "Last Sync Status" ]
-                    , HH.th [] [ HH.text "Error" ]
-                    ]
-                ]
-            , HH.tbody [] (institution.accountStatuses <#> renderAccountRow)
+    , HH.div [] $ Arr.intersperse (HH.hr [ classes' "my-2" ])
+        (institution.accountStatuses <#> renderAccount state)
+    ]
+
+requisitionStatusTagClass :: Maybe String -> String
+requisitionStatusTagClass = case _ of
+  Just "LINKED" -> "is-success"
+  Just "EXPIRED" -> "is-danger"
+  Just "REJECTED" -> "is-danger"
+  Just _ -> "is-warning"
+  Nothing -> "is-light"
+
+renderAccount :: forall w. State -> API.AccountSyncStatus -> HH.HTML w Action
+renderAccount state account =
+  HH.div [ classes' "py-1" ]
+    [ HH.div [ classes' "is-flex is-justify-content-space-between is-align-items-center" ]
+        [ HH.span []
+            [ HH.text account.accountName
+            , HH.span [ classes' "is-family-monospace is-size-7 has-text-grey ml-2" ]
+                [ HH.text $ "(" <> account.accountId <> ")" ]
             ]
+        , renderSyncStatus state account
         ]
+    , case account.lastSyncError of
+        Just err | Set.member account.accountId state.expandedErrors ->
+          HH.p [ classes' "is-size-7 has-text-danger mt-1" ] [ HH.text err ]
+        _ -> HH.text ""
     ]
 
-renderAccountRow :: forall w. API.AccountSyncStatus -> HH.HTML w Action
-renderAccountRow account =
-  HH.tr []
-    [ HH.td [] [ HH.text account.accountName ]
-    , HH.td [ classes' "is-family-monospace" ] [ HH.text account.accountId ]
-    , HH.td [] [ HH.text $ fromMaybe "Never" (showStatus <$> account.lastSyncStatus) ]
-    , HH.td [ classes' "is-size-7" ] [ HH.text $ fromMaybe "" account.lastSyncError ]
-    ]
-
-showStatus :: API.SyncStatus -> String
-showStatus = case _ of
-  API.SyncSuccess -> "Success"
-  API.SyncError -> "Error"
+renderSyncStatus :: forall w. State -> API.AccountSyncStatus -> HH.HTML w Action
+renderSyncStatus state account =
+  case account.lastSyncStatus of
+    Nothing ->
+      HH.span [ classes' "has-text-grey is-size-7" ] [ HH.text "Never synced" ]
+    Just API.SyncSuccess ->
+      HH.span [ classes' "tag is-success is-light" ] [ HH.text "Success" ]
+    Just API.SyncError ->
+      HH.span
+        [ classes' "tag is-danger is-light is-clickable"
+        , HE.onClick \_ -> ToggleError account.accountId
+        ]
+        [ HH.text $
+            if Set.member account.accountId state.expandedErrors then "Error ▲"
+            else "Error ▼"
+        ]
 
 handleAction :: forall o m. MonadAff m => Action -> H.HalogenM State Action () o m Unit
 handleAction = case _ of
@@ -179,3 +197,10 @@ handleAction = case _ of
     H.liftAff API.triggerSync
     syncStatus <- H.liftAff API.getSyncAccountStatus
     H.modify_ _ { institutions = syncStatus.institutions, missingAccounts = syncStatus.missingAccounts, syncing = false }
+
+  ToggleError accountId ->
+    H.modify_ \s -> s
+      { expandedErrors =
+          if Set.member accountId s.expandedErrors then Set.delete accountId s.expandedErrors
+          else Set.insert accountId s.expandedErrors
+      }
