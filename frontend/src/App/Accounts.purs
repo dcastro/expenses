@@ -169,7 +169,8 @@ renderAccount state account =
         ]
     , case account.lastSyncError of
         Just err | Set.member account.accountId state.expandedErrors ->
-          HH.p [ classes' "is-size-7 has-text-danger mt-1" ] [ HH.text err ]
+          HH.p [ classes' "is-size-7 has-text-danger mt-1" ]
+            [ HH.pre [] [ HH.text err ] ]
         _ -> HH.text ""
     ]
 

@@ -134,8 +134,13 @@ demoResponse =
                     { accountId = "demo-account-id-1"
                     , accountName = "Demo Account #1"
                     , lastSyncFinishedAt = Nothing
-                    , lastSyncStatus = Just SyncSuccess
-                    , lastSyncError = Nothing
+                    , lastSyncStatus = Just SyncError
+                    , lastSyncError =
+                        Just
+                          [i|
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                        Donec tristique lacus eu leo dapibus scelerisque. Aliquam non luctus magna.
+                    |]
                     , lastSyncedTransactionCount = Nothing
                     }
                 ]
