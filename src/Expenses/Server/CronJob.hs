@@ -259,7 +259,11 @@ apiToRow config acc tx = do
   pickCategory desc =
     config.categoryPatterns
       ^? each
-        . filtered (\entry -> entry.contains & any (\cont -> cont `T.isInfixOf` desc))
+        . filtered
+          ( \entry ->
+              entry.contains
+                & any (\substrings -> substrings & all (\substring -> substring `T.isInfixOf` desc))
+          )
         . to (.tag)
 
   fixSign :: InstitutionAccountInfo -> Text -> Text

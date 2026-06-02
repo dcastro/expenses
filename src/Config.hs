@@ -25,11 +25,18 @@ data AppConfig = AppConfig
   deriving stock (Eq, Show)
 
 data CategoryPatternEntry = CategoryPatternEntry
-  { contains :: [Text]
-  , tag :: TagName
+  { tag :: TagName
+  , -- For this tag to be assigned to a transaction,
+    --  all the substrings in at least one of the entries in `contains` must be present in the transaction description.
+    contains :: [Substrings]
   }
   deriving stock (Eq, Show, Generic)
   deriving anyclass (FromJSON)
+
+-- The tx description must contain all these substrings for the tag to be assigned.
+type Substrings = [Substring]
+
+type Substring = Text
 
 $( mconcat
      [ deriveFromJSON defaultOptions ''AppConfig

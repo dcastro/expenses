@@ -106,220 +106,220 @@ ungroupedTags:
 categoryPatterns:
   - tag: renda
     contains:
-      - 'Joana Galhardo'
+      - ['Joana Galhardo']
   - tag: via verde
     contains:
-      - 'VIAVERDE'
+      - ['VIAVERDE']
   - tag: agua
     contains:
-      - 'ALTICE PAY, S.A.'
-      - 'Aguas de Gondo'
-      - 'AGUAS DE GONDO'
+      - ['ALTICE PAY, S.A.']
+      - ['Aguas de Gondo']
+      - ['AGUAS DE GONDO']
   - tag: luz
     contains:
-      - 'EDP COMERCIAL'
-      - 'LUZBOA'
+      - ['EDP COMERCIAL']
+      - ['LUZBOA']
   - tag: gás
     contains:
-      - 'EDP GAS SERVI'
-      - 'DD PT64114306 GAS SU'
-      - '99775959381'
+      - ['EDP GAS SERVI']
+      - ['DD PT64114306 GAS SU']
+      - ['99775959381']
   - tag: seguro de saude
     contains:
-      - 'DD PT79100553 COMPANHIA DE SE 00681505982'
-      - 'COMPANHIA DE S 00681505982'
-      - 'DI56118299'
-      - 'DD MEDIS     SAUDE    DI56118299'
+      - ['DD PT79100553 COMPANHIA DE SE 00681505982']
+      - ['COMPANHIA DE S 00681505982']
+      - ['DI56118299']
+      - ['DD MEDIS     SAUDE    DI56118299']
   - tag: seguro dental
     contains:
-      - 'DD MEDIS     SAUDE    DI56162829'
+      - ['DD MEDIS     SAUDE    DI56162829']
   - tag: seguro do carro
     contains:
-      - 'DD PT18100002 Tranquilidade   82654090063'
-      - '82654090063'
+      - ['DD PT18100002 Tranquilidade   82654090063']
+      - ['82654090063']
   - tag: seguro de trabalho
     contains:
-      - 'GENERALI SEGUROS, SA'
+      - ['GENERALI SEGUROS, SA']
   - tag: seguro de trabalho domestico
     contains:
-      - 'PT83100675 LIBERTY SEGUROS 60058549711'
-      - 'PT83100675 GENERALI SEGURO 60058549711'
-      - '60058549711'
+      - ['PT83100675 LIBERTY SEGUROS 60058549711']
+      - ['PT83100675 GENERALI SEGURO 60058549711']
+      - ['60058549711']
   - tag: seguro de vida
     contains:
-      - 'DD PT28104381 APRIL PORTUGAL, 00717062587-01637'
-      - 'DD APRIL PORTUGAL'
-      - 'ASISA VIDA SEG'
+      - ['DD PT28104381 APRIL PORTUGAL, 00717062587-01637']
+      - ['DD APRIL PORTUGAL']
+      - ['ASISA VIDA SEG']
   - tag: iuc
     contains:
-      - 'AT202200000000'
+      - ['AT202200000000']
   - tag: vodafone
     contains:
-      - 'VODAFONE'
+      - ['VODAFONE']
   - tag: telemovel
     contains:
-      - 'COMPRA 7765 WOO '
-      - 'COMPRA 8003 WOO LISBOA'
+      - ['COMPRA 7765 WOO ']
+      - ['COMPRA 8003 WOO LISBOA']
   - tag: netflix
     contains:
-      - 'TRF P  Carlos Gomes'
-      - 'Netflix.com'
-      - 'NETFLIX.COM'
-      - 'NETFLIX INTERNATIONAL'
+      - ['TRF P  Carlos Gomes']
+      - ['Netflix.com']
+      - ['NETFLIX.COM']
+      - ['NETFLIX INTERNATIONAL']
   - tag: three
     contains:
-      - 'WWW.THREE.CO.UK'
-      - 'THREE-TOPUP'
+      - ['WWW.THREE.CO.UK']
+      - ['THREE-TOPUP']
   - tag: banco
     contains:
-      - 'COM.MAN.CONTA PACOTE CLIENTE FREQUENTE'
-      - 'IMPOSTO SELO ART 17.3.4'
+      - ['COM.MAN.CONTA PACOTE CLIENTE FREQUENTE']
+      - ['IMPOSTO SELO ART 17.3.4']
   - tag: gasolina
     contains:
-      - 'A.S.RIO TINTO'
-      - 'POSTO GALP'
-      - 'AVAUCHER'
-      - 'DISA GONDOMAR' # Bomba Shell em Baguim do Monte
+      - ['A.S.RIO TINTO']
+      - ['POSTO GALP']
+      - ['AVAUCHER']
+      - ['DISA GONDOMAR'] # Bomba Shell em Baguim do Monte
   - tag: gym
     contains:
-      - 'DDPT40100188 SOLINCA HF'
-      - 'Solinca'
-      - 'SOLINCA'
+      - ['DDPT40100188 SOLINCA HF']
+      - ['Solinca']
+      - ['SOLINCA']
   - tag: charity
     contains:
-      - 'Amnistia Inter'
+      - ['Amnistia Inter']
   # Cabeleireiro Visagisme, Millennium
   - tag: cabelo
     contains:
-      - 'TRF MB WAY P       5181'
-      - 'Trf MB WAY 910415181'
-      - 'TRF MB WAY P  ALICE PINTO'
-      - 'VISAGISME'
-      - 'TRF MB WAY P  ISABEL MARIA GONCALVES' # Cabeleireiro Alter Ego, D. Isabel, onde o David corta o cabelo
+      - ['TRF MB WAY P       5181']
+      - ['Trf MB WAY 910415181']
+      - ['TRF MB WAY P  ALICE PINTO']
+      - ['VISAGISME']
+      - ['TRF MB WAY P  ISABEL MARIA GONCALVES'] # Cabeleireiro Alter Ego, D. Isabel, onde o David corta o cabelo
   - tag: limpeza da casa
     contains:
-      - 'TRF P  D. Manuela'
-      - 'TRF P  D Manuela'
-      - 'PAG S.SOC 11153829633'
+      - ['TRF P  D. Manuela']
+      - ['TRF P  D Manuela']
+      - ['PAG S.SOC 11153829633']
   - tag: consultas
     contains:
-      - 'PROJETOS DE GENTE'
-      - 'FISIOTRIMTRIM'
-      - 'FisioTrimTrim'
-      - 'FISIOKIDS'
-      - 'ESTRADA RISONHA' # Clinica Parque da Cidade Junior, Dentista David
+      - ['PROJETOS DE GENTE']
+      - ['FISIOTRIMTRIM']
+      - ['FisioTrimTrim']
+      - ['FISIOKIDS']
+      - ['ESTRADA RISONHA'] # Clinica Parque da Cidade Junior, Dentista David
   - tag: prota
     contains:
-      - 'MYPROTEIN.COM'
+      - ['MYPROTEIN.COM']
   - tag: groceries
     contains:
-      - 'CONTINENTE'
-      - 'Continente Pay'
-      - 'MODELO Portugal'
-      - 'BONJOUR Portugal PT' # Continente
-      - 'AUCHAN'
-      - 'PINGO DOCE'
-      - 'MERCADONA'
-      - 'TRF MB WAY P       1884' # Sandra Melo
-      - 'A FRESCURA DO POMAR' # frutaria à beira da farmácia silveira
-      - 'O GORDO DA FRUTA'
-      - 'LIDL AGRADEC'
-      - 'O rapaz da quinta'
-      - 'M MADALENA M ALVES' # frutaria à beira de nossa casa, na cidade jovem
-      - ' ALDI RIO TINTO'
-      - 'BIODIVERSUS' # Mercadinho Biológico em Gondomar
-      - 'CELIA TERESA MARTINS' # Mercadinho Biológico em Gondomar
-      - 'Sabores E Utilidades4510 552 Fanzeres' #  frutaria à beira de casa dos meus pais
-      - 'COMPRA SABORES E UT 9164904/02' #  frutaria à beira de casa dos meus pais
-      - 'TRF MB WAY P       6180' # cesto de vegetais de A Quintinha
-      - 'TRF MB WAY P  MARTA BEATRIZ LOPES MARQUES' # cesto de vegetais de A Quintinha
-      - 'TRF MB WAY P  VITOR JOSE SA MARQUES' # cesto de vegetais de A Quintinha
-      - 'Devolução % Compras Acumuladas' # Cartão Black
+      - ['CONTINENTE']
+      - ['Continente Pay']
+      - ['MODELO Portugal']
+      - ['BONJOUR Portugal PT'] # Continente
+      - ['AUCHAN']
+      - ['PINGO DOCE']
+      - ['MERCADONA']
+      - ['TRF MB WAY P       1884'] # Sandra Melo
+      - ['A FRESCURA DO POMAR'] # frutaria à beira da farmácia silveira
+      - ['O GORDO DA FRUTA']
+      - ['LIDL AGRADEC']
+      - ['O rapaz da quinta']
+      - ['M MADALENA M ALVES'] # frutaria à beira de nossa casa, na cidade jovem
+      - [' ALDI RIO TINTO']
+      - ['BIODIVERSUS'] # Mercadinho Biológico em Gondomar
+      - ['CELIA TERESA MARTINS'] # Mercadinho Biológico em Gondomar
+      - ['Sabores E Utilidades4510 552 Fanzeres'] #  frutaria à beira de casa dos meus pais
+      - ['COMPRA SABORES E UT 9164904/02'] #  frutaria à beira de casa dos meus pais
+      - ['TRF MB WAY P       6180'] # cesto de vegetais de A Quintinha
+      - ['TRF MB WAY P  MARTA BEATRIZ LOPES MARQUES'] # cesto de vegetais de A Quintinha
+      - ['TRF MB WAY P  VITOR JOSE SA MARQUES'] # cesto de vegetais de A Quintinha
+      - ['Devolução % Compras Acumuladas'] # Cartão Black
   - tag: takeaway
     contains:
-      - 'UBER EATS'
-      - 'UBER *EATS'
-      - 'UBER   *EATS'
-      - 'MADUREIRAS'
-      - 'CONFEITARIA IMPERIO'
-      - 'COMIDA E VOLTA'
-      - 'SUBENSHI'
-      - 'BRASINHAS'
-      - 'EMPANADAS ARGENTINAS'
-      - 'S MARTINO'
-      - 'Too Good To Go'
-      - 'GONDUREST LDA PORTO' # mcdonalds
-      - 'PIZZAHUT'
-      - 'BURGUER KING'
-      - 'BK CHAVES BAGUIM DO MON'
-      - 'CHURRASQ PRESTIGE' # Churrasqueira Prestige, ao lado da casa da Cristina em Gondomar
-      - 'CHURRASQUEIRA FANZERES' # Churrasqueira Pigalle, na Carvalha
-      - 'CENTRAL RIO NIF 514817879' # Churrasqueira Central Rio Tinto
+      - ['UBER EATS']
+      - ['UBER *EATS']
+      - ['UBER   *EATS']
+      - ['MADUREIRAS']
+      - ['CONFEITARIA IMPERIO']
+      - ['COMIDA E VOLTA']
+      - ['SUBENSHI']
+      - ['BRASINHAS']
+      - ['EMPANADAS ARGENTINAS']
+      - ['S MARTINO']
+      - ['Too Good To Go']
+      - ['GONDUREST LDA PORTO'] # mcdonalds
+      - ['PIZZAHUT']
+      - ['BURGUER KING']
+      - ['BK CHAVES BAGUIM DO MON']
+      - ['CHURRASQ PRESTIGE'] # Churrasqueira Prestige, ao lado da casa da Cristina em Gondomar
+      - ['CHURRASQUEIRA FANZERES'] # Churrasqueira Pigalle, na Carvalha
+      - ['CENTRAL RIO NIF 514817879'] # Churrasqueira Central Rio Tinto
   - tag: go out
     contains:
-      - 'IRISH CO VILA NOVA DE GAIA'
-      - 'BEIJOBAR MATOSINHOS'
-      - 'LAIS DE GUIA MATOSINHOS'
-      - 'REST MAR A VISTA VILA NOVA GAIA'
-      - 'AQUA REST BAR VILA NOVA GAIA'
-      - 'CEDILHA DOCE' # bar do parque de rio tinto
+      - ['IRISH CO VILA NOVA DE GAIA']
+      - ['BEIJOBAR MATOSINHOS']
+      - ['LAIS DE GUIA MATOSINHOS']
+      - ['REST MAR A VISTA VILA NOVA GAIA']
+      - ['AQUA REST BAR VILA NOVA GAIA']
+      - ['CEDILHA DOCE'] # bar do parque de rio tinto
   - tag: farmacia
     contains:
-      - 'COMPRA 0288 FARMACIA'
-      - 'FARMACIA MAGALHAES FANZERES'
-      - 'WELLS BAGUIM'
-      - 'WELL S ANTAS PORTO'
+      - ['COMPRA 0288 FARMACIA']
+      - ['FARMACIA MAGALHAES FANZERES']
+      - ['WELLS BAGUIM']
+      - ['WELL S ANTAS PORTO']
   - tag: vet
     contains:
-      - 'CENTRO VETERINARIO'
+      - ['CENTRO VETERINARIO']
   - tag: atividades
     contains:
-      - 'GULI FAMILY CLUB'
-      - 'RITMOS ACROBATA' # little gym
-      - 'SARA STEINBERG' # lono project
+      - ['GULI FAMILY CLUB']
+      - ['RITMOS ACROBATA'] # little gym
+      - ['SARA STEINBERG'] # lono project
   - tag: seg social
     contains:
-      - 'DD PT66104764 INST GEST FINAN 23021258204'
-      - 'INST GEST FINAN'
+      - ['DD PT66104764 INST GEST FINAN 23021258204']
+      - ['INST GEST FINAN']
   - tag: ordenado
     contains:
-      - 'Serokell OU'
-      - 'SEROKELL'
-      - 'TRF. P O  FLOATINGLICIOUS - LDA       MADEMOISE'
+      - ['Serokell OU']
+      - ['SEROKELL']
+      - ['TRF. P O  FLOATINGLICIOUS - LDA       MADEMOISE']
   - tag: ordem dos enfermeiros
     contains:
-      - 'ORDEM DOS ENFE'
+      - ['ORDEM DOS ENFE']
   - tag: contabilista
     contains:
-      - 'Tito Santos'
+      - ['Tito Santos']
   - tag: software
     contains:
-      - 'DNH GO DADDY EUROPE'
-      - 'GODADDY'
-      - 'GITKRAKEN'
-      - 'COMPRA 7765 GOOGLE GOOGLE PLAY APP G.CO HELPPAY' # Google One / Google Photos
+      - ['DNH GO DADDY EUROPE']
+      - ['GODADDY']
+      - ['GITKRAKEN']
+      - ['COMPRA 7765 GOOGLE GOOGLE PLAY APP G.CO HELPPAY'] # Google One / Google Photos
   - tag: school
     contains:
-      - 'TRF P  Caminhar Escola'
+      - ['TRF P  Caminhar Escola']
   - tag: iva reembolso
     contains:
-      - 'REEMBOLSOS A RESIDENTES     AT'
+      - ['REEMBOLSOS A RESIDENTES     AT']
   - tag: income
     contains:
-      - 'Serokell'
+      - ['Serokell']
   - tag: transfers
     contains:
-      - 'TRF DE DIOGO FILIPE AZEVEDO CASTRO'
-      - 'TRF P  Diogo Millennium'
-      - 'LEV ATM'
-      - 'DD UNIVERSO'
+      - ['TRF DE DIOGO FILIPE AZEVEDO CASTRO']
+      - ['TRF P  Diogo Millennium']
+      - ['LEV ATM']
+      - ['DD UNIVERSO']
   - tag: investments
     contains:
-      - 'TRF P  Interactive Brokers'
+      - ['TRF P  Interactive Brokers']
   - tag: taxes
     contains:
-      - '23021632430' # seg social
-      - 'PAG.IGCP'
+      - ['23021632430'] # seg social
+      - ['PAG.IGCP']
 
 notExpenses:
   - 'TRF DE DIOGO FILIPE AZEVEDO CASTRO'
