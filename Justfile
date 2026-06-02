@@ -36,6 +36,11 @@ nix-shell-hs:
 backup:
     sudo anacron -fnd expenses-backup
 
+[confirm]
+restore-backup backup_dir:
+    scp /home/dc/Nextcloud/expenses-manager/backups/{{ backup_dir }}/expenses.db    dc@{{ remote }}:/home/dc/.local/share/expenses-manager/expenses.db
+    scp /home/dc/Nextcloud/expenses-manager/backups/{{ backup_dir }}/eventlog.jsonl dc@{{ remote }}:/home/dc/.local/share/expenses-manager/eventlog.jsonl
+
 update-haskell-nix:
     nix flake update haskellNix
 

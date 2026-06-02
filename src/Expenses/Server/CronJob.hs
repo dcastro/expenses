@@ -6,6 +6,7 @@ import Control.Lens
 import CustomPrelude
 import Data.Aeson as J
 import Data.Aeson.Encode.Pretty qualified as J
+import Data.Aeson.Text qualified as J
 import Data.Text qualified as T
 import Data.Time (pattern YearMonthDay)
 import Database qualified as Db
@@ -154,6 +155,8 @@ updateSyncAccountStatus acc finishedAt status err txCount =
 fixTransaction :: ApiTransaction -> ApiTransaction
 fixTransaction tx =
   {-
+    #(ref:bugged_id)
+
     This transaction (found in the logs: `2026-05-17 02:00:00.080614225 UTC-transactions.json`)
     contained an invalid date: "5207-01-20".
 
@@ -281,7 +284,32 @@ apiToRow config acc tx = do
   -}
   getTransactionId :: InstitutionAccountInfo -> ApiTransaction -> Text
   getTransactionId acc tx =
-    acc.accountId <> "--" <> tx.internalTransactionId
+    if
+      -- Keep using the old `transactionId` logic for txs synced before the date of the bug fix.
+      -- When the bug was fixed, we had already synced:
+      --  * txs from Millennium or Activo with a tx ID up to and including "2026060212026-06-02-04.25.14.031288"
+      | (acc.accountName == "Millennium" || acc.accountName == "Activo")
+          && isJust tx.entryReference
+          && tx.entryReference <= Just "2026060212026-06-02-04.25.14.031288" ->
+          oldGetTransactionId tx
+      --  * a single tx from "Millennium" a buggy ID "02026051552026-05-16-01.09.08.38441"
+      --    see: @(ref:bugged_id)
+      | acc.accountName == "Millennium"
+          && isJust tx.entryReference
+          && tx.entryReference == Just "02026051552026-05-16-01.09.08.38441" ->
+          oldGetTransactionId tx
+      --  * a single tx from Moey with the ID "100"
+      | acc.accountName == "Moey" && tx.entryReference == Just "100" ->
+          oldGetTransactionId tx
+      | otherwise ->
+          acc.accountId <> "--" <> tx.internalTransactionId
+   where
+    oldGetTransactionId :: ApiTransaction -> Text
+    oldGetTransactionId t =
+      case t.transactionId <|> t.entryReference of
+        Just tid -> tid
+        Nothing ->
+          error [i|Transaction does not have a 'transactionId' or a 'entryReference': '#{J.encodeToTextBuilder t}'|]
 
 -- Determines whether a transaction should be considered an expense.
 getIsExpense :: AppConfig -> InstitutionAccountInfo -> ApiTransaction -> Text -> Bool
