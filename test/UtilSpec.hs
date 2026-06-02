@@ -70,7 +70,7 @@ unit_getIsExpense = do
           , ungroupedTags = mempty
           , cronSchedule = ""
           , tagPatterns = mempty
-          , notExpenses = ["ATM"]
+          , notExpenses = ["transfers"]
           }
   let accExpense =
         InstitutionAccountInfo
@@ -88,14 +88,14 @@ unit_getIsExpense = do
           }
   let txIdNormal = "20220121233851916940"
   let txIdTemporary = "12345678901234"
-  let txDescNormal = "Some normal transaction"
-  let !txDescNotExpense = "something " <> Unsafe.head config.notExpenses <> " something"
+  let tagTaxIsExpense = "groceries"
+  let !txTagNotExpense = Unsafe.head config.notExpenses
 
   -- Expense account, normal txId, normal desc
-  CronJob.getIsExpense config accExpense (Just txIdNormal) txDescNormal @?= True
+  CronJob.getIsExpense config accExpense (Just txIdNormal) (Just tagTaxIsExpense) @?= True
   -- Non-expense account
-  CronJob.getIsExpense config accNonExpense (Just txIdNormal) txDescNormal @?= False
+  CronJob.getIsExpense config accNonExpense (Just txIdNormal) (Just tagTaxIsExpense) @?= False
   -- Expense account, but txDesc contains notExpenses pattern
-  CronJob.getIsExpense config accExpense (Just txIdNormal) txDescNotExpense @?= False
+  CronJob.getIsExpense config accExpense (Just txIdNormal) (Just txTagNotExpense) @?= False
   -- Expense account, but temporary txId
-  CronJob.getIsExpense config accExpense (Just txIdTemporary) txDescNormal @?= False
+  CronJob.getIsExpense config accExpense (Just txIdTemporary) (Just tagTaxIsExpense) @?= False

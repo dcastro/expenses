@@ -20,7 +20,7 @@ data AppConfig = AppConfig
   , ungroupedTags :: [TagName]
   , cronSchedule :: Text
   , tagPatterns :: [TagPatternEntry]
-  , notExpenses :: [Text]
+  , notExpenses :: [TagName]
   }
   deriving stock (Eq, Show)
 

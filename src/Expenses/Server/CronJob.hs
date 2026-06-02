@@ -242,16 +242,17 @@ apiToRow :: AppConfig -> InstitutionAccountInfo -> ApiTransaction -> Db.Transact
 apiToRow config acc tx = do
   let txAmount = tx.transactionAmount.amount & fixSign acc & Util.eurosToCents & BECents
   let txDesc = tx.remittanceInformationUnstructured
+  let tag = pickTag tx.remittanceInformationUnstructured
   Db.TransactionJoinedRow
     { transactionId = getTransactionId acc tx
     , account = acc.accountName
     , date = tx.bookingDate
     , desc = txDesc
     , totalAmountCents = txAmount
-    , isExpense = getIsExpense config acc tx.entryReference txDesc
+    , isExpense = getIsExpense config acc tx.entryReference tag
     , itemIndex = 0
     , itemAmountCents = txAmount
-    , tag = pickTag tx.remittanceInformationUnstructured
+    , tag
     , details = ""
     }
  where
@@ -319,18 +320,22 @@ apiToRow config acc tx = do
           error [i|Transaction does not have a 'transactionId' or a 'entryReference': '#{J.encodeToTextBuilder t}'|]
 
 -- Determines whether a transaction should be considered an expense.
-getIsExpense :: AppConfig -> InstitutionAccountInfo -> Maybe Text -> Text -> Bool
-getIsExpense config acc entryReference txDesc =
+getIsExpense :: AppConfig -> InstitutionAccountInfo -> Maybe Text -> Maybe TagName -> Bool
+getIsExpense config acc entryReference tag =
   if
     | not acc.isExpenseAccount -> False
     | not isExpenseTransaction -> False
     | hasTemporaryTxId -> False
     | otherwise -> True
  where
+  -- If the tx tag matches any of the tags in `config.notExpenses`,
+  -- then we consider it not an expense, even if it's in an expense account.
   isExpenseTransaction :: Bool
   isExpenseTransaction =
-    flip all config.notExpenses \ptrn ->
-      not (ptrn `T.isInfixOf` txDesc)
+    case tag of
+      Just tag ->
+        config.notExpenses & all \someTag -> someTag /= tag
+      Nothing -> True
 
   {-
     Cetelem sometimes assigns temporary IDs to transactions, and then a few days later

@@ -321,16 +321,6 @@ tagPatterns:
       - ['23021632430'] # seg social
       - ['PAG.IGCP']
 
+# Transactions with these tags are marked as "not an expense".
 notExpenses:
-  - 'TRF DE DIOGO FILIPE AZEVEDO CASTRO'
-  - 'TRF P  Diogo Moey'
-  - 'TRANSF SEPA -ENG DIOGO FILIPE'
-  - 'DD PT41100946 CETELEM         75526515837'
-  - 'DD PT41100946 CETELEM         75498308722'
-  - 'DD PT24113086 UNIVERSO'
-  - 'DD UNIVERSO'
-  - 'Pagamento de Mensalidade'
-  - 'TRF. P O  FLOATINGLICIOUS - LDA       MADEMOISE'
-  - 'TRF DE ENF SONIA DANIELA CARNEIRO BARBOSA'
-  - 'LEV ATM '
-  - 'REEMBOLSOS   IRS'
+  - transfers
