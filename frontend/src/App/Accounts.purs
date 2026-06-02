@@ -97,7 +97,7 @@ renderMissingAccountsWarning state =
           [ HH.text "Missing configured accounts" ]
       -- NOTE: the `content` class sets the style for the `ul` lists.
       , HH.div [ classes' "message-body content" ]
-          [ HH.p [] [ HH.text "You have connected to these institutions, but some accounts are missing from your config:" ]
+          [ HH.p [] [ HH.text "You have successfully connected to these accounts, you can now add them to the config file:" ]
           , HH.ul [] (state.missingAccounts <#> renderMissingInstitution)
           ]
       ]
