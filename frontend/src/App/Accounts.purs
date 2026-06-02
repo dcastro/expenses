@@ -24,7 +24,7 @@ type Input =
   { isAdmin :: Boolean
   }
 
-type Output = Void
+data Output = SyncCompleted API.SyncAccountStatusResponse
 
 type State =
   { isAdmin :: Boolean
@@ -44,7 +44,7 @@ data Action
   | SyncNow
   | ToggleError String
 
-component :: forall q o m. MonadAff m => H.Component q Input o m
+component :: forall q m. MonadAff m => H.Component q Input Output m
 component =
   H.mkComponent
     { initialState: \{ isAdmin } ->
@@ -199,7 +199,7 @@ renderSyncStatus state account =
             else "Error ▼"
         ]
 
-handleAction :: forall o m. MonadAff m => Action -> H.HalogenM State Action () o m Unit
+handleAction :: forall m. MonadAff m => Action -> H.HalogenM State Action () Output m Unit
 handleAction = case _ of
   Initialize -> do
     H.modify_ _ { loading = true }
@@ -218,6 +218,7 @@ handleAction = case _ of
     H.liftAff API.triggerSync
     syncStatus <- H.liftAff API.getSyncAccountStatus
     H.modify_ _ { institutions = syncStatus.institutions, missingAccounts = syncStatus.missingAccounts, syncing = false }
+    H.raise $ SyncCompleted syncStatus
 
   ToggleError accountId ->
     H.modify_ \s -> s

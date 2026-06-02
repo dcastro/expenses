@@ -5,6 +5,9 @@ default:
 run *ARGS:
     stack run expenses-manager-server -- --user test --verbose {{ ARGS }}
 
+run-demo *ARGS:
+    just run --demo-mode {{ ARGS }}
+
 run-user-dir:
     stack run expenses-manager-server -- --user test --verbose --app-dir /home/dc/.local/share/expenses-manager
 

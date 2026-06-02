@@ -9,10 +9,13 @@ import App.Routes (AppRoute(..))
 import App.Routes as Routes
 import App.SearchTransactionsTable as Search
 import App.SingleMonth as SingleMonth
+import Core.API as API
 import Core.APITypes (TagName)
 import Core.APITypes as API
 import Core.Sorting as Sorting
 import Core.YearMonth (YearMonth)
+import Data.Array as Arr
+import Data.Foldable (intercalate)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Effect.Aff.Class (class MonadAff)
 import Effect.Class.Console as Console
@@ -80,6 +83,9 @@ type State =
 
   -- Cached search parameters to preserve state when navigating away from the search route.
   , cachedSearchRoute :: Routes.SearchRoute
+
+  -- The sync status for each account. We use this to display a warning in the UI when an account's last sync failed.
+  , syncStatus :: Maybe API.SyncAccountStatusResponse
   }
 
 data Action
@@ -90,6 +96,8 @@ data Action
   | HandleNavClick AppRoute ME.MouseEvent
   | NavigateTo AppRoute
   | HandleNewTransactionModal NewTransactionModal.Output
+  | SyncStatusLoaded API.SyncAccountStatusResponse
+  | HandleAccountsOutput Accounts.Output
 
 component :: forall q m. MonadAff m => MonadRouter AppRoute m => H.Component q Input Output m
 component =
@@ -111,6 +119,7 @@ component =
         , cachedSearchRoute: initSearchRoute
         , allTags
         , allAccounts
+        , syncStatus: Nothing
         }
     , render
     , eval: H.mkEval H.defaultEval { handleAction = handleAction, initialize = Just Initialize }
@@ -207,6 +216,8 @@ render state =
               )
           ]
 
+      , renderSyncErrorNotice state.syncStatus
+
       , HH.slot_
           _singleMonth
           unit
@@ -245,12 +256,13 @@ render state =
           , allAccounts: state.allAccounts
           }
       , HtmlUtils.displayIf (Routes.isAccountsRoute state.currentRoute) $
-          HH.slot_
+          HH.slot
             _accounts
             unit
             Accounts.component
             { isAdmin: state.isAdmin
             }
+            HandleAccountsOutput
       , HtmlUtils.displayIf (Routes.isModalOpen state.currentRoute) $
           HH.slot
             _newTransactionModal
@@ -261,6 +273,28 @@ render state =
             }
             HandleNewTransactionModal
       ]
+
+renderSyncErrorNotice :: forall w i. Maybe API.SyncAccountStatusResponse -> HH.HTML w i
+renderSyncErrorNotice = case _ of
+  Nothing -> HH.text ""
+  Just syncStatus ->
+    let
+      failedAccounts = do
+        inst <- syncStatus.institutions
+        acct <- inst.accountStatuses
+        case acct.lastSyncStatus of
+          Just API.SyncError -> [ acct.accountName ]
+          _ -> []
+    in
+      if Arr.null failedAccounts then HH.text ""
+      else
+        HH.div [ classes' "section" ]
+          [ HH.article [ classes' "message is-danger mx-5 mt-4" ]
+              [ HH.div [ classes' "message-header" ] [ HH.text "Sync error" ]
+              , HH.div [ classes' "message-body" ]
+                  [ HH.text $ "The last sync failed for: " <> intercalate ", " failedAccounts ]
+              ]
+          ]
 
 handleAction :: forall m. MonadRouter AppRoute m => MonadAff m => Action -> H.HalogenM State Action Slots Output m Unit
 handleAction = case _ of
@@ -277,6 +311,10 @@ handleAction = case _ of
     -- emitMatched is provided by MonadRouter class.
     emitter <- R.emitMatched
     void $ H.subscribe $ map RouteChanged emitter
+
+    -- Get the sync status for each account, and display a warning in the UI if any account's last sync failed.
+    syncStatus <- H.liftAff API.getSyncAccountStatus
+    handleAction $ SyncStatusLoaded syncStatus
 
   RouteChanged route -> do
     Console.log $ "[Root] Route changed: " <> show route
@@ -330,6 +368,12 @@ handleAction = case _ of
     case output of
       NewTransactionModal.ModalClosed -> pure unit
       NewTransactionModal.TransactionCreated -> pure unit
+
+  SyncStatusLoaded syncStatus ->
+    H.modify_ _ { syncStatus = Just syncStatus }
+
+  HandleAccountsOutput (Accounts.SyncCompleted syncStatus) ->
+    handleAction $ SyncStatusLoaded syncStatus
 
   where
   -- | Check if a click on a navbar link was a "modified click" (e.g. ctrl+click) or a "normal click".
