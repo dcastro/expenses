@@ -6,7 +6,6 @@ import Data.Aeson.TH (defaultOptions, deriveFromJSON)
 import Data.HashMap.Strict qualified as HM
 import Data.Set qualified as Set
 import Data.Yaml qualified as Y
-import Deriving.Aeson (CustomJSON (..), FieldLabelModifier, StripSuffix)
 import Expenses.NonEmptyText qualified as NET
 import Text.Regex.TDFA ((=~))
 import Types
@@ -26,13 +25,11 @@ data AppConfig = AppConfig
   deriving stock (Eq, Show)
 
 data CategoryPatternEntry = CategoryPatternEntry
-  -- Note: `pattern` is a keyword, so we use a suffix and strip it in the JSON instance.
-  { pattern_ :: Text
+  { contains :: [Text]
   , tag :: TagName
   }
-  deriving stock (Eq, Show)
-  deriving stock (Generic)
-  deriving (FromJSON) via CustomJSON '[FieldLabelModifier '[StripSuffix "_"]] CategoryPatternEntry
+  deriving stock (Eq, Show, Generic)
+  deriving anyclass (FromJSON)
 
 $( mconcat
      [ deriveFromJSON defaultOptions ''AppConfig

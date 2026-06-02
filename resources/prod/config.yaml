@@ -104,303 +104,225 @@ ungroupedTags:
   - taxes
 
 categoryPatterns:
-  - pattern: 'Joana Galhardo'
-    tag: renda
-  - pattern: 'VIAVERDE'
-    tag: via verde
-  - pattern: 'ALTICE PAY, S.A.'
-    tag: agua
-  - pattern: 'Aguas de Gondo'
-    tag: agua
-  - pattern: 'AGUAS DE GONDO'
-    tag: agua
-  - pattern: 'EDP COMERCIAL'
-    tag: luz
-  - pattern: 'LUZBOA'
-    tag: luz
-  - pattern: 'EDP GAS SERVI'
-    tag: gás
-  - pattern: 'DD PT64114306 GAS SU'
-    tag: gás
-  - pattern: '99775959381'
-    tag: gás
-  - pattern: 'DD PT79100553 COMPANHIA DE SE 00681505982'
-    tag: seguro de saude
-  - pattern: 'COMPANHIA DE S 00681505982'
-    tag: seguro de saude
-  - pattern: 'DI56118299'
-    tag: seguro de saude
-  - pattern: 'DD MEDIS     SAUDE    DI56118299'
-    tag: seguro de saude
-  - pattern: 'DD MEDIS     SAUDE    DI56162829'
-    tag: seguro dental
-  - pattern: 'DD PT18100002 Tranquilidade   82654090063'
-    tag: seguro do carro
-  - pattern: '82654090063'
-    tag: seguro do carro
-  - pattern: 'GENERALI SEGUROS, SA'
-    tag: seguro de trabalho
-  - pattern: 'PT83100675 LIBERTY SEGUROS 60058549711'
-    tag: seguro de trabalho domestico
-  - pattern: 'PT83100675 GENERALI SEGURO 60058549711'
-    tag: seguro de trabalho domestico
-  - pattern: '60058549711'
-    tag: seguro de trabalho domestico
-  - pattern: 'DD PT28104381 APRIL PORTUGAL, 00717062587-01637'
-    tag: seguro de vida
-  - pattern: 'DD APRIL PORTUGAL'
-    tag: seguro de vida
-  - pattern: 'ASISA VIDA SEG'
-    tag: seguro de vida
-  - pattern: 'AT202200000000'
-    tag: iuc
-  - pattern: 'DD PT85112861 TOYOTA KREDITBA'
-    tag: credito carro
-  - pattern: 'TOYOTA KREDITBANK'
-    tag: credito carro
-  - pattern: 'VODAFONE'
-    tag: vodafone
-  - pattern: 'COMPRA 7765 WOO https'
-    tag: telemovel
-  - pattern: 'COMPRA 7765 WOO '
-    tag: telemovel
-  - pattern: 'COMPRA 8003 WOO LISBOA'
-    tag: telemovel
-  - pattern: 'TRF P  Carlos Gomes'
-    tag: netflix
-  - pattern: 'Netflix.com'
-    tag: netflix
-  - pattern: 'NETFLIX.COM'
-    tag: netflix
-  - pattern: 'NETFLIX INTERNATIONAL'
-    tag: netflix
-  - pattern: 'WWW.THREE.CO.UK'
-    tag: three
-  - pattern: 'THREE-TOPUP'
-    tag: three
-  - pattern: 'COM.MAN.CONTA PACOTE CLIENTE FREQUENTE'
-    tag: banco
-  - pattern: 'IMPOSTO SELO ART 17.3.4'
-    tag: banco
-  - pattern: 'A.S.RIO TINTO'
-    tag: gasolina
-  - pattern: 'POSTO GALP'
-    tag: gasolina
-  - pattern: 'AVAUCHER'
-    tag: gasolina
-  # Bomba Shell em Baguim do Monte
-  - pattern: 'DISA GONDOMAR'
-    tag: gasolina
-  - pattern: 'DDPT40100188 SOLINCA HF'
-    tag: gym
-  - pattern: 'Solinca'
-    tag: gym
-  - pattern: 'SOLINCA'
-    tag: gym
-  - pattern: 'Amnistia Inter'
-    tag: charity
+  - tag: renda
+    contains:
+      - 'Joana Galhardo'
+  - tag: via verde
+    contains:
+      - 'VIAVERDE'
+  - tag: agua
+    contains:
+      - 'ALTICE PAY, S.A.'
+      - 'Aguas de Gondo'
+      - 'AGUAS DE GONDO'
+  - tag: luz
+    contains:
+      - 'EDP COMERCIAL'
+      - 'LUZBOA'
+  - tag: gás
+    contains:
+      - 'EDP GAS SERVI'
+      - 'DD PT64114306 GAS SU'
+      - '99775959381'
+  - tag: seguro de saude
+    contains:
+      - 'DD PT79100553 COMPANHIA DE SE 00681505982'
+      - 'COMPANHIA DE S 00681505982'
+      - 'DI56118299'
+      - 'DD MEDIS     SAUDE    DI56118299'
+  - tag: seguro dental
+    contains:
+      - 'DD MEDIS     SAUDE    DI56162829'
+  - tag: seguro do carro
+    contains:
+      - 'DD PT18100002 Tranquilidade   82654090063'
+      - '82654090063'
+  - tag: seguro de trabalho
+    contains:
+      - 'GENERALI SEGUROS, SA'
+  - tag: seguro de trabalho domestico
+    contains:
+      - 'PT83100675 LIBERTY SEGUROS 60058549711'
+      - 'PT83100675 GENERALI SEGURO 60058549711'
+      - '60058549711'
+  - tag: seguro de vida
+    contains:
+      - 'DD PT28104381 APRIL PORTUGAL, 00717062587-01637'
+      - 'DD APRIL PORTUGAL'
+      - 'ASISA VIDA SEG'
+  - tag: iuc
+    contains:
+      - 'AT202200000000'
+  - tag: credito carro
+    contains:
+      - 'DD PT85112861 TOYOTA KREDITBA'
+      - 'TOYOTA KREDITBANK'
+  - tag: vodafone
+    contains:
+      - 'VODAFONE'
+  - tag: telemovel
+    contains:
+      - 'COMPRA 7765 WOO https'
+      - 'COMPRA 7765 WOO '
+      - 'COMPRA 8003 WOO LISBOA'
+  - tag: netflix
+    contains:
+      - 'TRF P  Carlos Gomes'
+      - 'Netflix.com'
+      - 'NETFLIX.COM'
+      - 'NETFLIX INTERNATIONAL'
+  - tag: three
+    contains:
+      - 'WWW.THREE.CO.UK'
+      - 'THREE-TOPUP'
+  - tag: banco
+    contains:
+      - 'COM.MAN.CONTA PACOTE CLIENTE FREQUENTE'
+      - 'IMPOSTO SELO ART 17.3.4'
+  - tag: gasolina
+    contains:
+      - 'A.S.RIO TINTO'
+      - 'POSTO GALP'
+      - 'AVAUCHER'
+      - 'DISA GONDOMAR' # Bomba Shell em Baguim do Monte
+  - tag: gym
+    contains:
+      - 'DDPT40100188 SOLINCA HF'
+      - 'Solinca'
+      - 'SOLINCA'
+  - tag: charity
+    contains:
+      - 'Amnistia Inter'
   # Cabeleireiro Visagisme, Millennium
-  - pattern: 'TRF MB WAY P       5181'
-    tag: cabelo
-  - pattern: 'Trf MB WAY 910415181'
-    tag: cabelo
-  - pattern: 'TRF MB WAY P  ALICE PINTO'
-    tag: cabelo
-  - pattern: 'VISAGISME'
-    tag: cabelo
-  # Cabeleireiro Alter Ego, D. Isabel, onde o David corta o cabelo
-  - pattern: 'TRF MB WAY P  ISABEL MARIA GONCALVES'
-    tag: cabelo
-  - pattern: 'TRF P  D. Manuela'
-    tag: limpeza da casa
-  - pattern: 'TRF P  D Manuela'
-    tag: limpeza da casa
-  - pattern: 'PAG S.SOC 11153829633'
-    tag: limpeza da casa
-  - pattern: 'PROJETOS DE GENTE'
-    tag: consultas
-  - pattern: 'FISIOTRIMTRIM'
-    tag: consultas
-  - pattern: 'FisioTrimTrim'
-    tag: consultas
-  - pattern: 'FISIOKIDS'
-    tag: consultas
-  # Clinica Parque da Cidade Junior, Dentista David
-  - pattern: 'ESTRADA RISONHA'
-    tag: consultas
-  - pattern: 'CONTINENTE'
-    tag: groceries
-  - pattern: 'Continente Pay'
-    tag: groceries
-  - pattern: 'MODELO Portugal'
-    tag: groceries
-  # Continente
-  - pattern: 'BONJOUR Portugal PT'
-    tag: groceries
-  - pattern: 'AUCHAN'
-    tag: groceries
-  - pattern: 'PINGO DOCE'
-    tag: groceries
-  - pattern: 'MERCADONA'
-    tag: groceries
-  # Sandra Melo
-  - pattern: 'TRF MB WAY P       1884'
-    tag: groceries
-  - pattern: 'MYPROTEIN.COM'
-    tag: groceries
-  # frutaria à beira da farmácia silveira
-  - pattern: 'A FRESCURA DO POMAR'
-    tag: groceries
-  - pattern: 'O GORDO DA FRUTA'
-    tag: groceries
-  - pattern: 'LIDL AGRADEC'
-    tag: groceries
-  - pattern: 'O rapaz da quinta'
-    tag: groceries
-  # frutaria à beira de nossa casa, na cidade jovem
-  - pattern: 'M MADALENA M ALVES'
-    tag: groceries
-  - pattern: ' ALDI RIO TINTO'
-    tag: groceries
-  # Mercadinho Biológico em Gondomar
-  - pattern: 'BIODIVERSUS'
-    tag: groceries
-  # Mercadinho Biológico em Gondomar
-  - pattern: 'CELIA TERESA MARTINS'
-    tag: groceries
-  #  frutaria à beira de casa dos meus pais
-  - pattern: 'Sabores E Utilidades4510 552 Fanzeres'
-    tag: groceries
-  #  frutaria à beira de casa dos meus pais
-  - pattern: 'COMPRA SABORES E UT 9164904/02'
-    tag: groceries
-  # cesto de vegetais de A Quintinha
-  - pattern: 'TRF MB WAY P       6180'
-    tag: groceries
-  # cesto de vegetais de A Quintinha
-  - pattern: 'TRF MB WAY P  MARTA BEATRIZ LOPES MARQUES'
-    tag: groceries
-  # cesto de vegetais de A Quintinha
-  - pattern: 'TRF MB WAY P  VITOR JOSE SA MARQUES'
-    tag: groceries
-  - pattern: 'UBER EATS'
-    tag: takeaway
-  - pattern: 'UBER *EATS'
-    tag: takeaway
-  - pattern: 'UBER   *EATS'
-    tag: takeaway
-  - pattern: 'MADUREIRAS'
-    tag: takeaway
-  - pattern: 'CONFEITARIA IMPERIO'
-    tag: takeaway
-  - pattern: 'COMIDA E VOLTA'
-    tag: takeaway
-  - pattern: 'SUBENSHI'
-    tag: takeaway
-  - pattern: 'BRASINHAS'
-    tag: takeaway
-  - pattern: 'EMPANADAS ARGENTINAS'
-    tag: takeaway
-  - pattern: 'S MARTINO'
-    tag: takeaway
-  - pattern: 'Too Good To Go'
-    tag: takeaway
-  # mcdonalds
-  - pattern: 'GONDUREST LDA PORTO'
-    tag: takeaway
-  - pattern: 'PIZZAHUT'
-    tag: takeaway
-  - pattern: 'BURGUER KING'
-    tag: takeaway
-  - pattern: 'BK CHAVES BAGUIM DO MON'
-    tag: takeaway
-  # Churrasqueira Prestige, ao lado da casa da Cristina em Gondomar
-  - pattern: 'CHURRASQ PRESTIGE'
-    tag: takeaway
-  # Churrasqueira Pigalle, na Carvalha
-  - pattern: 'CHURRASQUEIRA FANZERES'
-    tag: takeaway
-  # Churrasqueira Central Rio Tinto
-  - pattern: 'CENTRAL RIO NIF 514817879'
-    tag: takeaway
-  - pattern: 'IRISH CO VILA NOVA DE GAIA'
-    tag: go out
-  - pattern: 'BEIJOBAR MATOSINHOS'
-    tag: go out
-  - pattern: 'LAIS DE GUIA MATOSINHOS'
-    tag: go out
-  - pattern: 'REST MAR A VISTA VILA NOVA GAIA'
-    tag: go out
-  - pattern: 'AQUA REST BAR VILA NOVA GAIA'
-    tag: go out
-  # bar do parque de rio tinto
-  - pattern: 'CEDILHA DOCE'
-    tag: go out
-  - pattern: 'COMPRA 0288 FARMACIA'
-    tag: farmacia
-  - pattern: 'FARMACIA MAGALHAES FANZERES'
-    tag: farmacia
-  - pattern: 'WELLS BAGUIM'
-    tag: farmacia
-  - pattern: 'WELL S ANTAS PORTO'
-    tag: farmacia
-  - pattern: 'CENTRO VETERINARIO'
-    tag: vet
-  - pattern: 'GULI FAMILY CLUB'
-    tag: atividades
-  # little gym
-  - pattern: 'RITMOS ACROBATA'
-    tag: atividades
-  # lono project
-  - pattern: 'SARA STEINBERG'
-    tag: atividades
-  # Cartão Black
-  - pattern: 'Devolução % Compras Acumuladas'
-    tag: groceries
-  - pattern: 'DD PT66104764 INST GEST FINAN 23021258204'
-    tag: seg social
-  - pattern: 'INST GEST FINAN'
-    tag: seg social
-  - pattern: 'Serokell OU'
-    tag: ordenado
-  - pattern: 'SEROKELL'
-    tag: ordenado
-  - pattern: 'ORDEM DOS ENFE'
-    tag: ordem dos enfermeiros
-  - pattern: 'TRF. P O  FLOATINGLICIOUS - LDA       MADEMOISE'
-    tag: ordenado
-  - pattern: 'Tito Santos'
-    tag: contabilista
-  - pattern: 'DNH GO DADDY EUROPE'
-    tag: software
-  - pattern: 'GODADDY'
-    tag: software
-  - pattern: 'GITKRAKEN'
-    tag: software
-  - pattern: 'TRF P  Caminhar Escola'
-    tag: school
-  # Google One / Google Photos
-  - pattern: 'COMPRA 7765 GOOGLE GOOGLE PLAY APP G.CO HELPPAY'
-    tag: software
-  - pattern: 'REEMBOLSOS A RESIDENTES     AT'
-    tag: iva reembolso
-
-  - pattern: 'Serokell'
-    tag: income
-  - pattern: 'TRF DE DIOGO FILIPE AZEVEDO CASTRO'
-    tag: transfers
-  - pattern: 'TRF P  Diogo Millennium'
-    tag: transfers
-  - pattern: 'LEV ATM'
-    tag: transfers
-  - pattern: 'DD UNIVERSO'
-    tag: transfers
-  - pattern: 'TRF P  Interactive Brokers'
-    tag: investments
-  - pattern: '23021632430' # seg social
-    tag: taxes
-  - pattern: 'PAG.IGCP'
-    tag: taxes
+  - tag: cabelo
+    contains:
+      - 'TRF MB WAY P       5181'
+      - 'Trf MB WAY 910415181'
+      - 'TRF MB WAY P  ALICE PINTO'
+      - 'VISAGISME'
+      - 'TRF MB WAY P  ISABEL MARIA GONCALVES' # Cabeleireiro Alter Ego, D. Isabel, onde o David corta o cabelo
+  - tag: limpeza da casa
+    contains:
+      - 'TRF P  D. Manuela'
+      - 'TRF P  D Manuela'
+      - 'PAG S.SOC 11153829633'
+  - tag: consultas
+    contains:
+      - 'PROJETOS DE GENTE'
+      - 'FISIOTRIMTRIM'
+      - 'FisioTrimTrim'
+      - 'FISIOKIDS'
+      - 'ESTRADA RISONHA' # Clinica Parque da Cidade Junior, Dentista David
+  - tag: groceries
+    contains:
+      - 'CONTINENTE'
+      - 'Continente Pay'
+      - 'MODELO Portugal'
+      - 'BONJOUR Portugal PT' # Continente
+      - 'AUCHAN'
+      - 'PINGO DOCE'
+      - 'MERCADONA'
+      - 'TRF MB WAY P       1884' # Sandra Melo
+      - 'MYPROTEIN.COM'
+      - 'A FRESCURA DO POMAR' # frutaria à beira da farmácia silveira
+      - 'O GORDO DA FRUTA'
+      - 'LIDL AGRADEC'
+      - 'O rapaz da quinta'
+      - 'M MADALENA M ALVES' # frutaria à beira de nossa casa, na cidade jovem
+      - ' ALDI RIO TINTO'
+      - 'BIODIVERSUS' # Mercadinho Biológico em Gondomar
+      - 'CELIA TERESA MARTINS' # Mercadinho Biológico em Gondomar
+      - 'Sabores E Utilidades4510 552 Fanzeres' #  frutaria à beira de casa dos meus pais
+      - 'COMPRA SABORES E UT 9164904/02' #  frutaria à beira de casa dos meus pais
+      - 'TRF MB WAY P       6180' # cesto de vegetais de A Quintinha
+      - 'TRF MB WAY P  MARTA BEATRIZ LOPES MARQUES' # cesto de vegetais de A Quintinha
+      - 'TRF MB WAY P  VITOR JOSE SA MARQUES' # cesto de vegetais de A Quintinha
+      - 'Devolução % Compras Acumuladas' # Cartão Black
+  - tag: takeaway
+    contains:
+      - 'UBER EATS'
+      - 'UBER *EATS'
+      - 'UBER   *EATS'
+      - 'MADUREIRAS'
+      - 'CONFEITARIA IMPERIO'
+      - 'COMIDA E VOLTA'
+      - 'SUBENSHI'
+      - 'BRASINHAS'
+      - 'EMPANADAS ARGENTINAS'
+      - 'S MARTINO'
+      - 'Too Good To Go'
+      - 'GONDUREST LDA PORTO' # mcdonalds
+      - 'PIZZAHUT'
+      - 'BURGUER KING'
+      - 'BK CHAVES BAGUIM DO MON'
+      - 'CHURRASQ PRESTIGE' # Churrasqueira Prestige, ao lado da casa da Cristina em Gondomar
+      - 'CHURRASQUEIRA FANZERES' # Churrasqueira Pigalle, na Carvalha
+      - 'CENTRAL RIO NIF 514817879' # Churrasqueira Central Rio Tinto
+  - tag: go out
+    contains:
+      - 'IRISH CO VILA NOVA DE GAIA'
+      - 'BEIJOBAR MATOSINHOS'
+      - 'LAIS DE GUIA MATOSINHOS'
+      - 'REST MAR A VISTA VILA NOVA GAIA'
+      - 'AQUA REST BAR VILA NOVA GAIA'
+      - 'CEDILHA DOCE' # bar do parque de rio tinto
+  - tag: farmacia
+    contains:
+      - 'COMPRA 0288 FARMACIA'
+      - 'FARMACIA MAGALHAES FANZERES'
+      - 'WELLS BAGUIM'
+      - 'WELL S ANTAS PORTO'
+  - tag: vet
+    contains:
+      - 'CENTRO VETERINARIO'
+  - tag: atividades
+    contains:
+      - 'GULI FAMILY CLUB'
+      - 'RITMOS ACROBATA' # little gym
+      - 'SARA STEINBERG' # lono project
+  - tag: seg social
+    contains:
+      - 'DD PT66104764 INST GEST FINAN 23021258204'
+      - 'INST GEST FINAN'
+  - tag: ordenado
+    contains:
+      - 'Serokell OU'
+      - 'SEROKELL'
+      - 'TRF. P O  FLOATINGLICIOUS - LDA       MADEMOISE'
+  - tag: ordem dos enfermeiros
+    contains:
+      - 'ORDEM DOS ENFE'
+  - tag: contabilista
+    contains:
+      - 'Tito Santos'
+  - tag: software
+    contains:
+      - 'DNH GO DADDY EUROPE'
+      - 'GODADDY'
+      - 'GITKRAKEN'
+      - 'COMPRA 7765 GOOGLE GOOGLE PLAY APP G.CO HELPPAY' # Google One / Google Photos
+  - tag: school
+    contains:
+      - 'TRF P  Caminhar Escola'
+  - tag: iva reembolso
+    contains:
+      - 'REEMBOLSOS A RESIDENTES     AT'
+  - tag: income
+    contains:
+      - 'Serokell'
+  - tag: transfers
+    contains:
+      - 'TRF DE DIOGO FILIPE AZEVEDO CASTRO'
+      - 'TRF P  Diogo Millennium'
+      - 'LEV ATM'
+      - 'DD UNIVERSO'
+  - tag: investments
+    contains:
+      - 'TRF P  Interactive Brokers'
+  - tag: taxes
+    contains:
+      - '23021632430' # seg social
+      - 'PAG.IGCP'
 
 notExpenses:
   - 'TRF DE DIOGO FILIPE AZEVEDO CASTRO'
