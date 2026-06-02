@@ -153,16 +153,11 @@ categoryPatterns:
   - tag: iuc
     contains:
       - 'AT202200000000'
-  - tag: credito carro
-    contains:
-      - 'DD PT85112861 TOYOTA KREDITBA'
-      - 'TOYOTA KREDITBANK'
   - tag: vodafone
     contains:
       - 'VODAFONE'
   - tag: telemovel
     contains:
-      - 'COMPRA 7765 WOO https'
       - 'COMPRA 7765 WOO '
       - 'COMPRA 8003 WOO LISBOA'
   - tag: netflix
@@ -213,6 +208,9 @@ categoryPatterns:
       - 'FisioTrimTrim'
       - 'FISIOKIDS'
       - 'ESTRADA RISONHA' # Clinica Parque da Cidade Junior, Dentista David
+  - tag: prota
+    contains:
+      - 'MYPROTEIN.COM'
   - tag: groceries
     contains:
       - 'CONTINENTE'
@@ -223,7 +221,6 @@ categoryPatterns:
       - 'PINGO DOCE'
       - 'MERCADONA'
       - 'TRF MB WAY P       1884' # Sandra Melo
-      - 'MYPROTEIN.COM'
       - 'A FRESCURA DO POMAR' # frutaria à beira da farmácia silveira
       - 'O GORDO DA FRUTA'
       - 'LIDL AGRADEC'
