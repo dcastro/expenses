@@ -146,6 +146,9 @@ newtype TransactionObj = TransactionObj
 -- A transaction that came from the Nordigen API
 data ApiTransaction = ApiTransaction
   { bookingDate :: Day
+  , -- NOTE: `internalTransactionId` is generated only for "booked" transactions, and not for "pending" transactions.
+    -- https://web.archive.org/web/20260602125350/https://bankaccountdata.zendesk.com/hc/en-gb/articles/11529646897820-internalTransactionId-a-unique-transaction-ID-now-generated-by-GoCardless
+    internalTransactionId :: Text
   , remittanceInformationUnstructured :: Text
   , transactionAmount :: Amount
   , transactionId :: Maybe Text
