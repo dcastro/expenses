@@ -18,7 +18,7 @@ require('@dvsl/zoomcharts');
  */
 
 
-export const _makeChart = containerId => categories => onChartUpdate => onSelectionChange => () => {
+export const _makeChart = containerId => chartData => onChartUpdate => onSelectionChange => () => {
   let chart = new PieChart({
     assetsUrlBase: "assets",
     container: document.getElementById(containerId),
@@ -32,7 +32,7 @@ export const _makeChart = containerId => categories => onChartUpdate => onSelect
       }
     },
     data: {
-      preloaded: categories,
+      preloaded: chartData,
     },
     // https://zoomcharts.com/en/javascript-charts-library/gallery/demo/chart-packages/piechart/piechart-events-tester
     events: {

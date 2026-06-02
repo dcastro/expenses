@@ -251,13 +251,13 @@ apiToRow config acc tx = do
     , isExpense = getIsExpense config acc tx.entryReference txDesc
     , itemIndex = 0
     , itemAmountCents = txAmount
-    , tag = pickCategory tx.remittanceInformationUnstructured
+    , tag = pickTag tx.remittanceInformationUnstructured
     , details = ""
     }
  where
-  pickCategory :: Text -> Maybe TagName
-  pickCategory desc =
-    config.categoryPatterns
+  pickTag :: Text -> Maybe TagName
+  pickTag desc =
+    config.tagPatterns
       ^? each
         . filtered
           ( \entry ->

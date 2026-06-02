@@ -49,6 +49,6 @@ allTagGroups:
 ungroupedTags:
   - parties
 
-categoryPatterns: []
+tagPatterns: []
 
 notExpenses: []

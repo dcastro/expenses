@@ -19,12 +19,12 @@ data AppConfig = AppConfig
   , allTagGroups :: HashMap TagGroupName [TagName]
   , ungroupedTags :: [TagName]
   , cronSchedule :: Text
-  , categoryPatterns :: [CategoryPatternEntry]
+  , tagPatterns :: [TagPatternEntry]
   , notExpenses :: [Text]
   }
   deriving stock (Eq, Show)
 
-data CategoryPatternEntry = CategoryPatternEntry
+data TagPatternEntry = TagPatternEntry
   { tag :: TagName
   , -- For this tag to be assigned to a transaction,
     --  all the substrings in at least one of the entries in `contains` must be present in the transaction description.

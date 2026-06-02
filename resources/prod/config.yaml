@@ -103,7 +103,7 @@ ungroupedTags:
   - investments
   - taxes
 
-categoryPatterns:
+tagPatterns:
   - tag: renda
     contains:
       - ['Joana Galhardo']

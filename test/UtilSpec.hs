@@ -69,7 +69,7 @@ unit_getIsExpense = do
           , allTagGroups = mempty
           , ungroupedTags = mempty
           , cronSchedule = ""
-          , categoryPatterns = mempty
+          , tagPatterns = mempty
           , notExpenses = ["ATM"]
           }
   let accExpense =
