@@ -92,10 +92,10 @@ unit_getIsExpense = do
   let !txDescNotExpense = "something " <> Unsafe.head config.notExpenses <> " something"
 
   -- Expense account, normal txId, normal desc
-  CronJob.getIsExpense config accExpense txIdNormal txDescNormal @?= True
+  CronJob.getIsExpense config accExpense (Just txIdNormal) txDescNormal @?= True
   -- Non-expense account
-  CronJob.getIsExpense config accNonExpense txIdNormal txDescNormal @?= False
+  CronJob.getIsExpense config accNonExpense (Just txIdNormal) txDescNormal @?= False
   -- Expense account, but txDesc contains notExpenses pattern
-  CronJob.getIsExpense config accExpense txIdNormal txDescNotExpense @?= False
+  CronJob.getIsExpense config accExpense (Just txIdNormal) txDescNotExpense @?= False
   -- Expense account, but temporary txId
-  CronJob.getIsExpense config accExpense txIdTemporary txDescNormal @?= False
+  CronJob.getIsExpense config accExpense (Just txIdTemporary) txDescNormal @?= False

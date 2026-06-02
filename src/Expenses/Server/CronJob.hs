@@ -248,7 +248,7 @@ apiToRow config acc tx = do
     , date = tx.bookingDate
     , desc = txDesc
     , totalAmountCents = txAmount
-    , isExpense = getIsExpense config acc tx txDesc
+    , isExpense = getIsExpense config acc tx.entryReference txDesc
     , itemIndex = 0
     , itemAmountCents = txAmount
     , tag = pickCategory tx.remittanceInformationUnstructured
@@ -315,8 +315,8 @@ apiToRow config acc tx = do
           error [i|Transaction does not have a 'transactionId' or a 'entryReference': '#{J.encodeToTextBuilder t}'|]
 
 -- Determines whether a transaction should be considered an expense.
-getIsExpense :: AppConfig -> InstitutionAccountInfo -> ApiTransaction -> Text -> Bool
-getIsExpense config acc tx txDesc =
+getIsExpense :: AppConfig -> InstitutionAccountInfo -> Maybe Text -> Text -> Bool
+getIsExpense config acc entryReference txDesc =
   if
     | not acc.isExpenseAccount -> False
     | not isExpenseTransaction -> False
@@ -345,6 +345,6 @@ getIsExpense config acc tx txDesc =
   -}
   hasTemporaryTxId :: Bool
   hasTemporaryTxId =
-    case tx.entryReference of
+    case entryReference of
       Just entryReference -> length entryReference == 14
       Nothing -> False
