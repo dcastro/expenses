@@ -262,7 +262,7 @@ apiToRow config acc tx = do
         . filtered
           ( \entry ->
               entry.contains
-                & any (\substrings -> substrings & all (\substring -> substring `T.isInfixOf` desc))
+                & any (\substrings -> substrings & all (\substring -> T.toCaseFold substring `T.isInfixOf` T.toCaseFold desc))
           )
         . to (.tag)
 
