@@ -114,7 +114,6 @@ tagPatterns:
     contains:
       - ['ALTICE PAY, S.A.']
       - ['Aguas de Gondo']
-      - ['AGUAS DE GONDO']
   - tag: luz
     contains:
       - ['EDP COMERCIAL']
@@ -164,7 +163,6 @@ tagPatterns:
     contains:
       - ['TRF P  Carlos Gomes']
       - ['Netflix.com']
-      - ['NETFLIX.COM']
       - ['NETFLIX INTERNATIONAL']
   - tag: three
     contains:
@@ -182,9 +180,7 @@ tagPatterns:
       - ['DISA GONDOMAR'] # Bomba Shell em Baguim do Monte
   - tag: gym
     contains:
-      - ['DDPT40100188 SOLINCA HF']
       - ['Solinca']
-      - ['SOLINCA']
   - tag: charity
     contains:
       - ['Amnistia Inter']
@@ -204,7 +200,6 @@ tagPatterns:
   - tag: consultas
     contains:
       - ['PROJETOS DE GENTE']
-      - ['FISIOTRIMTRIM']
       - ['FisioTrimTrim']
       - ['FISIOKIDS']
       - ['ESTRADA RISONHA'] # Clinica Parque da Cidade Junior, Dentista David
@@ -214,7 +209,6 @@ tagPatterns:
   - tag: groceries
     contains:
       - ['CONTINENTE']
-      - ['Continente Pay']
       - ['MODELO Portugal']
       - ['BONJOUR Portugal PT'] # Continente
       - ['AUCHAN']
@@ -237,9 +231,7 @@ tagPatterns:
       - ['Devolução % Compras Acumuladas'] # Cartão Black
   - tag: takeaway
     contains:
-      - ['UBER EATS']
-      - ['UBER *EATS']
-      - ['UBER   *EATS']
+      - ['uber', 'eats']
       - ['MADUREIRAS']
       - ['CONFEITARIA IMPERIO']
       - ['COMIDA E VOLTA']
@@ -283,7 +275,6 @@ tagPatterns:
       - ['INST GEST FINAN']
   - tag: ordenado
     contains:
-      - ['Serokell OU']
       - ['SEROKELL']
       - ['TRF. P O  FLOATINGLICIOUS - LDA       MADEMOISE']
   - tag: ordem dos enfermeiros
@@ -313,6 +304,8 @@ tagPatterns:
       - ['TRF P  Diogo Millennium']
       - ['LEV ATM']
       - ['DD UNIVERSO']
+      - ['IPS/', 'ENG DIOGO FILIP'] # transfers from Millennium to Moey
+      - ['TRF P  Moey'] # transfers from Millennium to Moey
   - tag: investments
     contains:
       - ['TRF P  Interactive Brokers']
