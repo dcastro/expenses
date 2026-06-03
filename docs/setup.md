@@ -7,6 +7,7 @@
   - [Add anacron job](#add-anacron-job)
   - [Configure Raspberry Pi connect](#configure-raspberry-pi-connect)
   - [Add / Renew bank logins](#add--renew-bank-logins)
+  - [Running migrations](#running-migrations)
 
 
 # Setup
@@ -155,3 +156,15 @@ sudo anacron -fnd expenses-backup
 * Launch the app, go to the Accounts page, click "Renew" to connect to the institution.
 * The app will display the IDs of the accounts you connected to.
 * Add those account IDs to the config file.
+
+
+## Running migrations
+
+```sh
+just run-migration 9 true
+just commit-migration
+
+# If a migration goes wrong for some reason and we need to rollback:
+just restore-latest-backup
+just restore-backup 2026-06-02_13-25-58
+```

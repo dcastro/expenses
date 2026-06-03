@@ -44,23 +44,42 @@ restore-backup backup_dir:
     scp /home/dc/Nextcloud/expenses-manager/backups/{{ backup_dir }}/expenses.db    dc@{{ remote }}:/home/dc/.local/share/expenses-manager/expenses.db
     scp /home/dc/Nextcloud/expenses-manager/backups/{{ backup_dir }}/eventlog.jsonl dc@{{ remote }}:/home/dc/.local/share/expenses-manager/eventlog.jsonl
 
+[confirm]
+restore-latest-backup:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    BACKUP_DIR=$(ls -1 /home/dc/Nextcloud/expenses-manager/backups/ | sort | tail -1)
+    echo "Restoring from backup: $BACKUP_DIR"
+    just restore-backup $BACKUP_DIR
+
 update-haskell-nix:
     nix flake update haskellNix
 
-# Usage: just run-migration 99 true
 [confirm]
 run-migration idx run_backup:
     #!/usr/bin/env bash
-    echo {{ idx }}
+    set -euxo pipefail
 
-    if [ "{{ run_backup }}" = "true" ]; then \
-      ./scripts/backup.sh "_before_migration_{{ idx }}"; \
+    if [ "{{ run_backup }}" = "true" ]; then
+      ./scripts/backup.sh "_before_migration_{{ idx }}"
     fi
+
+    rm -rf ./migrations
+    mkdir -p ./migrations
+
+    ssh {{ remote }} -- "sudo systemctl stop expenses-manager"
+    scp dc@{{ remote }}:/home/dc/.local/share/expenses-manager/expenses.db ./migrations/expenses.db
 
     stack build expenses:exe:db-migrations
     BIN=$(stack path --local-install-root)/bin/db-migrations
-    "$BIN" /home/dc/.local/share/expenses-manager/expenses.db {{ idx }}
+    "$BIN" ./migrations/expenses.db {{ idx }}
     "$BIN" ./resources/test-app-dir/expenses.db {{ idx }}
+
+[confirm]
+commit-migration:
+    scp ./migrations/expenses.db                  dc@{{ remote }}:/home/dc/.local/share/expenses-manager/expenses.db
+    scp ./resources/test-app-dir/expenses.db      dc@{{ remote }}:{{ demo-app-dir }}/expenses.db
+    ssh {{ remote }} -- "sudo systemctl start expenses-manager"
 
 # Setup a cloudflare quick tunnel to test the local server
 quick-tunnel:
