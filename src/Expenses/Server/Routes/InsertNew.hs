@@ -32,7 +32,7 @@ $( mconcat
 
 insertTransactionHandler ::
   forall es.
-  (Db :> es, Time :> es, EventLog :> es, NextUUID :> es, Reader Env :> es, Concurrent :> es) =>
+  (SQLite :> es, Time :> es, EventLog :> es, NextUUID :> es) =>
   Admin -> NewTransactionItem -> Eff es GetTransactions.TransactionItem
 insertTransactionHandler admin newTxItem = do
   now <- Time.currentTime

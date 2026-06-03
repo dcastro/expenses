@@ -16,7 +16,7 @@ import Servant.Server (err400, err404)
 import Types (Admin (..), TransactionItemRecord (..), TransactionRecord (..), toBE)
 
 splitTransactionItemsHandler ::
-  (Time :> es, Reader Env :> es, Concurrent :> es, Db :> es, Error S.ServerError :> es, Log :> es, EventLog :> es) =>
+  (Time :> es, SQLite :> es, Error S.ServerError :> es, Log :> es, EventLog :> es) =>
   Admin -> Text -> [NewShortTransactionItem] -> Eff es NoContent
 splitTransactionItemsHandler admin transactionId splitItems = do
   -- Load existing transaction items

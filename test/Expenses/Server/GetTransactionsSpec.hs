@@ -9,7 +9,7 @@ import Database qualified as Db
 import Effectful
 import Effectful.Concurrent (runConcurrent)
 import Effectful.Reader.Static (runReader)
-import Expenses.Effects.SQLite qualified as SQL
+import Effectful.SQLite.Simple qualified as SQL
 import Expenses.Server.Routes.GetTransactions
 import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
 import Expenses.Server.Utils (MapAsList (..))
@@ -111,9 +111,10 @@ test_getTransactionsHandler :: TestTree
 test_getTransactionsHandler = do
   goldenVsString "mkGroupStats golden test" "test/golden/getTransactionsHandler.json" do
     env <- Util.mkTestEnv
+    conn <- Util.mkTestDbConn
     resp <-
       getTransactionsHandler (YearMonth 2025 08) (YearMonth 2025 09)
-        & SQL.runDb
+        & SQL.runSQLiteSync conn
         & runReader env
         & runConcurrent
         & runEff

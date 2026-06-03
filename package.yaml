@@ -146,7 +146,6 @@ library:
     - log-base
     - template-haskell
     - mtl
-    - monad-control
     - cron
     - yaml
     - regex-tdfa
@@ -155,6 +154,7 @@ library:
     - effectful-th
     - log-effectful
     - monad-time-effectful
+    - sqlite-simple-effectful
 
 tests:
   test:
@@ -175,7 +175,7 @@ tests:
       - text
       - aeson
       - aeson-pretty
-      - sqlite-simple
+      - sqlite-simple-effectful
       - effectful
       - effectful-core
       - time

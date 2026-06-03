@@ -11,7 +11,7 @@ import Servant qualified as S
 import Types (TransactionItemRecord (..), TransactionRecord (..), toFE)
 
 getTransactionItemsHandler ::
-  (Reader Env :> es, Concurrent :> es, Db :> es, Error S.ServerError :> es) =>
+  (SQLite :> es, Error S.ServerError :> es) =>
   Text -> Eff es [ShortTransactionItem]
 getTransactionItemsHandler txId = do
   useConnection \conn -> do

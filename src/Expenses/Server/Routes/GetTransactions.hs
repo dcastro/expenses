@@ -86,7 +86,7 @@ $( mconcat
 makeLensesWith classIdFields ''TransactionItem
 
 getTransactionsHandler ::
-  (Reader Env :> es, Concurrent :> es, Db :> es) =>
+  (Reader Env :> es, SQLite :> es) =>
   Month -> Month -> Eff es GetTransactions
 getTransactionsHandler monthStart monthEnd = do
   config <- asks @Env (.config)

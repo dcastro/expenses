@@ -9,7 +9,7 @@ import Expenses.Server.CronJob qualified as CronJob
 import Servant (NoContent (..))
 
 runCronHandler ::
-  (Reader Env :> es, FileSystem :> es, Nordigen :> es, Log :> es, Time :> es, EventLog :> es, Concurrent :> es, Db :> es) =>
+  (Reader Env :> es, FileSystem :> es, Nordigen :> es, Log :> es, Time :> es, EventLog :> es, Concurrent :> es, SQLite :> es) =>
   Eff es NoContent
 runCronHandler = do
   R.asks @Env (.demoMode) >>= \case

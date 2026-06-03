@@ -48,7 +48,7 @@ $( mconcat
 
 -- | Modifies a transaction / transaction item and returns the updated transaction items.
 modifyTransactionHandler ::
-  (Time :> es, Reader Env :> es, Concurrent :> es, EventLog :> es, Db :> es, Error S.ServerError :> es) =>
+  (Time :> es, EventLog :> es, SQLite :> es, Error S.ServerError :> es) =>
   Admin -> ModifyTransaction -> Eff es GetTransactions.TransactionItem
 modifyTransactionHandler admin ModifyTransaction{transactionId = txId, itemIndex, actionType} = do
   now <- Time.currentTime

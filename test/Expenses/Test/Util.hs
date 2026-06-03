@@ -9,7 +9,7 @@ import Data.Aeson (ToJSON (..))
 import Data.Aeson qualified as J
 import Data.Text qualified as T
 import Database (Contains (..), DoesNotContain (..), IsGTE (..), IsLT (..))
-import Database.SQLite.Simple qualified as SQL
+import Effectful.SQLite.Simple qualified as SQL
 import Expenses.NonEmptyText (NonEmptyText)
 import Expenses.NonEmptyText qualified as NET
 import Expenses.Server.Env (Env (..))
@@ -32,17 +32,21 @@ deriving newtype instance IsString TagName
 mkTestEnv :: IO Env
 mkTestEnv = do
   config <- mkTestConfig
-  dbConn <- liftIO $ SQL.open "./resources/test-app-dir/expenses.db" >>= M.newMVar
   pure
     Env
-      { dbConn
-      , eventLogPath = "/dev/null"
+      { eventLogPath = "/dev/null"
       , logsDir = "/dev/null"
       , demoMode = False
       , nordigenSecretId = ""
       , nordigenSecretKey = ""
       , config
       }
+
+
+mkTestDbConn :: IO (M.MVar SQL.Connection)
+mkTestDbConn = do
+  conn <- SQL.open "./resources/test-app-dir/expenses.db"
+  M.newMVar conn
 
 mkTestConfig :: IO AppConfig
 mkTestConfig = do

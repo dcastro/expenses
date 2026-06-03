@@ -8,8 +8,9 @@ import Control.Concurrent.MVar qualified as M
 import CustomPrelude
 import Data.List qualified as List
 import Data.Time.Calendar.Month (Month)
-import Database.SQLite.Simple qualified as SQL
 import Effectful.Reader.Static qualified as R
+import Effectful.SQLite.Simple (Connection)
+import Effectful.SQLite.Simple qualified as SQL
 import Expenses.Effects (AppM)
 import Expenses.Effects qualified as Effects
 import Expenses.Server.CronJob qualified as CronJob
@@ -130,19 +131,21 @@ main = do
 
   withStdOutLogger \stdout -> do
     opts@ServerOptions{port, user, resourcesDir, runCron, isVerbose} <-
-      runLogger True stdout $ Opt.mkServerOptions
+      runLogger True stdout $
+        Opt.mkServerOptions
 
     runLogger isVerbose stdout do
-      env <- mkEnv opts stdout
+      conn <- mkDbConn opts stdout
+      env <- mkEnv opts
 
       let ctx = mkAuthContext env.config user
 
       when runCron do
-        CronJob.startCronJobs env stdout
+        CronJob.startCronJobs conn env stdout
 
       liftIO $
         run port $
-          mkApp ctx isVerbose env stdout resourcesDir
+          mkApp ctx isVerbose conn env stdout resourcesDir
             & requestLogger isVerbose
             & corsMiddleware
  where
@@ -163,16 +166,19 @@ main = do
           , Cors.corsMethods = dflt.corsMethods <> ["PUT"]
           }
 
-  mkEnv :: (MonadIO m, MonadLog m) => ServerOptions -> Logger -> m Env
-  mkEnv ServerOptions{dbPath, eventLogPath, logsDir, demoMode, isVerbose, nordigenSecretId, nordigenSecretKey, configPath} logger = do
+  mkEnv :: (MonadIO m) => ServerOptions -> m Env
+  mkEnv ServerOptions{eventLogPath, logsDir, demoMode, nordigenSecretId, nordigenSecretKey, configPath} = do
+    config <- Config.loadAppConfig configPath
+    pure Env{eventLogPath, logsDir, demoMode, nordigenSecretId, nordigenSecretKey, config}
+
+  mkDbConn :: (MonadIO m, MonadLog m) => ServerOptions -> Logger -> m (MVar Connection)
+  mkDbConn ServerOptions{dbPath, isVerbose} logger = do
     Util.checkDbExists dbPath
     dbConn <- liftIO $ SQL.open dbPath
     liftIO $ SQL.setTrace dbConn $ Just \t ->
       runLogger isVerbose logger do
         logTrace_ [i|SQL:\n#{t}|]
-    dbConnMutex <- liftIO $ M.newMVar dbConn
-    config <- Config.loadAppConfig configPath
-    pure Env{dbConn = dbConnMutex, eventLogPath, logsDir, demoMode, nordigenSecretId, nordigenSecretKey, config}
+    liftIO $ M.newMVar dbConn
 
   mkAuthContext :: AppConfig -> Maybe Username -> Context '[SS.AuthHandler Wai.Request Username, SS.AuthHandler Wai.Request Admin]
   mkAuthContext config fallbackUser =
@@ -239,10 +245,17 @@ authHandler' fallbackUser request = do
 api :: Proxy MyAPI
 api = Proxy
 
-mkApp :: Context '[SS.AuthHandler Wai.Request Username, SS.AuthHandler Wai.Request Admin] -> Bool -> Env -> Logger -> FilePath -> Application
-mkApp ctx isVerbose env logger resourcesDir =
+mkApp ::
+  Context '[SS.AuthHandler Wai.Request Username, SS.AuthHandler Wai.Request Admin] ->
+  Bool ->
+  MVar Connection ->
+  Env ->
+  Logger ->
+  FilePath ->
+  Application
+mkApp ctx isVerbose conn env logger resourcesDir =
   mkServer resourcesDir
-    & serveWithContextT api ctx (Effects.naturalTransformation isVerbose env logger)
+    & serveWithContextT api ctx (Effects.naturalTransformation isVerbose conn env logger)
 
 mkServer :: FilePath -> API (AsServerT AppM)
 -- mkServer :: Logger -> FilePath -> ServerT MyAPI AppM

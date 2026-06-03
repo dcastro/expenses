@@ -60,7 +60,7 @@ $( mconcat
  )
 
 getSyncStatusHandler ::
-  (Db :> es, Reader Env :> es, Concurrent :> es, Nordigen :> es) =>
+  (SQLite :> es, Reader Env :> es, Nordigen :> es) =>
   Eff es SyncStatusResponse
 getSyncStatusHandler = do
   env <- R.ask @Env

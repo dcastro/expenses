@@ -5,7 +5,7 @@ import Database qualified as Db
 import Effectful
 import Expenses.Effects
 
-allAccountsHandler :: (Db :> es, Reader Env :> es, Concurrent :> es) => Eff es [Text]
+allAccountsHandler :: (SQLite :> es) => Eff es [Text]
 allAccountsHandler = do
   useConnection \conn -> do
     accounts <- Db.getAllAccounts conn

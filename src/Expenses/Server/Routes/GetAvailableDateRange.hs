@@ -21,7 +21,7 @@ $( mconcat
 
 -- | Returns the date range for which we have data available.
 getAvailableDateRangeHandler ::
-  (Db :> es, Reader Env :> es, Concurrent :> es, Error ServerError :> es) =>
+  (SQLite :> es, Error ServerError :> es) =>
   Eff es DateRange
 getAvailableDateRangeHandler = do
   maybeRange <-

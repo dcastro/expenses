@@ -40,6 +40,17 @@ packages:
   original:
     hackage: universum-1.8.2.2
 - completed:
+    commit: 36e9fc990d362efb8c2e98d48c5eac9b92657992
+    git: https://github.com/dcastro/sqlite-simple-effectful
+    name: sqlite-simple-effectful
+    pantry-tree:
+      sha256: 24dc75ab30603d2f375e6a8464af9404413bea1a65b1ba395af335ec2523423c
+      size: 1267
+    version: 0.1.0.0
+  original:
+    commit: 36e9fc990d362efb8c2e98d48c5eac9b92657992
+    git: https://github.com/dcastro/sqlite-simple-effectful
+- completed:
     hackage: cryptonite-0.30@sha256:12c85dea7be63e5ad90bcb487eb3846bf3c413347f94336fa1dede7b28f9936a,18301
     pantry-tree:
       sha256: df1cbe4cc40d569cc75ffed40bc5deac43cb085653980b42b9b6a5d4b745a30a

@@ -26,7 +26,6 @@ library
       Expenses.Effects.EventLog
       Expenses.Effects.NextUUID
       Expenses.Effects.Nordigen
-      Expenses.Effects.SQLite
       Expenses.Linear
       Expenses.NonEmptyText
       Expenses.Server.CronJob
@@ -138,7 +137,6 @@ library
     , linear-base
     , log-base
     , log-effectful
-    , monad-control
     , monad-time-effectful
     , mtl
     , optparse-applicative
@@ -149,6 +147,7 @@ library
     , servant-client
     , servant-server
     , sqlite-simple
+    , sqlite-simple-effectful
     , template-haskell
     , text
     , time
@@ -402,7 +401,7 @@ test-suite test
     , hspec
     , hspec-expectations-pretty-diff
     , servant-server
-    , sqlite-simple
+    , sqlite-simple-effectful
     , tasty
     , tasty-golden
     , tasty-hspec

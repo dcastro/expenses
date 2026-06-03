@@ -10,16 +10,15 @@ import Data.Set qualified as Set
 import Data.Text qualified as T
 import Data.Time
 import Data.Time.Calendar.Month (Month, pattern MonthDay)
-import Database.SQLite.Simple
 import Database.SQLite.Simple.QQ (sql)
 import Database.SQLite.Simple.ToField (ToField)
 import Database.SQLite.Simple.ToField qualified as SQL
 import Effectful
 import Effectful.Log
+import Effectful.SQLite.Simple
+import Effectful.SQLite.Simple qualified as SQL
 import Effectful.Time (Time)
 import Expenses.Effects qualified as Eff
-import Expenses.Effects.SQLite (Db)
-import Expenses.Effects.SQLite qualified as SQL
 import Expenses.NonEmptyText (NonEmptyText)
 import Types
 import Util qualified
@@ -110,7 +109,7 @@ instance FromRow SyncAccountStatusRow where
       <*> field
       <*> field
 
-filterNewTxs :: (Db :> es) => Connection -> [TransactionJoinedRow] -> Eff es [TransactionJoinedRow]
+filterNewTxs :: (SQLite :> es) => Connection -> [TransactionJoinedRow] -> Eff es [TransactionJoinedRow]
 filterNewTxs conn txs = do
   let txIds = map (.transactionId) txs
   existingIds :: [Only Text] <-
@@ -125,7 +124,7 @@ filterNewTxs conn txs = do
 
   pure $ txs & filter (\tx -> not (tx.transactionId `Set.member` existingSet))
 
-updateExistingRecord :: (Db :> es) => Connection -> TransactionRecord -> Eff es ()
+updateExistingRecord :: (SQLite :> es) => Connection -> TransactionRecord -> Eff es ()
 updateExistingRecord conn txRecord =
   SQL.withTransaction conn do
     -- Delete the transaction's items and re-insert
@@ -144,7 +143,7 @@ updateExistingRecord conn txRecord =
       |]
       txItemRows
 
-getTransactionById :: (Db :> es) => Connection -> Text -> Eff es (Maybe TransactionRecord)
+getTransactionById :: (SQLite :> es) => Connection -> Text -> Eff es (Maybe TransactionRecord)
 getTransactionById conn transactionId =
   runMaybeT do
     txRow <-
@@ -164,7 +163,7 @@ getTransactionById conn transactionId =
 
     pure $ rowsToRecord txRow itemRows
 
-getTransactionItemById :: (Db :> es) => Connection -> Text -> Int -> Eff es (Maybe TransactionJoinedRow)
+getTransactionItemById :: (SQLite :> es) => Connection -> Text -> Int -> Eff es (Maybe TransactionJoinedRow)
 getTransactionItemById conn txId itemIndex = do
   SQL.query
     conn
@@ -174,7 +173,7 @@ getTransactionItemById conn txId itemIndex = do
     (txId, itemIndex)
     <&> safeHead
 
-getTransactionsByDate :: (Db :> es) => Connection -> Day -> Day -> Eff es [TransactionJoinedRow]
+getTransactionsByDate :: (SQLite :> es) => Connection -> Day -> Day -> Eff es [TransactionJoinedRow]
 getTransactionsByDate conn startDate endDate = do
   SQL.query
     conn
@@ -183,7 +182,7 @@ getTransactionsByDate conn startDate endDate = do
     )
     (startDate, endDate)
 
-getTransactionsMonthRange :: (Db :> es) => Connection -> Eff es (Maybe (Month, Month))
+getTransactionsMonthRange :: (SQLite :> es) => Connection -> Eff es (Maybe (Month, Month))
 getTransactionsMonthRange conn = do
   rows :: [(Maybe Day, Maybe Day)] <-
     SQL.query_
@@ -309,7 +308,7 @@ mkClause sql value = WhereClause sql (Just $ SQL.toField value)
 mkClauseWithoutVal :: Text -> WhereClause
 mkClauseWithoutVal sql = WhereClause sql Nothing
 
-search :: (Db :> es, Log :> es, Time :> es) => Connection -> SearchParams -> Eff es (Vector TransactionJoinedRow)
+search :: (SQLite :> es, Log :> es, Time :> es) => Connection -> SearchParams -> Eff es (Vector TransactionJoinedRow)
 search conn params = do
   let (query, values) = mkSearchQuery params
   txs <- Util.timed "search query" do
@@ -437,10 +436,10 @@ replaceEquivChars =
 -- Tags
 ----------------------------------------------------------------------------
 
-getAllTags :: (Db :> es) => Connection -> Eff es [TagName]
+getAllTags :: (SQLite :> es) => Connection -> Eff es [TagName]
 getAllTags conn = do
   coerce @(_ _ [Only TagName]) @(_ _ [TagName]) $
-    SQL.query_ @(Only TagName)
+    SQL.query_ @_ @(Only TagName)
       conn
       [sql|
         SELECT DISTINCT(tag)
@@ -453,10 +452,10 @@ getAllTags conn = do
 -- Accounts
 ----------------------------------------------------------------------------
 
-getAllAccounts :: (Db :> es) => Connection -> Eff es [Text]
+getAllAccounts :: (SQLite :> es) => Connection -> Eff es [Text]
 getAllAccounts conn = do
   coerce $
-    SQL.query_ @(Only Text)
+    SQL.query_ @_ @(Only Text)
       conn
       [sql|
         SELECT DISTINCT(account)
@@ -469,7 +468,7 @@ getAllAccounts conn = do
 ----------------------------------------------------------------------------
 
 upsertSyncAccountStatus ::
-  (Db :> es) =>
+  (SQLite :> es) =>
   Connection ->
   Text ->
   Text ->
@@ -496,7 +495,7 @@ upsertSyncAccountStatus conn accountId accountName finishedAt status err txCount
     |]
     (accountId, accountName, finishedAt, status, err, txCount)
 
-getSyncAccountStatuses :: (Db :> es) => Connection -> Eff es [SyncAccountStatusRow]
+getSyncAccountStatuses :: (SQLite :> es) => Connection -> Eff es [SyncAccountStatusRow]
 getSyncAccountStatuses conn =
   SQL.query_
     conn
@@ -517,14 +516,14 @@ getSyncAccountStatuses conn =
 -- Modify transactions
 ----------------------------------------------------------------------------
 
-getDescription :: (Db :> es) => Connection -> Text -> Eff es Text
+getDescription :: (SQLite :> es) => Connection -> Text -> Eff es Text
 getDescription conn txId = do
   SQL.query conn [sql| SELECT desc FROM transactions WHERE id = ? |] [txId] >>= \case
     [Only desc] -> pure desc
     [] -> Eff.die [i|getDescription: transaction not found for #{txId}|]
     _ -> Eff.die [i|getDescription: unexpected number of rows for #{txId}|]
 
-getTag :: (Db :> es) => Connection -> Text -> Int -> Eff es (Maybe TagName)
+getTag :: (SQLite :> es) => Connection -> Text -> Int -> Eff es (Maybe TagName)
 getTag conn txId idx = do
   rows <-
     SQL.query
@@ -540,7 +539,7 @@ getTag conn txId idx = do
     [] -> Eff.die [i|getTag: transaction item not found for #{txId} (#{idx})|]
     _ -> Eff.die [i|getTag: unexpected number of rows for #{txId} (#{idx})|]
 
-updateTag :: (Db :> es) => Connection -> Text -> Int -> TagName -> Eff es ()
+updateTag :: (SQLite :> es) => Connection -> Text -> Int -> TagName -> Eff es ()
 updateTag conn txId idx newTag = do
   SQL.execute
     conn
@@ -551,7 +550,7 @@ updateTag conn txId idx newTag = do
       |]
     (newTag, txId, idx)
 
-getIsExpense :: (Db :> es) => Connection -> Text -> Int -> Eff es Bool
+getIsExpense :: (SQLite :> es) => Connection -> Text -> Int -> Eff es Bool
 getIsExpense conn txId idx = do
   rows <-
     SQL.query
@@ -567,7 +566,7 @@ getIsExpense conn txId idx = do
     [] -> Eff.die [i|getIsExpense: transaction not found for #{txId}|]
     _ -> Eff.die [i|getIsExpense: unexpected number of rows for #{txId}|]
 
-updateIsExpense :: (Db :> es) => Connection -> Text -> Int -> Bool -> Eff es ()
+updateIsExpense :: (SQLite :> es) => Connection -> Text -> Int -> Bool -> Eff es ()
 updateIsExpense conn txId idx newIsExpense = do
   SQL.execute
     conn
@@ -578,7 +577,7 @@ updateIsExpense conn txId idx newIsExpense = do
       |]
     (newIsExpense, txId, idx)
 
-getDetails :: (Db :> es) => Connection -> Text -> Int -> Eff es Text
+getDetails :: (SQLite :> es) => Connection -> Text -> Int -> Eff es Text
 getDetails conn txId idx = do
   rows <-
     SQL.query
@@ -594,7 +593,7 @@ getDetails conn txId idx = do
     [] -> Eff.die [i|getDetails: transaction item not found for #{txId} (#{idx})|]
     _ -> Eff.die [i|getDetails: unexpected number of rows for #{txId} (#{idx})|]
 
-updateDetails :: (Db :> es) => Connection -> Text -> Int -> Text -> Eff es ()
+updateDetails :: (SQLite :> es) => Connection -> Text -> Int -> Text -> Eff es ()
 updateDetails conn txId idx newDetails = do
   SQL.execute
     conn
@@ -605,7 +604,7 @@ updateDetails conn txId idx newDetails = do
       |]
     (newDetails, txId, idx)
 
-insertTransactionJoinedRow :: (Db :> es) => Connection -> TransactionJoinedRow -> Eff es ()
+insertTransactionJoinedRow :: (SQLite :> es) => Connection -> TransactionJoinedRow -> Eff es ()
 insertTransactionJoinedRow conn TransactionJoinedRow{transactionId, account, date, desc, totalAmountCents, isExpense, itemIndex, itemAmountCents, tag, details} = do
   SQL.withTransaction conn do
     SQL.execute

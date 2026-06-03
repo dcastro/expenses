@@ -15,6 +15,7 @@ import Effectful.Exception qualified as Eff
 import Effectful.FileSystem qualified as FS
 import Effectful.FileSystem.IO.ByteString.Lazy qualified as FS
 import Effectful.Reader.Static (asks)
+import Effectful.SQLite.Simple (Connection)
 import Effectful.Time qualified as Time
 import Expenses.Effects
 import Expenses.Effects qualified as Eff
@@ -29,17 +30,17 @@ import System.FilePath ((</>))
 import Types
 import Util qualified
 
-startCronJobs :: Env -> Logger -> LogT IO ()
-startCronJobs env logger = do
+startCronJobs :: MVar Connection -> Env -> Logger -> LogT IO ()
+startCronJobs conn env logger = do
   let schedule = env.config.cronSchedule
   logInfo_ [i|Scheduling Nordigen sync job: #{schedule}.|]
   void $
     liftIO $ execSchedule do
-      addJob (nordigenJob & Eff.runCronM env logger) schedule
+      addJob (nordigenJob & Eff.runCronM conn env logger) schedule
 
 nordigenJob ::
   forall es.
-  (Reader Env :> es, FileSystem :> es, Nordigen :> es, Log :> es, Time :> es, EventLog :> es, Concurrent :> es, Db :> es) =>
+  (Reader Env :> es, FileSystem :> es, Nordigen :> es, Log :> es, Time :> es, EventLog :> es, SQLite :> es) =>
   Eff es ()
 nordigenJob =
   Eff.handleSync logCronFailure do
@@ -50,7 +51,7 @@ nordigenJob =
     logAttention_ [i|[Cron] Nordigen sync failed: #{displayException err}|]
 
 nordigenJob' ::
-  (Reader Env :> es, FileSystem :> es, Nordigen :> es, Log :> es, Time :> es, EventLog :> es, Concurrent :> es, Db :> es) =>
+  (Reader Env :> es, FileSystem :> es, Nordigen :> es, Log :> es, Time :> es, EventLog :> es, SQLite :> es) =>
   Eff es ()
 nordigenJob' = do
   logInfo_ "[Cron] Starting Nordigen sync job."
@@ -66,7 +67,7 @@ nordigenJob' = do
     logInfo_ [i|[Cron] Nordigen sync succeeded. Transactions inserted: #{length newTxRows}.|]
 
 fetchAllAccounts ::
-  (Reader Env :> es, FileSystem :> es, Nordigen :> es, Log :> es, Time :> es, Db :> es, Concurrent :> es) =>
+  (Reader Env :> es, FileSystem :> es, Nordigen :> es, Log :> es, Time :> es, SQLite :> es) =>
   UTCTime -> Eff es [Db.TransactionJoinedRow]
 fetchAllAccounts now = do
   authToken <- N.login
@@ -91,7 +92,7 @@ fetchAllAccounts now = do
         pure []
 
 fetchAccount ::
-  (Reader Env :> es, FileSystem :> es, Nordigen :> es, Log :> es, Time :> es, Db :> es, Concurrent :> es) =>
+  (Reader Env :> es, FileSystem :> es, Nordigen :> es, Log :> es, Time :> es, SQLite :> es) =>
   SA.Token -> UTCTime -> InstitutionAccountInfo -> Eff es [Db.TransactionJoinedRow]
 fetchAccount authToken now acc = do
   json <- N.getTransactions authToken acc.accountId
@@ -133,7 +134,7 @@ fetchAccount authToken now acc = do
       pure []
 
 updateSyncAccountStatus ::
-  (Reader Env :> es, Db :> es, Concurrent :> es) =>
+  (SQLite :> es) =>
   InstitutionAccountInfo ->
   UTCTime ->
   SyncStatus ->

@@ -10,7 +10,7 @@ import Expenses.Effects
 import Types
 
 allTagsHandler ::
-  (Reader Env :> es, Concurrent :> es, Db :> es) =>
+  (Reader Env :> es, SQLite :> es) =>
   Eff es (Set TagName)
 allTagsHandler = do
   dbTags <- useConnection \conn -> Db.getAllTags conn
