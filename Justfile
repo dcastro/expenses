@@ -50,14 +50,17 @@ update-haskell-nix:
 # Usage: just run-migration 99 true
 [confirm]
 run-migration idx run_backup:
+    #!/usr/bin/env bash
     echo {{ idx }}
 
     if [ "{{ run_backup }}" = "true" ]; then \
       ./scripts/backup.sh "_before_migration_{{ idx }}"; \
     fi
 
-    stack run expenses:exe:db-migrations -- /home/dc/.local/share/expenses-manager/expenses.db {{ idx }}
-    stack run expenses:exe:db-migrations -- ./resources/test-app-dir/expenses.db {{ idx }}
+    stack build expenses:exe:db-migrations
+    BIN=$(stack path --local-install-root)/bin/db-migrations
+    "$BIN" /home/dc/.local/share/expenses-manager/expenses.db {{ idx }}
+    "$BIN" ./resources/test-app-dir/expenses.db {{ idx }}
 
 # Setup a cloudflare quick tunnel to test the local server
 quick-tunnel:

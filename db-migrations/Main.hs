@@ -16,7 +16,7 @@ main :: IO ()
 main = do
   args <- getArgs
   case args of
-    (_target : dbPath : migrationId : _) ->
+    (dbPath : migrationId : _) ->
       SQL.withConnection dbPath \conn ->
         case migrationId of
           "1" -> do
