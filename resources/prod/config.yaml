@@ -32,16 +32,8 @@ institutions:
   #       flipSign: true
 
 allTagGroups:
-  Renda:
-    - renda
-  Groceries:
-    - groceries
-  David:
-    - baby
-    - atividades
-    - toys
-    - education
   Contas:
+    - renda
     - gym
     - vodafone
     - luz
@@ -63,39 +55,38 @@ allTagGroups:
     - seguro de trabalho domestico
     - seguro de vida
     - school
+    - iuc
+    - inspeção
   Saude:
     - farmacia
     - consultas
     - analises
     - exames
     - internamento
-  Roupa:
-    - roupa
-  Carro:
-    - car wash
-    - via verde
-    - gasolina
-    - estacionamento
-    - iuc
+  Budgeted:
+    - groceries
+    - baby # David
+    - atividades # David
+    - toys # David
+    - education # David
     - car repairs
-    - inspeção
-  Gifts:
     - gifts
-  Go out:
+    - roupa
     - go out
-  Takeaway:
     - takeaway
-  Casa:
     - casa
-  Ferias:
-    - ferias
-  Eletronica:
+    - festas
     - eletronica
     - jogos
-  Gata:
+    - prota
+  Out of budget:
+    - car wash # carro
+    - via verde # carro
+    - gasolina # carro
+    - estacionamento # carro
     - vet
-  Festas:
-    - festas
+    - ferias
+    - cabelo
 
 ungroupedTags:
   - income
