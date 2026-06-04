@@ -304,3 +304,9 @@ tagPatterns:
 # Transactions with these tags are marked as "not an expense".
 notExpenses:
   - transfers
+  - investments
+  - taxes
+  - iva reembolso
+  - income
+  - contabilista
+  - seg social
