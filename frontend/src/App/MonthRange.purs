@@ -117,7 +117,7 @@ component =
         , selection: NoSelection
         , minMonth -- ^ The oldest month the user can select.
         , maxMonth: maxMonth
-        , totalsOrAvg: Totals
+        , totalsOrAvg: Avg
         , enabled
         , isAdmin
         , chartsHaveBeenInitialized: false
