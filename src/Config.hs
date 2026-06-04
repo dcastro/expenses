@@ -17,7 +17,9 @@ data AppConfig = AppConfig
   { institutions :: [InstitutionInfo]
   , admins :: [Text]
   , allTagGroups :: HashMap TagGroupName [TagName]
-  , ungroupedTags :: [TagName]
+  , -- These tags will show up in the tag selection dropdown in the UI, even if there aren't any transactions with those tags in the db (yet).
+    -- The user can use this field to add new tags to the application.
+    ungroupedTags :: [TagName]
   , cronSchedule :: Text
   , tagPatterns :: [TagPatternEntry]
   , notExpenses :: [TagName]

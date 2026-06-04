@@ -8,6 +8,7 @@
   - [Configure Raspberry Pi connect](#configure-raspberry-pi-connect)
   - [Add / Renew bank logins](#add--renew-bank-logins)
   - [Running migrations](#running-migrations)
+  - [Adding new tags](#adding-new-tags)
 
 
 # Setup
@@ -170,3 +171,8 @@ just commit-migration
 just restore-latest-backup
 just restore-backup 2026-06-02_13-25-58
 ```
+
+## Adding new tags
+
+To register a new tag, add it to either the `allTagGroups` or the `ungroupedTags` sections in the config.
+It'll then show up in the tag selection dropdown.
