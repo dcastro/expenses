@@ -41,8 +41,11 @@ backup:
 
 [confirm]
 restore-backup backup_dir:
+    # We have to stop the service before overwriting the db, otherwise opens connections might continue reading from the old db file.
+    ssh {{ remote }} -- "sudo systemctl stop expenses-manager"
     scp /home/dc/Nextcloud/expenses-manager/backups/{{ backup_dir }}/expenses.db    dc@{{ remote }}:/home/dc/.local/share/expenses-manager/expenses.db
     scp /home/dc/Nextcloud/expenses-manager/backups/{{ backup_dir }}/eventlog.jsonl dc@{{ remote }}:/home/dc/.local/share/expenses-manager/eventlog.jsonl
+    ssh {{ remote }} -- "sudo systemctl start expenses-manager"
 
 [confirm]
 restore-latest-backup:
@@ -77,9 +80,11 @@ run-migration idx run_backup:
 
 [confirm]
 commit-migration:
+    # We have to stop the service before overwriting the db, otherwise opens connections might continue reading from the old db file.
+    ssh {{ remote }} -- "sudo systemctl stop expenses-manager expenses-manager-demo"
     scp ./migrations/expenses.db                  dc@{{ remote }}:/home/dc/.local/share/expenses-manager/expenses.db
     scp ./resources/test-app-dir/expenses.db      dc@{{ remote }}:{{ demo-app-dir }}/expenses.db
-    ssh {{ remote }} -- "sudo systemctl start expenses-manager"
+    ssh {{ remote }} -- "sudo systemctl start expenses-manager expenses-manager-demo"
 
 # Setup a cloudflare quick tunnel to test the local server
 quick-tunnel:
@@ -155,9 +160,12 @@ rpi-event-log:
 # Overwrite the database on the Raspberry Pi with the local database
 [confirm]
 rpi-overwrite-data:
+    # We have to stop the service before overwriting the db, otherwise opens connections might continue reading from the old db file.
+    ssh {{ remote }} -- "sudo systemctl stop expenses-manager"
     ssh {{ remote }} -- mkdir -p /home/dc/.local/share/expenses-manager
     scp ~/.local/share/expenses-manager/expenses.db dc@{{ remote }}:/home/dc/.local/share/expenses-manager/expenses.db
     scp ~/.local/share/expenses-manager/eventlog.jsonl dc@{{ remote }}:/home/dc/.local/share/expenses-manager/eventlog.jsonl
+    ssh {{ remote }} -- "sudo systemctl start expenses-manager"
 
 rpi-sync:
     curl -v -X POST "http://{{ remote }}:8082/sync" -H "Cf-Access-Authenticated-User-Email: diogo.filipe.acastro@gmail.com"
