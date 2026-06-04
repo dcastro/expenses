@@ -505,9 +505,10 @@ renderTransaction state lastInGroup tx =
             HH.div
               [ classes' "is-clickable"
               , HH.attr (HH.AttrName "contenteditable") "plaintext-only"
+              , HP.prop (HH.PropName "textContent") tx.details
               , HE.onBlur \ev -> SetTransactionDetails tx ev
               ]
-              [ HH.text tx.details ]
+              []
           else
             HH.text tx.details
         ]

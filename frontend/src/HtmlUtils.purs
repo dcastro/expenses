@@ -81,7 +81,7 @@ jsLog :: forall a. a -> Effect Unit
 jsLog cd = do
   _log cd
 
--- Chekck whether an event was triggered from an input, textarea, or contenteditable element.
+-- Check whether an event was triggered from an input, textarea, or contenteditable element.
 isInputElement :: Event -> Effect Boolean
 isInputElement event = do
   let
