@@ -9,6 +9,7 @@ import M06_RemoveQuotesFromIds qualified
 import M07_RemoveBabyColumn qualified
 import M08_MoveIsExpenseColumn qualified
 import M09_AddSyncAccountStatus qualified
+import M10_RenameOrdenadoToIncome qualified
 import System.Environment (getArgs)
 import System.Exit (die)
 
@@ -17,27 +18,21 @@ main = do
   args <- getArgs
   case args of
     (dbPath : migrationId : _) ->
-      SQL.withConnection dbPath \conn ->
-        case migrationId of
-          "1" -> do
-            SQL.withTransaction conn $ M01_AddItemCosts.migrate conn
-          "2" -> do
-            SQL.withTransaction conn $ M02_AddExpenseFlag.migrate conn
-          "3" -> do
-            SQL.withTransaction conn $ M03_AddTransactionsView.migrate conn
-          "4" -> do
-            SQL.withTransaction conn $ M04_NullableTags.migrate conn
-          "5" -> do
-            SQL.withTransaction conn $ M05_RenameTags.migrate conn
-          "6" -> do
-            SQL.withTransaction conn $ M06_RemoveQuotesFromIds.migrate conn
-          "7" -> do
-            SQL.withTransaction conn $ M07_RemoveBabyColumn.migrate conn
-          "8" -> do
-            SQL.withTransaction conn $ M08_MoveIsExpenseColumn.migrate conn
-          "9" -> do
-            SQL.withTransaction conn $ M09_AddSyncAccountStatus.migrate conn
-          _ -> do
-            die $ "Invalid migration number: " <> show migrationId
+      SQL.withConnection dbPath \conn -> do
+        -- Run every migration in a transaction
+        SQL.withTransaction conn do
+          case migrationId of
+            "1" -> M01_AddItemCosts.migrate conn
+            "2" -> M02_AddExpenseFlag.migrate conn
+            "3" -> M03_AddTransactionsView.migrate conn
+            "4" -> M04_NullableTags.migrate conn
+            "5" -> M05_RenameTags.migrate conn
+            "6" -> M06_RemoveQuotesFromIds.migrate conn
+            "7" -> M07_RemoveBabyColumn.migrate conn
+            "8" -> M08_MoveIsExpenseColumn.migrate conn
+            "9" -> M09_AddSyncAccountStatus.migrate conn
+            "10" -> M10_RenameOrdenadoToIncome.migrate conn
+            _ -> do
+              die $ "Invalid migration number: " <> show migrationId
     _ -> do
       die "Usage: db-migrations <db-path> <migration-id>"

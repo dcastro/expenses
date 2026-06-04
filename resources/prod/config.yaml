@@ -273,10 +273,6 @@ tagPatterns:
     contains:
       - ['DD PT66104764 INST GEST FINAN 23021258204']
       - ['INST GEST FINAN']
-  - tag: ordenado
-    contains:
-      - ['SEROKELL']
-      - ['TRF. P O  FLOATINGLICIOUS - LDA       MADEMOISE']
   - tag: ordem dos enfermeiros
     contains:
       - ['ORDEM DOS ENFE']
