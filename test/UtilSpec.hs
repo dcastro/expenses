@@ -5,7 +5,6 @@ import CustomPrelude
 import Expenses.Server.CronJob qualified as CronJob
 import Expenses.Test.Util ()
 import Test.Tasty.HUnit
-import Types
 import Universum.Unsafe qualified as Unsafe
 import Util
 
@@ -72,30 +71,14 @@ unit_getIsExpense = do
           , tagPatterns = mempty
           , notExpenses = ["transfers"]
           }
-  let accExpense =
-        InstitutionAccountInfo
-          { accountId = "exp-acc-id"
-          , accountName = "ExpenseAccount"
-          , isExpenseAccount = True
-          , flipSign = False
-          }
-  let accNonExpense =
-        InstitutionAccountInfo
-          { accountId = "nonexp-acc-id"
-          , accountName = "NonExpenseAccount"
-          , isExpenseAccount = False
-          , flipSign = False
-          }
   let txIdNormal = "20220121233851916940"
   let txIdTemporary = "12345678901234"
   let tagTaxIsExpense = "groceries"
   let !txTagNotExpense = Unsafe.head config.notExpenses
 
-  -- Expense account, normal txId, normal desc
-  CronJob.getIsExpense config accExpense (Just txIdNormal) (Just tagTaxIsExpense) @?= True
-  -- Non-expense account
-  CronJob.getIsExpense config accNonExpense (Just txIdNormal) (Just tagTaxIsExpense) @?= False
-  -- Expense account, but txDesc contains notExpenses pattern
-  CronJob.getIsExpense config accExpense (Just txIdNormal) (Just txTagNotExpense) @?= False
-  -- Expense account, but temporary txId
-  CronJob.getIsExpense config accExpense (Just txIdTemporary) (Just tagTaxIsExpense) @?= False
+  -- Normal txId, normal tag
+  CronJob.getIsExpense config (Just txIdNormal) (Just tagTaxIsExpense) @?= True
+  -- txDesc contains notExpenses pattern
+  CronJob.getIsExpense config (Just txIdNormal) (Just txTagNotExpense) @?= False
+  -- Temporary txId
+  CronJob.getIsExpense config (Just txIdTemporary) (Just tagTaxIsExpense) @?= False

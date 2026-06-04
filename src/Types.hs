@@ -184,8 +184,6 @@ data InstitutionInfo = InstitutionInfo
 data InstitutionAccountInfo = InstitutionAccountInfo
   { accountName :: Text
   , accountId :: Text
-  , -- Whether transactions from this account should be treated as expenses.
-    isExpenseAccount :: Bool
   , -- Credit accounts show transactions as positive numbers, and debit accounts as negative numbers.($)
     -- For credit accounts, we should set `flip sign = true`.
     flipSign :: Bool
