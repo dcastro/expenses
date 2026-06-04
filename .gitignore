@@ -15,4 +15,4 @@ result
 
 .psc-ide-port
 
-migration/
+migrations/

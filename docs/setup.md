@@ -4,7 +4,7 @@
     - [Nix](#nix)
     - [Cloudflare](#cloudflare)
   - [Install app in the RPI](#install-app-in-the-rpi)
-  - [Add anacron job](#add-anacron-job)
+  - [Backups](#backups)
   - [Configure Raspberry Pi connect](#configure-raspberry-pi-connect)
   - [Add / Renew bank logins](#add--renew-bank-logins)
   - [Running migrations](#running-migrations)
@@ -131,14 +131,16 @@ just rpi-setup-service /home/dc/Dropbox/dotfiles/expenses-manager-override.conf
 just rpi-deploy
 ```
 
-## Add anacron job
+## Backups
+
+Add this anacron job to perform regular backups:
 
 ```sh
 # NOTE: this will backup to Dropbox, Mega, and Nextcloud, so I need to set those up first
 sudo bash -c "echo '5	10	expenses-backup	sudo -u dc /home/dc/Dropbox/Projects/Haskell/expenses/scripts/backup.sh' >> /etc/anacrontab"
 ```
 
-Run the anacron job manually:
+Run the backup task manually:
 
 ```sh
 sudo anacron -fnd expenses-backup
