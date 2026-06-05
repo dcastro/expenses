@@ -198,6 +198,7 @@ tagPatterns:
       - ['CONTINENTE']
       - ['MODELO Portugal']
       - ['BONJOUR Portugal PT'] # Continente
+      - ['COMPRA BONJOUR'] # Continente
       - ['AUCHAN']
       - ['PINGO DOCE']
       - ['MERCADONA']
