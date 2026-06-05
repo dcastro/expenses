@@ -433,6 +433,46 @@ replaceEquivChars =
   groups = ["aáàâã", "eéèê", "iíì", "oóòôõ", "uúù", "cç"]
 
 ----------------------------------------------------------------------------
+-- App settings
+----------------------------------------------------------------------------
+
+getBudgetLimit :: (SQLite :> es) => Connection -> Eff es Int
+getBudgetLimit conn = do
+  rows <- SQL.query_ conn [sql| SELECT monthly_budget_limit_cents FROM app_settings WHERE id = 1 |]
+  case rows of
+    [Only limit] -> pure limit
+    _ -> error "getBudgetLimit: app_settings must have exactly 1 row"
+
+setBudgetLimit :: (SQLite :> es) => Connection -> Int -> Eff es ()
+setBudgetLimit conn limitCents =
+  SQL.execute
+    conn
+    [sql| UPDATE app_settings SET monthly_budget_limit_cents = ? WHERE id = 1 |]
+    (Only limitCents)
+
+-- | Returns spending per day for the given date range and tags, ordered by date.
+-- Only days with at least one matching transaction item are included.
+-- Amounts are in BECents (negative for expenses).
+getBudgetSpendingByDay :: (SQLite :> es) => Connection -> Day -> Day -> [TagName] -> Eff es [(Day, BECents)]
+getBudgetSpendingByDay _conn _startDate _endDate [] = pure []
+getBudgetSpendingByDay conn startDate endDate tags = do
+  let placeholders = T.intercalate ", " (replicate (length tags) "?")
+      query =
+        Query
+          [i|
+            SELECT t.date, SUM(ti.item_amount_cents)
+            FROM transactions t
+            JOIN transaction_items ti ON t.id = ti.transaction_id
+            WHERE t.date >= ? AND t.date < ?
+              AND ti.tag IN (#{placeholders})
+              AND ti.is_expense = 1
+            GROUP BY t.date
+            ORDER BY t.date
+          |]
+      params = SQL.toField startDate : SQL.toField endDate : map SQL.toField tags
+  SQL.query conn query params
+
+----------------------------------------------------------------------------
 -- Tags
 ----------------------------------------------------------------------------
 
