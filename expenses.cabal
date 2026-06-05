@@ -36,6 +36,7 @@ library
       Expenses.Server.Routes.AllAccounts
       Expenses.Server.Routes.AllTags
       Expenses.Server.Routes.GetAvailableDateRange
+      Expenses.Server.Routes.GetBudget
       Expenses.Server.Routes.GetSyncStatus
       Expenses.Server.Routes.GetTransactionItems
       Expenses.Server.Routes.GetTransactions
@@ -44,6 +45,7 @@ library
       Expenses.Server.Routes.RenewRequisition
       Expenses.Server.Routes.RunCron
       Expenses.Server.Routes.Search
+      Expenses.Server.Routes.SetBudgetLimit
       Expenses.Server.Routes.SplitTransactionItems
       Expenses.Server.Utils
       Nordigen

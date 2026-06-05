@@ -455,7 +455,6 @@ Only days with at least one matching transaction item are included.
 Amounts are in BECents (negative for expenses).
 -}
 getBudgetSpendingByDay :: (SQLite :> es) => Connection -> Day -> Day -> [TagName] -> Eff es [(Day, BECents)]
-getBudgetSpendingByDay _conn _startDate _endDate [] = pure []
 getBudgetSpendingByDay conn startDate endDate tags = do
   let
     query =
