@@ -4,7 +4,6 @@ import Control.GroupWith qualified as GW
 import CustomPrelude
 import Data.Aeson.TH (defaultOptions, deriveFromJSON)
 import Data.Coerce (coerce)
-import Data.List qualified as List
 import Data.Map qualified as Map
 import Data.Set qualified as Set
 import Data.Text qualified as T
@@ -115,9 +114,10 @@ filterNewTxs conn txs = do
   existingIds :: [Only Text] <-
     SQL.query
       conn
-      ( "SELECT id FROM transactions WHERE id IN ("
-          <> makePlaceholders (length txIds)
-          <> ")"
+      ( Query
+          [i|
+          SELECT id FROM transactions WHERE id IN (#{mkPlaceholders (length txIds)})
+        |]
       )
       txIds
   let existingSet = Set.fromList @Text (coerce existingIds)
@@ -450,26 +450,27 @@ setBudgetLimit conn limitCents =
     [sql| UPDATE app_settings SET monthly_budget_limit_cents = ? WHERE id = 1 |]
     (Only limitCents)
 
--- | Returns spending per day for the given date range and tags, ordered by date.
--- Only days with at least one matching transaction item are included.
--- Amounts are in BECents (negative for expenses).
+{- | Returns spending per day for the given date range and tags, ordered by date.
+Only days with at least one matching transaction item are included.
+Amounts are in BECents (negative for expenses).
+-}
 getBudgetSpendingByDay :: (SQLite :> es) => Connection -> Day -> Day -> [TagName] -> Eff es [(Day, BECents)]
 getBudgetSpendingByDay _conn _startDate _endDate [] = pure []
 getBudgetSpendingByDay conn startDate endDate tags = do
-  let placeholders = T.intercalate ", " (replicate (length tags) "?")
-      query =
-        Query
-          [i|
+  let
+    query =
+      Query
+        [i|
             SELECT t.date, SUM(ti.item_amount_cents)
             FROM transactions t
             JOIN transaction_items ti ON t.id = ti.transaction_id
             WHERE t.date >= ? AND t.date < ?
-              AND ti.tag IN (#{placeholders})
+              AND ti.tag IN (#{mkPlaceholders (length tags)})
               AND ti.is_expense = 1
             GROUP BY t.date
             ORDER BY t.date
           |]
-      params = SQL.toField startDate : SQL.toField endDate : map SQL.toField tags
+    params = SQL.toField startDate : SQL.toField endDate : map SQL.toField tags
   SQL.query conn query params
 
 ----------------------------------------------------------------------------
@@ -666,15 +667,14 @@ insertTransactionJoinedRow conn TransactionJoinedRow{transactionId, account, dat
 -- Utils
 ----------------------------------------------------------------------------
 
--- >>> makePlaceholders 0
--- >>> makePlaceholders 1
--- >>> makePlaceholders 3
+-- >>> mkPlaceholders 0
+-- >>> mkPlaceholders 1
+-- >>> mkPlaceholders 3
 -- ""
 -- "?"
 -- "?, ?, ?"
-makePlaceholders :: Int -> Query
-makePlaceholders n =
-  mconcat $ List.intersperse ", " (replicate n "?")
+mkPlaceholders :: Int -> Text
+mkPlaceholders n = T.intercalate ", " (replicate n "?")
 
 ----------------------------------------------------------------------------
 -- Instances
