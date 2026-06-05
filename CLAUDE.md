@@ -69,3 +69,7 @@ Tests use Tasty (orchestration) with HSpec and golden files. Golden file outputs
 * Nordigen allows us to create "requisitions", which connects us to an institution.
 * While approving the "requisition", the user tells Nordigen which accounts from that institution they want to enable.
 * Therefore, our app keeps track of the institutions the user is connected to, each institution's requisition status, and the accounts for each institution.
+
+## Instructions
+
+* Ensure the tests compile and pass after non-trivial changes.
