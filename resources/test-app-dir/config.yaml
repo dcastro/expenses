@@ -52,4 +52,6 @@ ungroupedTags:
 tagPatterns: []
 
 # Transactions with these tags are marked as "not an expense".
+budgetTagGroup: Food
+
 notExpenses: []

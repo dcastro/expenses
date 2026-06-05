@@ -299,6 +299,8 @@ tagPatterns:
       - ['PAG.IGCP']
 
 # Transactions with these tags are marked as "not an expense".
+budgetTagGroup: Budgeted
+
 notExpenses:
   - transfers
   - investments

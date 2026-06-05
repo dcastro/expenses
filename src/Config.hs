@@ -23,6 +23,7 @@ data AppConfig = AppConfig
   , cronSchedule :: Text
   , tagPatterns :: [TagPatternEntry]
   , notExpenses :: [TagName]
+  , budgetTagGroup :: TagGroupName
   }
   deriving stock (Eq, Show)
 
