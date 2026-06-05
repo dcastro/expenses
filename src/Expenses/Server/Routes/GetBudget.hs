@@ -50,7 +50,8 @@ getBudgetHandler = do
   config <- asks @Env (.config)
   let budgetTags = HM.lookup config.budgetTagGroup config.allTagGroups & fromMaybe []
 
-  limitCentsInt <- useConnection \conn -> Db.getBudgetLimit conn
+  limitBE <- useConnection \conn -> Db.getBudgetLimit conn
+  let limitCentsInt = negate limitBE.getCents
 
   spendingByDay <- useConnection \conn ->
     Db.getBudgetSpendingByDay conn firstDay nextMonthFirstDay budgetTags

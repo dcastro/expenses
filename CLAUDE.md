@@ -51,6 +51,9 @@ There are two amount types that must not be mixed:
 
 Conversions between `FECents` and `BECents` **MUST** use the `toBE` and `toFE` functions.
 
+The frontend **MUST NOT** use `Int` or similar to model amounts of cents, it must use `FECents`.
+The database **MUST NOT** use `Int` or similar to model amounts of cents, it must use `BECents`.
+
 ### Configuration
 
 Runtime config is a YAML file loaded from `--app-dir` (default `~/.local/share/expenses-manager/`). The directory also contains `expenses.db` and `eventlog.jsonl`. For dev, use `--app-dir ./resources/test-app-dir/`.
