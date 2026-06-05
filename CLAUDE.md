@@ -54,7 +54,9 @@ Required environment variables for Nordigen sync: `EXPENSES_NORDIGEN_SECRET_ID`,
 
 ### Database Migrations
 
-Migrations are standalone executables in `db-migrations/` named `M01`–`M09`. Each migration is a separate cabal component. When adding a new migration, add it as a new component in `package.yaml` following the existing pattern.
+Migrations are standalone executables in `db-migrations/` named `M01`–`M09`. Each migration is a new module.
+
+When modifying the db schema, also update `schema.sql`
 
 ### Testing
 

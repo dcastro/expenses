@@ -175,6 +175,7 @@ executable db-migrations
       M08_MoveIsExpenseColumn
       M09_AddSyncAccountStatus
       M10_RenameOrdenadoToIncome
+      M11_AddBudgetConfig
       Paths_expenses
   hs-source-dirs:
       db-migrations

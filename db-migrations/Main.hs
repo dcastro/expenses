@@ -10,6 +10,7 @@ import M07_RemoveBabyColumn qualified
 import M08_MoveIsExpenseColumn qualified
 import M09_AddSyncAccountStatus qualified
 import M10_RenameOrdenadoToIncome qualified
+import M11_AddBudgetConfig qualified
 import System.Environment (getArgs)
 import System.Exit (die)
 
@@ -32,6 +33,7 @@ main = do
             "8" -> M08_MoveIsExpenseColumn.migrate conn
             "9" -> M09_AddSyncAccountStatus.migrate conn
             "10" -> M10_RenameOrdenadoToIncome.migrate conn
+            "11" -> M11_AddBudgetConfig.migrate conn
             _ -> do
               die $ "Invalid migration number: " <> show migrationId
     _ -> do
