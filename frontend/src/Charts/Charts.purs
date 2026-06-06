@@ -2,10 +2,10 @@ module Charts.Charts where
 
 import Prelude
 
-import Core.APITypes (TagGroupName, TagName)
+import Core.APITypes (TagGroupName(..), TagName(..))
 import Core.APITypes as API
 import Data.Array as Arr
-import Data.Nullable (Nullable)
+import Data.Nullable (Nullable, toMaybe, toNullable)
 import Effect (Effect)
 import Foreign (Foreign)
 import Untagged.Union (type (|+|), asOneOf)
@@ -89,6 +89,38 @@ drilldown chart group = do
 
 selectSlice :: Foreign -> String -> Effect Unit
 selectSlice = _selectSlice
+
+-- | Flat pie chart for budget tags (no drill-down). Slices are individual tags;
+-- | clicking a slice calls the callback with Just the tag name, deselecting calls it with Nothing.
+makeBudgetChart
+  :: String
+  -> Array API.BudgetTagStats
+  -> (Nullable TagName -> Effect Unit)
+  -> Effect Foreign
+makeBudgetChart containerId tagStats onSelectionChange =
+  _makeChart
+    containerId
+    (makeBudgetChartData tagStats)
+    (\_ -> pure unit)
+    (\maybeGroupId _ -> onSelectionChange (toNullable (map groupToTag (toMaybe maybeGroupId))))
+  where
+  groupToTag :: TagGroupName -> TagName
+  groupToTag (TagGroupName s) = TagName s
+
+updateBudgetChart :: Foreign -> Array API.BudgetTagStats -> Effect Unit
+updateBudgetChart chart tagStats = _updateChart chart (makeBudgetChartData tagStats)
+
+makeBudgetChartData :: Array API.BudgetTagStats -> ChartData
+makeBudgetChartData tagStats =
+  { subvalues: tagStats <#> \stat ->
+      asOneOf
+        { name: displayLabel (API.getTagName stat.name) stat.tagTotalAmountCents
+        , id: TagGroupName (API.getTagName stat.name)
+        , value: stat.tagTotalAmountCents
+        }
+  }
+  where
+  displayLabel name value = name <> " " <> Utils.centsToEuros value <> " -"
 
 makeChartData :: API.GetTransactions -> Int -> ChartData
 makeChartData txs monthsSpan =
