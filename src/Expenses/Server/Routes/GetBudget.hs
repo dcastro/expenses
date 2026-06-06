@@ -31,11 +31,10 @@ data BudgetInfo = BudgetInfo
   }
   deriving stock (Show, Eq)
 
-$(
-  mconcat
-    [ deriveToJSON defaultOptions ''BudgetDayInfo
-    , deriveToJSON defaultOptions ''BudgetInfo
-    ]
+$( mconcat
+     [ deriveToJSON defaultOptions ''BudgetDayInfo
+     , deriveToJSON defaultOptions ''BudgetInfo
+     ]
  )
 
 getBudgetHandler ::
@@ -55,7 +54,8 @@ getBudgetHandler = do
   let limitCentsInt = negate limitBE.getCents
 
   rows <- useConnection \conn ->
-    Db.search conn
+    Db.search
+      conn
       Db.SearchParams
         { allFields = Db.StringParams [] []
         , transactionId = Nothing
@@ -63,7 +63,7 @@ getBudgetHandler = do
         , account = Nothing
         , desc = Db.StringParams [] []
         , amount = Nothing
-        , tag = Just (Db.SomeTag budgetTags)
+        , tag = Just (Db.SomeTags budgetTags)
         , notes = Db.StringParams [] []
         , isExpense = Just True
         }
@@ -105,7 +105,7 @@ buildDayInfos year month todayDayNum totalDays limitCentsInt spendingMap =
              in
               (newCum, Just actual, Just (FECents (negate newCum - projected.getCents)))
           else (cumInt, Nothing, Nothing)
-    in
+     in
       ( newCumInt
       , BudgetDayInfo
           { date = d

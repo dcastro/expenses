@@ -730,7 +730,7 @@ handleAction =
           else if idx == 0 then
             Just NoTag
           else
-            Arr.index allTags (idx - 1) <#> \t -> SomeTag [ t ]
+            Arr.index allTags (idx - 1) <#> \t -> SomeTags [ t ]
 
       Console.log $ "[Search] Selected tag: '" <> show tagParams <> "', navigating to Search route"
       handleAction $ ModifySearchQuery _
@@ -851,7 +851,7 @@ updateControls = do
         Choices.clearSelection state.tagChoicesControl
       Just NoTag ->
         Choices.selectValue state.tagChoicesControl "No tag"
-      Just (SomeTag tagNames) -> do
+      Just (SomeTags tagNames) -> do
         Choices.selectValue state.tagChoicesControl (fromMaybe "" (display <$> Arr.head tagNames))
 
   H.liftEffect $

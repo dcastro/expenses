@@ -275,7 +275,7 @@ data StringParams = StringParams
 
 data TagParams
   = NoTag
-  | SomeTag [TagName]
+  | SomeTags [TagName]
   deriving stock (Eq)
 
 data AmountParams
@@ -350,8 +350,8 @@ mkSearchQueryClauses params =
     <> case params.tag of
       Nothing -> []
       Just NoTag -> [mkIsNull tagCol]
-      Just (SomeTag []) -> []
-      Just (SomeTag tags) ->
+      Just (SomeTags []) -> []
+      Just (SomeTags tags) ->
         [ WhereClause
             [i|#{tagCol} IN (#{mkPlaceholders (length tags)})|]
             (SQL.toField . (.unTagName.getNonEmptyText) <$> tags)
@@ -454,7 +454,6 @@ setBudgetLimit conn limitCents =
     conn
     [sql| UPDATE app_settings SET monthly_budget_limit_cents = ? WHERE id = 1 |]
     (Only limitCents)
-
 
 ----------------------------------------------------------------------------
 -- Tags

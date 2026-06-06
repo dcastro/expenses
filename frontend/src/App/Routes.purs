@@ -177,12 +177,12 @@ tagParams = as toStr fromStr
   toStr :: TagParams -> String
   toStr = case _ of
     NoTag -> "notag"
-    SomeTag tags -> fromMaybe "" (API.getTagName <$> Array.head tags)
+    SomeTags tags -> fromMaybe "" (API.getTagName <$> Array.head tags)
 
   fromStr :: String -> Either String TagParams
   fromStr = case _ of
     "notag" -> Right NoTag
-    str -> Right $ SomeTag [ TagName str ]
+    str -> Right $ SomeTags [ TagName str ]
 
 nonemptystring :: RouteDuplex' String -> RouteDuplex' String
 nonemptystring =

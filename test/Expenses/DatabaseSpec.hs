@@ -45,7 +45,7 @@ spec_mkSearchQueryClauses = do
       , account = Just "account1"
       , desc = "dêsc -no-desc"
       , amount = "100"
-      , tag = Just $ SomeTag ["tag1"]
+      , tag = Just $ SomeTags ["tag1"]
       , notes = "  nOTe  -not-NOTé  "
       , isExpense = Just True
       }
