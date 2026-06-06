@@ -5,6 +5,10 @@ with-compiler: ghc-9.12.2
 packages:
     ./
 
+source-repository-package
+    type: git
+    location: https://github.com/dcastro/sqlite-simple-effectful
+    tag: 36e9fc990d362efb8c2e98d48c5eac9b92657992
 
 allow-older: *
 allow-newer: *
