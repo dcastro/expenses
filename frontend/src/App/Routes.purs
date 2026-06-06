@@ -8,10 +8,11 @@ import Core.Sorting (SortedOrder(..), SortingColumn(..))
 import Core.Sorting as Sorting
 import Data.Either (Either(..))
 import Data.Generic.Rep (class Generic)
+import Data.Array as Array
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Profunctor (dimap)
 import Data.Show.Generic (genericShow)
-import Prelude (class Eq, class Show, ($), (<<<), (<>), (==), (>>>))
+import Prelude (class Eq, class Show, ($), (<<<), (<$>), (<>), (==), (>>>))
 import Record as Record
 import Routing.Duplex.Generic (sum)
 import Routing.Duplex.Generic.Syntax ((/))
@@ -176,12 +177,12 @@ tagParams = as toStr fromStr
   toStr :: TagParams -> String
   toStr = case _ of
     NoTag -> "notag"
-    SomeTag tag -> API.getTagName tag
+    SomeTag tags -> fromMaybe "" (API.getTagName <$> Array.head tags)
 
   fromStr :: String -> Either String TagParams
   fromStr = case _ of
     "notag" -> Right NoTag
-    str -> Right $ SomeTag (TagName str)
+    str -> Right $ SomeTag [ TagName str ]
 
 nonemptystring :: RouteDuplex' String -> RouteDuplex' String
 nonemptystring =

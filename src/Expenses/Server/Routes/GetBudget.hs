@@ -7,6 +7,7 @@ import Data.HashMap.Strict qualified as HM
 import Data.List ((!!))
 import Data.Map.Strict qualified as Map
 import Data.Time (Day, addGregorianMonthsClip, fromGregorian, gregorianMonthLength, toGregorian, utctDay)
+import Database (SearchParams (..))
 import Database qualified as Db
 import Effectful
 import Effectful.Reader.Static (asks)
@@ -38,7 +39,7 @@ $(
  )
 
 getBudgetHandler ::
-  (Reader Env :> es, SQLite :> es, Time :> es) =>
+  (Reader Env :> es, SQLite :> es, Time :> es, Log :> es) =>
   Eff es BudgetInfo
 getBudgetHandler = do
   today <- utctDay <$> Time.currentTime
@@ -53,11 +54,25 @@ getBudgetHandler = do
   limitBE <- useConnection \conn -> Db.getBudgetLimit conn
   let limitCentsInt = negate limitBE.getCents
 
-  spendingByDay <- useConnection \conn ->
-    Db.getBudgetSpendingByDay conn firstDay nextMonthFirstDay budgetTags
+  rows <- useConnection \conn ->
+    Db.search conn
+      Db.SearchParams
+        { allFields = Db.StringParams [] []
+        , transactionId = Nothing
+        , date = Nothing
+        , account = Nothing
+        , desc = Db.StringParams [] []
+        , amount = Nothing
+        , tag = Just (Db.SomeTag budgetTags)
+        , notes = Db.StringParams [] []
+        , isExpense = Just True
+        }
 
   let spendingMap :: Map.Map Day Int =
-        Map.fromList [(d, x) | (d, BECents x) <- spendingByDay]
+        rows
+          & toList
+          & filter (\r -> r.date >= firstDay && r.date < nextMonthFirstDay)
+          & foldl' (\m r -> Map.insertWith (+) r.date r.itemAmountCents.getCents m) Map.empty
 
   let dayInfos = buildDayInfos year month todayDayNum totalDays limitCentsInt spendingMap
 

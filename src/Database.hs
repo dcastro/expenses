@@ -275,7 +275,7 @@ data StringParams = StringParams
 
 data TagParams
   = NoTag
-  | SomeTag TagName
+  | SomeTag [TagName]
   deriving stock (Eq)
 
 data AmountParams
@@ -298,15 +298,15 @@ newtype IsLT = IsLT {isLT :: Double}
 
 data WhereClause = WhereClause
   { sql :: Text
-  , value :: Maybe SQLData
+  , values :: [SQLData]
   }
   deriving stock (Show, Eq)
 
 mkClause :: forall a. (ToField a) => Text -> a -> WhereClause
-mkClause sql value = WhereClause sql (Just $ SQL.toField value)
+mkClause sql value = WhereClause sql [SQL.toField value]
 
 mkClauseWithoutVal :: Text -> WhereClause
-mkClauseWithoutVal sql = WhereClause sql Nothing
+mkClauseWithoutVal sql = WhereClause sql []
 
 search :: (SQLite :> es, Log :> es, Time :> es) => Connection -> SearchParams -> Eff es (Vector TransactionJoinedRow)
 search conn params = do
@@ -325,7 +325,7 @@ mkSearchQuery params = do
           then ("TRUE", [])
           else
             ( T.intercalate " AND \n\t" ((.sql) <$> clauses)
-            , clauses & mapMaybe (.value)
+            , clauses >>= (.values)
             )
   let query =
         Query $
@@ -347,10 +347,15 @@ mkSearchQueryClauses params =
     <> maybeToList do
       account <- params.account
       Just $ mkIsEq accountCol account
-    <> maybeToList do
-      params.tag <&> \case
-        NoTag -> mkIsNull tagCol
-        SomeTag tag -> mkIsEq tagCol tag.unTagName.getNonEmptyText
+    <> case params.tag of
+      Nothing -> []
+      Just NoTag -> [mkIsNull tagCol]
+      Just (SomeTag []) -> []
+      Just (SomeTag tags) ->
+        [ WhereClause
+            [i|#{tagCol} IN (#{mkPlaceholders (length tags)})|]
+            (SQL.toField . (.unTagName.getNonEmptyText) <$> tags)
+        ]
     <> mkStringParams detailsCol params.notes
     <> maybeToList do
       params.amount <&> \case
@@ -450,27 +455,6 @@ setBudgetLimit conn limitCents =
     [sql| UPDATE app_settings SET monthly_budget_limit_cents = ? WHERE id = 1 |]
     (Only limitCents)
 
-{- | Returns spending per day for the given date range and tags, ordered by date.
-Only days with at least one matching transaction item are included.
-Amounts are in BECents (negative for expenses).
--}
-getBudgetSpendingByDay :: (SQLite :> es) => Connection -> Day -> Day -> [TagName] -> Eff es [(Day, BECents)]
-getBudgetSpendingByDay conn startDate endDate tags = do
-  let
-    query =
-      Query
-        [i|
-            SELECT t.date, SUM(ti.item_amount_cents)
-            FROM transactions t
-            JOIN transaction_items ti ON t.id = ti.transaction_id
-            WHERE t.date >= ? AND t.date < ?
-              AND ti.tag IN (#{mkPlaceholders (length tags)})
-              AND ti.is_expense = 1
-            GROUP BY t.date
-            ORDER BY t.date
-          |]
-    params = SQL.toField startDate : SQL.toField endDate : map SQL.toField tags
-  SQL.query conn query params
 
 ----------------------------------------------------------------------------
 -- Tags

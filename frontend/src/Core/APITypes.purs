@@ -149,7 +149,7 @@ type RawSearchParams =
 
 data TagParams
   = NoTag
-  | SomeTag TagName
+  | SomeTag (Array TagName)
 
 derive instance Eq TagParams
 
