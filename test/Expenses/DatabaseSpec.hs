@@ -29,13 +29,13 @@ spec_mkSearchQueryClauses = do
       `shouldQuery` [ mkClause @Text
                         "LOWER((COALESCE(strftime('%d-%m-%Y', date), '') || ' ' || COALESCE(desc, '') || ' ' || COALESCE(tag, '') || ' ' || COALESCE(details, '') || ' ' || COALESCE(printf('%.2f', CAST(-item_amount_cents as REAL) / 100), ''))) GLOB ?"
                         -- "%foo%"
-                        "*f[oóòôõ][oóòôõ]*"
+                        ["*f[oóòôõ][oóòôõ]*"]
                     , mkClause @Text
                         "LOWER((COALESCE(strftime('%d-%m-%Y', date), '') || ' ' || COALESCE(desc, '') || ' ' || COALESCE(tag, '') || ' ' || COALESCE(details, '') || ' ' || COALESCE(printf('%.2f', CAST(-item_amount_cents as REAL) / 100), ''))) GLOB ?"
-                        "*b[aáàâã][aáàâã]r*"
+                        ["*b[aáàâã][aáàâã]r*"]
                     , mkClause @Text
                         "LOWER((COALESCE(strftime('%d-%m-%Y', date), '') || ' ' || COALESCE(desc, '') || ' ' || COALESCE(tag, '') || ' ' || COALESCE(details, '') || ' ' || COALESCE(printf('%.2f', CAST(-item_amount_cents as REAL) / 100), ''))) NOT GLOB ?"
-                        "*b[aáàâã]z*"
+                        ["*b[aáàâã]z*"]
                     ]
 
   it "handles all fields with values" $ do
@@ -45,46 +45,46 @@ spec_mkSearchQueryClauses = do
       , account = Just "account1"
       , desc = "dêsc -no-desc"
       , amount = "100"
-      , tag = Just $ SomeTags ["tag1"]
+      , tag = Just $ SomeTags ["tag1", "tag2"]
       , notes = "  nOTe  -not-NOTé  "
       , isExpense = Just True
       }
       `shouldQuery` [ mkClause @Text
                         "LOWER(desc) GLOB ?"
-                        "*d[eéèê]s[cç]*"
+                        ["*d[eéèê]s[cç]*"]
                     , mkClause @Text
                         "LOWER(desc) NOT GLOB ?"
-                        "*n[oóòôõ]-d[eéèê]s[cç]*"
+                        ["*n[oóòôõ]-d[eéèê]s[cç]*"]
                     , mkClause @Text
                         "LOWER(strftime('%d-%m-%Y', date)) GLOB ?"
-                        "*2022-01-01*"
+                        ["*2022-01-01*"]
                     , mkClause @Text
                         "id = ?"
-                        "\"abc\""
+                        ["\"abc\""]
                     , mkClause @Text
                         "account = ?"
-                        "account1"
+                        ["account1"]
                     , mkClause @Text
-                        "tag IN (?)"
-                        "tag1"
+                        "tag IN (?, ?)"
+                        ["tag1", "tag2"]
                     , mkClause @Text
                         "LOWER(details) GLOB ?"
-                        "*n[oóòôõ]t[eéèê]*"
+                        ["*n[oóòôõ]t[eéèê]*"]
                     , mkClause @Text
                         "LOWER(details) NOT GLOB ?"
-                        "*n[oóòôõ]t-n[oóòôõ]t[eéèê]*"
+                        ["*n[oóòôõ]t-n[oóòôõ]t[eéèê]*"]
                     , mkClause @Text
                         "LOWER(printf('%.2f', CAST(-item_amount_cents as REAL) / 100)) GLOB ?"
-                        "*100*"
+                        ["*100*"]
                     , mkClause @Text
                         "is_expense = ?"
-                        "1"
+                        ["1"]
                     , mkClause @Text
                         "LOWER((COALESCE(strftime('%d-%m-%Y', date), '') || ' ' || COALESCE(desc, '') || ' ' || COALESCE(tag, '') || ' ' || COALESCE(details, '') || ' ' || COALESCE(printf('%.2f', CAST(-item_amount_cents as REAL) / 100), ''))) GLOB ?"
-                        "*f[oóòôõ][oóòôõ]*"
+                        ["*f[oóòôõ][oóòôõ]*"]
                     , mkClause @Text
                         "LOWER((COALESCE(strftime('%d-%m-%Y', date), '') || ' ' || COALESCE(desc, '') || ' ' || COALESCE(tag, '') || ' ' || COALESCE(details, '') || ' ' || COALESCE(printf('%.2f', CAST(-item_amount_cents as REAL) / 100), ''))) NOT GLOB ?"
-                        "*b[aáàâã]r*"
+                        ["*b[aáàâã]r*"]
                     ]
 
   it "handles searching for txs with no tags" $ do
@@ -97,17 +97,17 @@ spec_mkSearchQueryClauses = do
     emptyParams{amount = "100"}
       `shouldQuery` [ mkClause @Text
                         "LOWER(printf('%.2f', CAST(-item_amount_cents as REAL) / 100)) GLOB ?"
-                        "*100*"
+                        ["*100*"]
                     ]
     emptyParams{amount = ">100"}
       `shouldQuery` [ mkClause @Double
                         "CAST(-item_amount_cents as REAL) / 100 >= ?"
-                        100
+                        [100]
                     ]
     emptyParams{amount = " < 100.3 "}
       `shouldQuery` [ mkClause @Double
                         "CAST(-item_amount_cents as REAL) / 100 < ?"
-                        100.3
+                        [100.3]
                     ]
 
   it "handles empty params" $ do

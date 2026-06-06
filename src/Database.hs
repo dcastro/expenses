@@ -302,8 +302,8 @@ data WhereClause = WhereClause
   }
   deriving stock (Show, Eq)
 
-mkClause :: forall a. (ToField a) => Text -> a -> WhereClause
-mkClause sql value = WhereClause sql [SQL.toField value]
+mkClause :: forall a. (ToField a) => Text -> [a] -> WhereClause
+mkClause sql values = WhereClause sql (SQL.toField <$> values)
 
 mkClauseWithoutVal :: Text -> WhereClause
 mkClauseWithoutVal sql = WhereClause sql []
@@ -351,11 +351,7 @@ mkSearchQueryClauses params =
       Nothing -> []
       Just NoTag -> [mkIsNull tagCol]
       Just (SomeTags []) -> []
-      Just (SomeTags tags) ->
-        [ WhereClause
-            [i|#{tagCol} IN (#{mkPlaceholders (length tags)})|]
-            (SQL.toField . (.unTagName.getNonEmptyText) <$> tags)
-        ]
+      Just (SomeTags tags) -> [mkIn tagCol (SQL.toField . (.unTagName.getNonEmptyText) <$> tags)]
     <> mkStringParams detailsCol params.notes
     <> maybeToList do
       params.amount <&> \case
@@ -394,19 +390,22 @@ mkSearchQueryClauses params =
   mkIsNull field = mkClauseWithoutVal [i|#{field} IS NULL|]
 
   mkIsEq :: Text -> Text -> WhereClause
-  mkIsEq field value = mkClause [i|#{field} = ?|] value
+  mkIsEq field value = mkClause [i|#{field} = ?|] [value]
 
   mkIsGTE :: Text -> IsGTE -> WhereClause
-  mkIsGTE field value = mkClause [i|#{field} >= ?|] value
+  mkIsGTE field value = mkClause [i|#{field} >= ?|] [value]
 
   mkIsLT :: Text -> IsLT -> WhereClause
-  mkIsLT field value = mkClause [i|#{field} < ?|] value
+  mkIsLT field value = mkClause [i|#{field} < ?|] [value]
 
   mkContains :: Text -> Contains -> WhereClause
-  mkContains field value = mkClause [i|LOWER(#{field}) GLOB ?|] (mkGlobPattern value.getContains.getNonEmptyText)
+  mkContains field value = mkClause [i|LOWER(#{field}) GLOB ?|] [mkGlobPattern value.getContains.getNonEmptyText]
 
   mkDoesNotContain :: Text -> DoesNotContain -> WhereClause
-  mkDoesNotContain field value = mkClause [i|LOWER(#{field}) NOT GLOB ?|] (mkGlobPattern value.getDoesNotContain.getNonEmptyText)
+  mkDoesNotContain field value = mkClause [i|LOWER(#{field}) NOT GLOB ?|] [mkGlobPattern value.getDoesNotContain.getNonEmptyText]
+
+  mkIn :: (ToField a) => Text -> [a] -> WhereClause
+  mkIn field values = mkClause [i|#{field} IN (#{mkPlaceholders (length values)})|] values
 
 -- >>> mkGlobPattern "ÁgUa"
 -- "*[a\225\224\226\227]g[u\250\249][a\225\224\226\227]*"
