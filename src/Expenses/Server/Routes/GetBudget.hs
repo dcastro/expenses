@@ -5,6 +5,7 @@ import CustomPrelude
 import Data.Aeson.TH (defaultOptions, deriveToJSON)
 import Data.HashMap.Strict qualified as HM
 import Data.List ((!!))
+import Data.List qualified as List
 import Data.Map.Strict qualified as Map
 import Data.Time (Day, addGregorianMonthsClip, fromGregorian, gregorianMonthLength, toGregorian, utctDay)
 import Database (SearchParams (..))
@@ -13,7 +14,15 @@ import Effectful
 import Effectful.Reader.Static (asks)
 import Effectful.Time qualified as Time
 import Expenses.Effects
-import Types (BECents (..), FECents (..))
+import Expenses.Server.Routes.GetTransactions (TransactionItem (..), convertRowToItem)
+import Types (BECents (..), FECents (..), TagName)
+
+data BudgetTagStats = BudgetTagStats
+  { name :: TagName
+  , tagTotalAmountCents :: FECents
+  , tagPercentage :: Int
+  }
+  deriving stock (Show, Eq)
 
 data BudgetDayInfo = BudgetDayInfo
   { date :: Day
@@ -28,11 +37,15 @@ data BudgetInfo = BudgetInfo
   , projectedLimitTodayCents :: FECents
   , overUnderTodayCents :: FECents
   , days :: [BudgetDayInfo]
+  , transactions :: [TransactionItem]
+  , totalSpentCents :: FECents
+  , tagStats :: [BudgetTagStats]
   }
   deriving stock (Show, Eq)
 
 $( mconcat
-     [ deriveToJSON defaultOptions ''BudgetDayInfo
+     [ deriveToJSON defaultOptions ''BudgetTagStats
+     , deriveToJSON defaultOptions ''BudgetDayInfo
      , deriveToJSON defaultOptions ''BudgetInfo
      ]
  )
@@ -68,11 +81,18 @@ getBudgetHandler = do
         , isExpense = Just True
         }
 
-  let spendingMap :: Map.Map Day Int =
+  let thisMonthRows =
         rows
           & toList
           & filter (\r -> r.date >= firstDay && r.date < nextMonthFirstDay)
+
+  let spendingMap :: Map.Map Day Int =
+        thisMonthRows
           & foldl' (\m r -> Map.insertWith (+) r.date r.itemAmountCents.getCents m) Map.empty
+
+  let txItems = thisMonthRows <&> (\row -> convertRowToItem row)
+  let totalSpentCents = sum (map (.itemAmountCents) txItems)
+  let tagStatsResult = mkBudgetTagStats totalSpentCents txItems
 
   let dayInfos = buildDayInfos year month todayDayNum totalDays limitCentsInt spendingMap
 
@@ -84,13 +104,36 @@ getBudgetHandler = do
       , projectedLimitTodayCents = todayItem.projectedLimitCents
       , overUnderTodayCents = fromMaybe (FECents 0) todayItem.overUnderCents
       , days = dayInfos
+      , transactions = txItems
+      , totalSpentCents = totalSpentCents
+      , tagStats = tagStatsResult
       }
+
+mkBudgetTagStats :: FECents -> [TransactionItem] -> [BudgetTagStats]
+mkBudgetTagStats total txs =
+  let tagMap = Map.fromListWith (+) do
+        tx <- txs
+        tag <- maybeToList tx.tag
+        pure (tag, tx.itemAmountCents)
+   in tagMap
+        & Map.toList
+        & map
+          ( \(tag, tagTotal) ->
+              BudgetTagStats
+                { name = tag
+                , tagTotalAmountCents = tagTotal
+                , tagPercentage = if total == 0 then 0 else (tagTotal.getCents * 100) `div` total.getCents
+                }
+          )
+        & List.sortOn (Down . (.tagTotalAmountCents))
 
 buildDayInfos :: Integer -> Int -> Int -> Int -> Int -> Map.Map Day Int -> [BudgetDayInfo]
 buildDayInfos year month todayDayNum totalDays limitCentsInt spendingMap =
   reverse finalAcc
  where
   (_, finalAcc) = foldl' step (0, []) [1 .. totalDays]
+
+  step :: (Int, [BudgetDayInfo]) -> Int -> (Int, [BudgetDayInfo])
   step (cumInt, acc) dayNum =
     let
       d = fromGregorian year month dayNum
