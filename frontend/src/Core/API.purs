@@ -122,6 +122,13 @@ triggerSync = do
     <#> statusCodeIs 204
   pure unit
 
+getBudget :: Aff BudgetInfo
+getBudget = do
+  baseUrl <- liftEffect HtmlUtils.apiBaseUrl
+  get (baseUrl <> "budget")
+    <#> statusCodeIs 200
+    <#> decodeJson
+
 ----------------------------------------------------------------------------
 -- Utils
 ----------------------------------------------------------------------------

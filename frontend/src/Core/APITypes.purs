@@ -295,3 +295,30 @@ type NewShortTransactionItem =
   , tag :: TagName
   , isExpense :: Boolean
   }
+
+----------------------------------------------------------------------------
+-- GET /budget
+----------------------------------------------------------------------------
+
+type BudgetTagStats =
+  { name :: TagName
+  , tagTotalAmountCents :: Int
+  , tagPercentage :: Int
+  }
+
+type BudgetDayInfo =
+  { date :: String
+  , projectedLimitCents :: Int
+  , actualSpentCents :: Maybe Int
+  , overUnderCents :: Maybe Int
+  }
+
+type BudgetInfo =
+  { monthlyLimitCents :: Int
+  , projectedLimitTodayCents :: Int
+  , overUnderTodayCents :: Int
+  , days :: Array BudgetDayInfo
+  , transactions :: Array TransactionItem
+  , totalSpentCents :: Int
+  , tagStats :: Array BudgetTagStats
+  }
