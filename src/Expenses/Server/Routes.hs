@@ -19,10 +19,9 @@ import Expenses.Server.Options (ServerOptions (..))
 import Expenses.Server.Options qualified as Opt
 import Expenses.Server.Routes.AllAccounts qualified as AllAccounts
 import Expenses.Server.Routes.AllTags qualified as AllTags
-import Expenses.Server.Routes.GetBudget qualified as GetBudget
-import Expenses.Server.Routes.SetBudgetLimit qualified as SetBudgetLimit
 import Expenses.Server.Routes.GetAvailableDateRange (DateRange)
 import Expenses.Server.Routes.GetAvailableDateRange qualified as GetAvailableDateRange
+import Expenses.Server.Routes.GetBudget qualified as GetBudget
 import Expenses.Server.Routes.GetSyncStatus qualified as GetSyncStatus
 import Expenses.Server.Routes.GetTransactionItems qualified as GetTransactionItems
 import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
@@ -31,6 +30,7 @@ import Expenses.Server.Routes.ModifyTransaction qualified as ModifyTransaction
 import Expenses.Server.Routes.RenewRequisition qualified as RenewRequisition
 import Expenses.Server.Routes.RunCron qualified as RunCron
 import Expenses.Server.Routes.Search qualified as Search
+import Expenses.Server.Routes.SetBudgetLimit qualified as SetBudgetLimit
 import Expenses.Server.Routes.SplitTransactionItems qualified as SplitTransactionItems
 import Expenses.Server.Utils (throwJsonError')
 import Log
@@ -129,7 +129,7 @@ data AdminAPI mode = AdminAPI
         :- "budget"
           :> "limit"
           :> ReqBody '[JSON] SetBudgetLimit.SetBudgetLimitBody
-          :> Put '[JSON] NoContent
+          :> PutNoContent
   }
   deriving stock (Generic)
 
