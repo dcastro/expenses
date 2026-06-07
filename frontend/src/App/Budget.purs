@@ -93,6 +93,8 @@ render state =
             [ HH.text "Budget" ]
         , HH.div
             [ HP.id "budget-chart-container"
+            -- Make the area a little bit taller, so that the "ZoomCharts Unlicensed"
+            -- red box doesn't appear above the chart's labels
             , HP.style "height: 400px"
             ]
             []
@@ -118,9 +120,17 @@ renderSummary :: forall m. State -> API.BudgetInfo -> H.ComponentHTML Action Slo
 renderSummary state info =
   HH.div [ classes' "box mt-4" ]
     [ HH.div [ classes' "level" ]
-        [ renderLimitStat state info
-        , renderStat "Projected Limit Today" (Utils.centsToEuros info.projectedLimitTodayCents) Nothing
-        , renderStat "Over / Under Today"    (overUnderStr info.overUnderTodayCents)            (Just $ overUnderClass info.overUnderTodayCents)
+        [ renderLimitStat
+            state
+            info
+        , renderStat
+            "Expected spending to date"
+            (Utils.centsToEuros info.projectedLimitTodayCents)
+            Nothing
+        , renderStat
+            "Over / Under expected spending"
+            (overUnderStr info.overUnderTodayCents)
+            (Just $ overUnderClass info.overUnderTodayCents)
         ]
     ]
 
@@ -155,17 +165,17 @@ renderLimitEditor state =
             [ HP.type_ InputText
             , HP.value state.limitInput
             , HP.style "width: 8rem"
-            , classes' "input is-small"
+            , classes' "input"
             , HE.onValueChange LimitInputChanged
             ]
         ]
     , HH.div [ classes' "control" ]
-        [ HH.span [ classes' "button is-static is-small" ]
+        [ HH.span [ classes' "button is-static" ]
             [ HH.text "€" ]
         ]
     , HH.div [ classes' "control" ]
         [ HH.button
-            [ classes' $ "button is-success is-small" # HtmlUtils.addClassIf state.savingLimit "is-loading"
+            [ classes' $ "button is-success" # HtmlUtils.addClassIf state.savingLimit "is-loading"
             , HP.disabled (isNothing (parseEuros state.limitInput))
             , HE.onClick \_ -> SaveLimit
             ]
@@ -173,7 +183,7 @@ renderLimitEditor state =
         ]
     , HH.div [ classes' "control" ]
         [ HH.button
-            [ classes' "button is-light is-small"
+            [ classes' "button is-light"
             , HE.onClick \_ -> CancelEditLimit
             ]
             [ HH.text "✗" ]
@@ -192,15 +202,15 @@ renderStat label value extraClass =
 
 overUnderStr :: Int -> String
 overUnderStr cents
-  | cents < 0  = Utils.centsToEuros cents
+  | cents < 0 = Utils.centsToEuros cents
   | cents == 0 = "0.00€"
-  | otherwise  = "+" <> Utils.centsToEuros cents
+  | otherwise = "+" <> Utils.centsToEuros cents
 
 overUnderClass :: Int -> String
 overUnderClass cents
-  | cents < 0  = "has-text-success"
-  | cents > 0  = "has-text-danger"
-  | otherwise  = ""
+  | cents < 0 = "has-text-success"
+  | cents > 0 = "has-text-danger"
+  | otherwise = ""
 
 -- | Parse a euro amount string (e.g. "500", "500.5", "500.50") to cents.
 parseEuros :: String -> Maybe Int
@@ -241,9 +251,10 @@ handleAction = case _ of
 
   StartEditLimit -> do
     state <- H.get
-    let currentValue = case state.budgetInfo of
-          Just info -> Utils.centsToEurosRaw info.monthlyLimitCents
-          Nothing -> ""
+    let
+      currentValue = case state.budgetInfo of
+        Just info -> Utils.centsToEurosRaw info.monthlyLimitCents
+        Nothing -> ""
     H.modify_ _ { editingLimit = true, limitInput = currentValue }
 
   LimitInputChanged str ->
