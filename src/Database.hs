@@ -437,24 +437,6 @@ replaceEquivChars =
   groups = ["aáàâã", "eéèê", "iíì", "oóòôõ", "uúù", "cç"]
 
 ----------------------------------------------------------------------------
--- App settings
-----------------------------------------------------------------------------
-
-getBudgetLimit :: (SQLite :> es) => Connection -> Eff es BECents
-getBudgetLimit conn = do
-  rows <- SQL.query_ conn [sql| SELECT monthly_budget_limit_cents FROM app_settings WHERE id = 1 |]
-  case rows of
-    [Only limit] -> pure limit
-    _ -> error "getBudgetLimit: app_settings must have exactly 1 row"
-
-setBudgetLimit :: (SQLite :> es) => Connection -> BECents -> Eff es ()
-setBudgetLimit conn limitCents =
-  SQL.execute
-    conn
-    [sql| UPDATE app_settings SET monthly_budget_limit_cents = ? WHERE id = 1 |]
-    (Only limitCents)
-
-----------------------------------------------------------------------------
 -- Tags
 ----------------------------------------------------------------------------
 

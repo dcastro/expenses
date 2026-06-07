@@ -3,11 +3,9 @@ module Expenses.Server.Routes.GetBudget where
 import Config qualified
 import CustomPrelude
 import Data.Aeson.TH (defaultOptions, deriveToJSON)
-import Data.HashMap.Strict qualified as HM
-import Data.List ((!!))
 import Data.List qualified as List
 import Data.Map.Strict qualified as Map
-import Data.Time (Day, addGregorianMonthsClip, fromGregorian, gregorianMonthLength, toGregorian, utctDay)
+import Data.Time (addGregorianMonthsClip, fromGregorian, gregorianMonthLength, toGregorian, utctDay)
 import Database (SearchParams (..))
 import Database qualified as Db
 import Effectful
@@ -24,19 +22,10 @@ data BudgetTagStats = BudgetTagStats
   }
   deriving stock (Show, Eq)
 
-data BudgetDayInfo = BudgetDayInfo
-  { date :: Day
-  , projectedLimitCents :: FECents
-  , actualSpentCents :: Maybe FECents
-  , overUnderCents :: Maybe FECents
-  }
-  deriving stock (Show, Eq)
-
 data BudgetInfo = BudgetInfo
   { monthlyLimitCents :: FECents
   , projectedLimitTodayCents :: FECents
   , overUnderTodayCents :: FECents
-  , days :: [BudgetDayInfo]
   , transactions :: [TransactionItem]
   , totalSpentCents :: FECents
   , tagStats :: [BudgetTagStats]
@@ -45,7 +34,6 @@ data BudgetInfo = BudgetInfo
 
 $( mconcat
      [ deriveToJSON defaultOptions ''BudgetTagStats
-     , deriveToJSON defaultOptions ''BudgetDayInfo
      , deriveToJSON defaultOptions ''BudgetInfo
      ]
  )
@@ -61,10 +49,10 @@ getBudgetHandler = do
   let nextMonthFirstDay = addGregorianMonthsClip 1 firstDay
 
   config <- asks @Env (.config)
-  let budgetTags = HM.lookup config.budgetTagGroup config.allTagGroups & fromMaybe []
-
-  limitBE <- useConnection \conn -> Db.getBudgetLimit conn
-  let limitCentsInt = negate limitBE.getCents
+  let budgetGroups = config.budget.tagGroups
+  let budgetTags = concatMap (.tags) budgetGroups
+  let totalLimitBE = BECents $ sum $ map (.limitCents.getCents) budgetGroups
+  let limitCentsInt = negate totalLimitBE.getCents
 
   rows <- useConnection \conn ->
     Db.search
@@ -86,26 +74,21 @@ getBudgetHandler = do
           & toList
           & filter (\r -> r.date >= firstDay && r.date < nextMonthFirstDay)
 
-  let spendingMap :: Map.Map Day Int =
-        thisMonthRows
-          & foldl' (\m r -> Map.insertWith (+) r.date r.itemAmountCents.getCents m) Map.empty
-
   let txItems = thisMonthRows <&> (\row -> convertRowToItem row)
   let totalSpentCents = sum (map (.itemAmountCents) txItems)
   let tagStatsResult = mkBudgetTagStats totalSpentCents txItems
 
-  let dayInfos = buildDayInfos year month todayDayNum totalDays limitCentsInt spendingMap
-
-  let todayItem = dayInfos !! (todayDayNum - 1)
+  let projectedInt = round ((fromIntegral limitCentsInt :: Double) * fromIntegral todayDayNum / fromIntegral totalDays)
+  let projectedLimitTodayCents = FECents projectedInt
+  let overUnderTodayCents = FECents (totalSpentCents.getCents - projectedInt)
 
   pure
     BudgetInfo
       { monthlyLimitCents = FECents limitCentsInt
-      , projectedLimitTodayCents = todayItem.projectedLimitCents
-      , overUnderTodayCents = fromMaybe (FECents 0) todayItem.overUnderCents
-      , days = dayInfos
+      , projectedLimitTodayCents
+      , overUnderTodayCents
       , transactions = txItems
-      , totalSpentCents = totalSpentCents
+      , totalSpentCents
       , tagStats = tagStatsResult
       }
 
@@ -126,35 +109,3 @@ mkBudgetTagStats total txs =
                 }
           )
         & List.sortOn (Down . (.tagTotalAmountCents))
-
-buildDayInfos :: Integer -> Int -> Int -> Int -> Int -> Map.Map Day Int -> [BudgetDayInfo]
-buildDayInfos year month todayDayNum totalDays limitCentsInt spendingMap =
-  reverse finalAcc
- where
-  (_, finalAcc) = foldl' step (0, []) [1 .. totalDays]
-
-  step :: (Int, [BudgetDayInfo]) -> Int -> (Int, [BudgetDayInfo])
-  step (cumInt, acc) dayNum =
-    let
-      d = fromGregorian year month dayNum
-      projected = FECents $ round ((fromIntegral limitCentsInt :: Double) * fromIntegral dayNum / fromIntegral totalDays)
-      (newCumInt, actualSpent, overUnderFE) =
-        if dayNum <= todayDayNum
-          then
-            let
-              daySpent = Map.findWithDefault 0 d spendingMap
-              newCum = cumInt + daySpent
-              actual = FECents (negate newCum)
-             in
-              (newCum, Just actual, Just (FECents (negate newCum - projected.getCents)))
-          else (cumInt, Nothing, Nothing)
-     in
-      ( newCumInt
-      , BudgetDayInfo
-          { date = d
-          , projectedLimitCents = projected
-          , actualSpentCents = actualSpent
-          , overUnderCents = overUnderFE
-          }
-          : acc
-      )

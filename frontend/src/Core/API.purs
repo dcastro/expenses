@@ -129,14 +129,6 @@ getBudget = do
     <#> statusCodeIs 200
     <#> decodeJson
 
-setBudgetLimit :: Int -> Aff Unit
-setBudgetLimit limitCents = do
-  baseUrl <- liftEffect HtmlUtils.apiBaseUrl
-  let body = RequestBody.json $ J.encodeJson { limitCents }
-  _ <- put (Just body) (baseUrl <> "budget/limit")
-    <#> statusCodeIs 204
-  pure unit
-
 ----------------------------------------------------------------------------
 -- Utils
 ----------------------------------------------------------------------------

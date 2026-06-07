@@ -51,7 +51,20 @@ ungroupedTags:
 
 tagPatterns: []
 
-# Transactions with these tags are marked as "not an expense".
-budgetTagGroup: Food
+budget:
+  tagGroups:
+    - name: Groceries
+      tags: [groceries]
+      limit: 650
+    - name: Go out
+      tags: [go out]
+      limit: 100
+    - name: Other
+      limit: 100
+      tags:
+        - casa
+        - eletronica
+        - jogos
 
+# Transactions with these tags are marked as "not an expense".
 notExpenses: []

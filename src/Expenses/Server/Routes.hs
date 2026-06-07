@@ -30,7 +30,6 @@ import Expenses.Server.Routes.ModifyTransaction qualified as ModifyTransaction
 import Expenses.Server.Routes.RenewRequisition qualified as RenewRequisition
 import Expenses.Server.Routes.RunCron qualified as RunCron
 import Expenses.Server.Routes.Search qualified as Search
-import Expenses.Server.Routes.SetBudgetLimit qualified as SetBudgetLimit
 import Expenses.Server.Routes.SplitTransactionItems qualified as SplitTransactionItems
 import Expenses.Server.Utils (throwJsonError')
 import Log
@@ -124,12 +123,6 @@ data AdminAPI mode = AdminAPI
           :> "renew-requisition"
           :> ReqBody '[JSON] RenewRequisition.RenewRequisitionBody
           :> Post '[JSON] RenewRequisition.RenewRequisitionResponse
-  , setBudgetLimit ::
-      mode
-        :- "budget"
-          :> "limit"
-          :> ReqBody '[JSON] SetBudgetLimit.SetBudgetLimitBody
-          :> PutNoContent
   }
   deriving stock (Generic)
 
@@ -289,7 +282,6 @@ mkServer resourcesDir =
           , splitTransactionItems = SplitTransactionItems.splitTransactionItemsHandler admin
           , runCronSync = RunCron.runCronHandler
           , renewRequisition = RenewRequisition.renewRequisitionHandler admin
-          , setBudgetLimit = SetBudgetLimit.setBudgetLimitHandler admin
           }
     , health = pure "OK"
     , static = getStaticHandler resourcesDir

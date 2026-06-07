@@ -1,6 +1,6 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.36.0.
+-- This file has been generated from package.yaml by hpack version 0.39.1.
 --
 -- see: https://github.com/sol/hpack
 
@@ -45,7 +45,6 @@ library
       Expenses.Server.Routes.RenewRequisition
       Expenses.Server.Routes.RunCron
       Expenses.Server.Routes.Search
-      Expenses.Server.Routes.SetBudgetLimit
       Expenses.Server.Routes.SplitTransactionItems
       Expenses.Server.Utils
       Nordigen
@@ -177,7 +176,6 @@ executable db-migrations
       M08_MoveIsExpenseColumn
       M09_AddSyncAccountStatus
       M10_RenameOrdenadoToIncome
-      M11_AddBudgetConfig
       Paths_expenses
   hs-source-dirs:
       db-migrations

@@ -1,7 +1,8 @@
 module Config where
 
 import CustomPrelude
-import Data.Aeson (FromJSON (..))
+import Data.Aeson (FromJSON (..), withObject, (.:))
+import Data.Aeson.Types (Parser)
 import Data.Aeson.TH (defaultOptions, deriveFromJSON)
 import Data.HashMap.Strict qualified as HM
 import Data.Set qualified as Set
@@ -13,6 +14,27 @@ import Types
 cronUser :: Admin
 cronUser = Admin $ Username $ NET.unsafeFromText "cron"
 
+data BudgetTagGroup = BudgetTagGroup
+  { name :: Text
+  , tags :: [TagName]
+  , limitCents :: BECents
+  }
+  deriving stock (Eq, Show)
+
+instance FromJSON BudgetTagGroup where
+  parseJSON = withObject "BudgetTagGroup" \o -> do
+    name <- o .: "name"
+    tags <- o .: "tags"
+    limitEur <- o .: "limit" :: Parser Double
+    let limitCents = BECents $ negate $ round (limitEur * 100)
+    pure BudgetTagGroup{name, tags, limitCents}
+
+newtype BudgetConfig = BudgetConfig
+  { tagGroups :: [BudgetTagGroup]
+  }
+  deriving stock (Eq, Show, Generic)
+  deriving anyclass (FromJSON)
+
 data AppConfig = AppConfig
   { institutions :: [InstitutionInfo]
   , admins :: [Text]
@@ -23,7 +45,7 @@ data AppConfig = AppConfig
   , cronSchedule :: Text
   , tagPatterns :: [TagPatternEntry]
   , notExpenses :: [TagName]
-  , budgetTagGroup :: TagGroupName
+  , budget :: BudgetConfig
   }
   deriving stock (Eq, Show)
 

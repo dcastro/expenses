@@ -298,9 +298,31 @@ tagPatterns:
       - ['23021632430'] # seg social
       - ['PAG.IGCP']
 
-# Transactions with these tags are marked as "not an expense".
-budgetTagGroup: Budgeted
+budget:
+  tagGroups:
+    - name: Groceries
+      tags: [groceries, takeaway]
+      limit: 650
+    - name: Go out
+      tags: [go out]
+      limit: 100
+    - name: Other
+      limit: 500
+      tags:
+        - baby
+        - atividades
+        - toys
+        - education
+        - car repairs
+        - gifts
+        - roupa
+        - casa
+        - festas
+        - eletronica
+        - jogos
+        - prota
 
+# Transactions with these tags are marked as "not an expense".
 notExpenses:
   - transfers
   - investments
