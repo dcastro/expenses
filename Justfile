@@ -3,7 +3,7 @@ default:
     just --list
 
 run *ARGS:
-    stack run expenses-manager-server -- --user test --verbose {{ ARGS }}
+    watchexec --restart --clear --exts hs,yaml -- stack run expenses-manager-server -- --user test --verbose {{ ARGS }}
 
 run-demo *ARGS:
     just run --demo-mode {{ ARGS }}
@@ -85,6 +85,15 @@ commit-migration:
     scp ./migrations/expenses.db                  dc@{{ remote }}:/home/dc/.local/share/expenses-manager/expenses.db
     scp ./resources/test-app-dir/expenses.db      dc@{{ remote }}:{{ demo-app-dir }}/expenses.db
     ssh {{ remote }} -- "sudo systemctl start expenses-manager expenses-manager-demo"
+
+[confirm]
+run-migration2 idx:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+
+    stack build expenses:exe:db-migrations
+    BIN=$(stack path --local-install-root)/bin/db-migrations
+    "$BIN" ./resources/test-app-dir/expenses.db {{ idx }}
 
 # Setup a cloudflare quick tunnel to test the local server
 quick-tunnel:

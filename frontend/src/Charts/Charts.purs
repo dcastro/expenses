@@ -2,10 +2,10 @@ module Charts.Charts where
 
 import Prelude
 
-import Core.APITypes (TagGroupName(..), TagName(..))
+import Core.APITypes (TagGroupName(..), TagName)
 import Core.APITypes as API
 import Data.Array as Arr
-import Data.Nullable (Nullable, toMaybe, toNullable)
+import Data.Nullable (Nullable)
 import Effect (Effect)
 import Foreign (Foreign)
 import Untagged.Union (type (|+|), asOneOf)
@@ -17,10 +17,16 @@ import Utils as Utils
   * https://book.purescript.org/chapter10.html
 -}
 foreign import _makeChart
-  :: String
+  :: forall
+       -- The type of the ID for the slices of first level of the chart (e.g. tag group name).
+       @first
+       -- The type of the ID for the slices of second level of the chart,
+       -- i.e. when the user drills down on the pie chart (e.g. tag name).
+       @second
+   . String
   -> ChartData
-  -> (Nullable TagGroupName -> Effect Unit)
-  -> (Nullable TagGroupName -> Nullable TagName -> Effect Unit)
+  -> (Nullable first -> Effect Unit)
+  -> (Nullable first -> Nullable second -> Effect Unit)
   -> Effect Foreign
 
 foreign import _updateChart :: Foreign -> ChartData -> Effect Unit
@@ -69,11 +75,13 @@ makeChart
   :: String
   -> API.GetTransactions
   -> Int
+  -- | This callback is called when the user drills-down into a tag group, or when they go back up.
   -> (Nullable TagGroupName -> Effect Unit)
+  -- | This callback is called when the user selects a slice when no subvalues (it doesn't drill down or up).
   -> (Nullable TagGroupName -> Nullable TagName -> Effect Unit)
   -> Effect Foreign
 makeChart containerId txs monthsSpan onChartUpdate onSelectionChange = do
-  _makeChart containerId (makeChartData txs monthsSpan) onChartUpdate onSelectionChange
+  _makeChart @TagGroupName @TagName containerId (makeChartData txs monthsSpan) onChartUpdate onSelectionChange
 
 updateChart :: Foreign -> API.GetTransactions -> Int -> Effect Unit
 updateChart chart txs monthsSpan = do
@@ -89,38 +97,6 @@ drilldown chart group = do
 
 selectSlice :: Foreign -> String -> Effect Unit
 selectSlice = _selectSlice
-
--- | Flat pie chart for budget tags (no drill-down). Slices are individual tags;
--- | clicking a slice calls the callback with Just the tag name, deselecting calls it with Nothing.
-makeBudgetChart
-  :: String
-  -> Array API.BudgetTagStats
-  -> (Nullable TagName -> Effect Unit)
-  -> Effect Foreign
-makeBudgetChart containerId tagStats onSelectionChange =
-  _makeChart
-    containerId
-    (makeBudgetChartData tagStats)
-    (\_ -> pure unit)
-    (\maybeGroupId _ -> onSelectionChange (toNullable (map groupToTag (toMaybe maybeGroupId))))
-  where
-  groupToTag :: TagGroupName -> TagName
-  groupToTag (TagGroupName s) = TagName s
-
-updateBudgetChart :: Foreign -> Array API.BudgetTagStats -> Effect Unit
-updateBudgetChart chart tagStats = _updateChart chart (makeBudgetChartData tagStats)
-
-makeBudgetChartData :: Array API.BudgetTagStats -> ChartData
-makeBudgetChartData tagStats =
-  { subvalues: tagStats <#> \stat ->
-      asOneOf
-        { name: displayLabel (API.getTagName stat.name) stat.tagTotalAmountCents
-        , id: TagGroupName (API.getTagName stat.name)
-        , value: stat.tagTotalAmountCents
-        }
-  }
-  where
-  displayLabel name value = name <> " " <> Utils.centsToEuros value <> " -"
 
 makeChartData :: API.GetTransactions -> Int -> ChartData
 makeChartData txs monthsSpan =
@@ -146,10 +122,38 @@ makeChartData txs monthsSpan =
       )
       txs.groupsStats
   }
-  where
-  displayLabel :: String -> Int -> String
-  displayLabel name value =
-    let
-      valueStr = Utils.centsToEuros value
-    in
-      name <> " " <> valueStr <> " -"
+
+-- | Flat pie chart for budget tags (no drill-down). Slices are individual tags;
+-- clicking a slice calls the callback with Just the tag name, deselecting calls it with Nothing.
+makeBudgetChart
+  :: String
+  -> Array API.BudgetTagStats
+  -> (Nullable TagName -> Effect Unit)
+  -> Effect Foreign
+makeBudgetChart containerId tagStats onSelectionChange =
+  _makeChart @TagName @Unit
+    containerId
+    (makeBudgetChartData tagStats)
+    (\_ -> pure unit)
+    (\nullableTagName _ -> onSelectionChange nullableTagName)
+
+updateBudgetChart :: Foreign -> Array API.BudgetTagStats -> Effect Unit
+updateBudgetChart chart tagStats = _updateChart chart (makeBudgetChartData tagStats)
+
+makeBudgetChartData :: Array API.BudgetTagStats -> ChartData
+makeBudgetChartData tagStats =
+  { subvalues: tagStats <#> \stat ->
+      asOneOf
+        { name: displayLabel (API.getTagName stat.name) stat.tagTotalAmountCents
+        , id: TagGroupName (API.getTagName stat.name)
+        , value: stat.tagTotalAmountCents
+        }
+  }
+
+-- | Display a tag or tag group.
+-- `displayLabel "groceries" 5000` will return "groceries 50.00€ -".
+-- The zoomcharts package will fill the rest of the label with the percentage,
+-- e.g. "groceries 50.00€ - 25%".
+displayLabel :: String -> Int -> String
+displayLabel name value =
+  name <> " " <> Utils.centsToEuros value <> " -"
