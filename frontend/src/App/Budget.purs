@@ -4,17 +4,23 @@ import Prelude
 
 import App.TransactionsTable as TransactionsTable
 import Charts.Charts as Charts
+import Control.Alternative (guard)
 import Core.API as API
 import Core.APITypes (TagName)
 import Core.APITypes as API
 import Data.Array as Arr
 import Data.Foldable (foldMap)
-import Data.Maybe (Maybe(..))
+import Data.Int as Int
+import Data.Maybe (Maybe(..), isNothing)
 import Data.Nullable as Null
+import Data.String (Pattern(..), take) as S
+import Data.String.Common (split, trim) as SCom
 import Effect.Aff.Class (class MonadAff)
 import Foreign (Foreign)
 import Halogen as H
 import Halogen.HTML as HH
+import Halogen.HTML.Events as HE
+import Halogen.HTML.Properties (InputType(..))
 import Halogen.HTML.Properties as HP
 import Halogen.Subscription as HS
 import HtmlUtils (classes')
@@ -44,12 +50,19 @@ type State =
   , loading :: Boolean
   , chart :: Maybe Foreign
   , selectedTag :: Maybe TagName
+  , editingLimit :: Boolean
+  , limitInput :: String
+  , savingLimit :: Boolean
   }
 
 data Action
   = Initialize
   | TagSelected (Maybe TagName)
   | HandleTransactionsUpdated TransactionsTable.Output
+  | StartEditLimit
+  | LimitInputChanged String
+  | SaveLimit
+  | CancelEditLimit
 
 component :: forall q m. MonadAff m => H.Component q Input Output m
 component =
@@ -61,6 +74,9 @@ component =
         , loading: false
         , chart: Nothing
         , selectedTag: Nothing
+        , editingLimit: false
+        , limitInput: ""
+        , savingLimit: false
         }
     , render
     , eval: H.mkEval H.defaultEval
@@ -83,7 +99,7 @@ render state =
         , if state.loading then
             HH.p [ classes' "has-text-grey has-text-centered mt-4" ] [ HH.text "Loading..." ]
           else
-            HtmlUtils.displayWhenJust state.budgetInfo renderSummary
+            HtmlUtils.displayWhenJust state.budgetInfo (renderSummary state)
         ]
     , HH.section [ classes' "section is-fullheight" ]
         [ HH.slot
@@ -98,13 +114,69 @@ render state =
         ]
     ]
 
-renderSummary :: forall w i. API.BudgetInfo -> HH.HTML w i
-renderSummary info =
+renderSummary :: forall m. State -> API.BudgetInfo -> H.ComponentHTML Action Slots m
+renderSummary state info =
   HH.div [ classes' "box mt-4" ]
     [ HH.div [ classes' "level" ]
-        [ renderStat "Monthly Limit"         (Utils.centsToEuros info.monthlyLimitCents)        Nothing
+        [ renderLimitStat state info
         , renderStat "Projected Limit Today" (Utils.centsToEuros info.projectedLimitTodayCents) Nothing
         , renderStat "Over / Under Today"    (overUnderStr info.overUnderTodayCents)            (Just $ overUnderClass info.overUnderTodayCents)
+        ]
+    ]
+
+renderLimitStat :: forall m. State -> API.BudgetInfo -> H.ComponentHTML Action Slots m
+renderLimitStat state info =
+  HH.div [ classes' "level-item has-text-centered" ]
+    [ HH.div []
+        [ HH.p [ classes' "heading" ] [ HH.text "Monthly Limit" ]
+        , if state.editingLimit then
+            renderLimitEditor state
+          else
+            HH.p [ classes' "title is-4" ]
+              [ HH.text (Utils.centsToEuros info.monthlyLimitCents)
+              , HtmlUtils.displayIf state.isAdmin $
+                  HH.button
+                    [ classes' "button is-ghost is-small ml-2"
+                    , HP.title "Edit limit"
+                    , HE.onClick \_ -> StartEditLimit
+                    ]
+                    [ HH.span [ classes' "icon is-small" ]
+                        [ HH.i [ classes' "fas fa-pencil-alt" ] [] ]
+                    ]
+              ]
+        ]
+    ]
+
+renderLimitEditor :: forall m. State -> H.ComponentHTML Action Slots m
+renderLimitEditor state =
+  HH.div [ classes' "field has-addons mt-2" ]
+    [ HH.div [ classes' "control" ]
+        [ HtmlUtils.input'
+            [ HP.type_ InputText
+            , HP.value state.limitInput
+            , HP.style "width: 8rem"
+            , classes' "input is-small"
+            , HE.onValueChange LimitInputChanged
+            ]
+        ]
+    , HH.div [ classes' "control" ]
+        [ HH.span [ classes' "button is-static is-small" ]
+            [ HH.text "€" ]
+        ]
+    , HH.div [ classes' "control" ]
+        [ HH.button
+            [ classes' $ "button is-success is-small" # HtmlUtils.addClassIf state.savingLimit "is-loading"
+            , HP.disabled (isNothing (parseEuros state.limitInput))
+            , HE.onClick \_ -> SaveLimit
+            ]
+            [ HH.text "✓" ]
+        ]
+    , HH.div [ classes' "control" ]
+        [ HH.button
+            [ classes' "button is-light is-small"
+            , HE.onClick \_ -> CancelEditLimit
+            ]
+            [ HH.text "✗" ]
         ]
     ]
 
@@ -130,6 +202,22 @@ overUnderClass cents
   | cents > 0  = "has-text-danger"
   | otherwise  = ""
 
+-- | Parse a euro amount string (e.g. "500", "500.5", "500.50") to cents.
+parseEuros :: String -> Maybe Int
+parseEuros str = do
+  case SCom.split (S.Pattern ".") (SCom.trim str) of
+    [ eurosStr ] -> do
+      euros <- Int.fromString eurosStr
+      guard (euros > 0)
+      pure (euros * 100)
+    [ eurosStr, centsStr ] -> do
+      euros <- Int.fromString eurosStr
+      -- Pad cents to 2 digits (e.g. "5" → "50"), truncate if longer (e.g. "500" → "50")
+      cents <- Int.fromString (S.take 2 (centsStr <> "0"))
+      guard (euros > 0 || cents > 0)
+      pure (euros * 100 + cents)
+    _ -> Nothing
+
 filteredTransactions :: State -> Array API.TransactionItem
 filteredTransactions state =
   case state.selectedTag, state.budgetInfo of
@@ -150,6 +238,32 @@ handleAction = case _ of
 
   TagSelected maybeTag ->
     H.modify_ _ { selectedTag = maybeTag }
+
+  StartEditLimit -> do
+    state <- H.get
+    let currentValue = case state.budgetInfo of
+          Just info -> Utils.centsToEurosRaw info.monthlyLimitCents
+          Nothing -> ""
+    H.modify_ _ { editingLimit = true, limitInput = currentValue }
+
+  LimitInputChanged str ->
+    H.modify_ _ { limitInput = str }
+
+  CancelEditLimit ->
+    H.modify_ _ { editingLimit = false }
+
+  SaveLimit -> do
+    state <- H.get
+    case parseEuros state.limitInput of
+      Nothing -> pure unit
+      Just limitCents -> do
+        H.modify_ _ { savingLimit = true }
+        H.liftAff $ API.setBudgetLimit limitCents
+        budgetInfo <- H.liftAff API.getBudget
+        case state.chart of
+          Just chart -> H.liftEffect $ Charts.updateBudgetChart chart budgetInfo.tagStats
+          Nothing -> pure unit
+        H.modify_ _ { budgetInfo = Just budgetInfo, editingLimit = false, savingLimit = false }
 
   HandleTransactionsUpdated TransactionsTable.TransactionsUpdated -> do
     budgetInfo <- H.liftAff API.getBudget
