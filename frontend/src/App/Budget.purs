@@ -90,6 +90,10 @@ render state =
     [ HH.section [ classes' "section" ]
         [ HH.h4 [ classes' "title is-4 has-text-centered" ]
             [ HH.text "Budget" ]
+        , if state.loading then
+            HH.p [ classes' "has-text-grey has-text-centered mt-4" ] [ HH.text "Loading..." ]
+          else
+            HtmlUtils.displayWhenJust state.budgetInfo (renderSummary state)
         , HH.div
             [ HP.id "budget-chart-container"
             -- Make the area a little bit taller, so that the "ZoomCharts Unlicensed"
@@ -97,10 +101,6 @@ render state =
             , HP.style "height: 400px"
             ]
             []
-        , if state.loading then
-            HH.p [ classes' "has-text-grey has-text-centered mt-4" ] [ HH.text "Loading..." ]
-          else
-            HtmlUtils.displayWhenJust state.budgetInfo (renderSummary state)
         ]
     , HH.section [ classes' "section is-fullheight" ]
         [ HH.slot
@@ -125,6 +125,10 @@ renderSummary state info =
         , renderStat
             "Expected spending to date"
             (Utils.centsToEuros info.projectedLimitTodayCents)
+            Nothing
+        , renderStat
+            "Actual spending to date"
+            (Utils.centsToEuros info.totalSpentCents)
             Nothing
         , renderStat
             "Over / Under expected spending"
@@ -217,9 +221,8 @@ renderStat label value extraClass =
 
 overUnderStr :: Int -> String
 overUnderStr cents
-  | cents < 0 = Utils.centsToEuros cents
-  | cents == 0 = "0.00€"
-  | otherwise = "+" <> Utils.centsToEuros cents
+  | cents > 0 = "+" <> Utils.centsToEuros cents
+  | otherwise = Utils.centsToEuros cents
 
 overUnderClass :: Int -> String
 overUnderClass cents
