@@ -27,6 +27,7 @@ import HtmlUtils (classes')
 import HtmlUtils as HtmlUtils
 import Type.Proxy (Proxy(..))
 import Utils as Utils
+import Web.Event.Event as E
 
 type Slot id = forall query. H.Slot query Void id
 
@@ -61,7 +62,7 @@ data Action
   | HandleTransactionsUpdated TransactionsTable.Output
   | StartEditLimit
   | LimitInputChanged String
-  | SaveLimit
+  | SaveLimit E.Event
   | CancelEditLimit
 
 component :: forall q m. MonadAff m => H.Component q Input Output m
@@ -159,34 +160,38 @@ renderLimitStat state info =
 
 renderLimitEditor :: forall m. State -> H.ComponentHTML Action Slots m
 renderLimitEditor state =
-  HH.div [ classes' "field has-addons mt-2" ]
-    [ HH.div [ classes' "control" ]
-        [ HtmlUtils.input'
-            [ HP.type_ InputText
-            , HP.value state.limitInput
-            , HP.style "width: 8rem"
-            , classes' "input"
-            , HE.onValueChange LimitInputChanged
+  HH.form
+    [ HE.onSubmit SaveLimit
+    ]
+    [ HH.div [ classes' "field has-addons mt-2" ]
+        [ HH.div [ classes' "control" ]
+            [ HtmlUtils.input'
+                [ HP.type_ InputText
+                , HP.value state.limitInput
+                , HP.style "width: 8rem"
+                , classes' "input"
+                , HE.onValueChange LimitInputChanged
+                ]
             ]
-        ]
-    , HH.div [ classes' "control" ]
-        [ HH.span [ classes' "button is-static" ]
-            [ HH.text "€" ]
-        ]
-    , HH.div [ classes' "control" ]
-        [ HH.button
-            [ classes' $ "button is-success" # HtmlUtils.addClassIf state.savingLimit "is-loading"
-            , HP.disabled (isNothing (parseEuros state.limitInput))
-            , HE.onClick \_ -> SaveLimit
+        , HH.div [ classes' "control" ]
+            [ HH.span [ classes' "button is-static" ]
+                [ HH.text "€" ]
             ]
-            [ HH.text "✓" ]
-        ]
-    , HH.div [ classes' "control" ]
-        [ HH.button
-            [ classes' "button is-light"
-            , HE.onClick \_ -> CancelEditLimit
+        , HH.div [ classes' "control" ]
+            [ HH.button
+                [ classes' $ "button is-success" # HtmlUtils.addClassIf state.savingLimit "is-loading"
+                , HP.disabled (isNothing (parseEuros state.limitInput))
+                , HP.type_ HP.ButtonSubmit
+                ]
+                [ HH.text "✓" ]
             ]
-            [ HH.text "✗" ]
+        , HH.div [ classes' "control" ]
+            [ HH.button
+                [ classes' "button is-light"
+                , HE.onClick \_ -> CancelEditLimit
+                ]
+                [ HH.text "✗" ]
+            ]
         ]
     ]
 
@@ -263,7 +268,9 @@ handleAction = case _ of
   CancelEditLimit ->
     H.modify_ _ { editingLimit = false }
 
-  SaveLimit -> do
+  SaveLimit ev -> do
+    H.liftEffect $ E.preventDefault ev
+
     state <- H.get
     case parseEuros state.limitInput of
       Nothing -> pure unit
