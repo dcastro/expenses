@@ -2,19 +2,17 @@ module App.Budget where
 
 import Prelude
 
+import App.NewTransactionModal.AmountInput as AmountInput
 import App.TransactionsTable as TransactionsTable
 import Charts.Charts as Charts
-import Control.Alternative (guard)
 import Core.API as API
 import Core.APITypes (TagName)
 import Core.APITypes as API
 import Data.Array as Arr
+import Data.Either (Either(..))
 import Data.Foldable (foldMap)
-import Data.Int as Int
-import Data.Maybe (Maybe(..), isNothing)
+import Data.Maybe (Maybe(..))
 import Data.Nullable as Null
-import Data.String (Pattern(..), take) as S
-import Data.String.Common (split, trim) as SCom
 import Effect.Aff.Class (class MonadAff)
 import Foreign (Foreign)
 import Halogen as H
@@ -62,7 +60,7 @@ data Action
   | HandleTransactionsUpdated TransactionsTable.Output
   | StartEditLimit
   | LimitInputChanged String
-  | SaveLimit E.Event
+  | SaveLimit Int E.Event
   | CancelEditLimit
 
 component :: forall q m. MonadAff m => H.Component q Input Output m
@@ -160,40 +158,52 @@ renderLimitStat state info =
 
 renderLimitEditor :: forall m. State -> H.ComponentHTML Action Slots m
 renderLimitEditor state =
-  HH.form
-    [ HE.onSubmit SaveLimit
-    ]
-    [ HH.div [ classes' "field has-addons mt-2" ]
-        [ HH.div [ classes' "control" ]
-            [ HtmlUtils.input'
-                [ HP.type_ InputText
-                , HP.value state.limitInput
-                , HP.style "width: 8rem"
-                , classes' "input"
-                , HE.onValueChange LimitInputChanged
-                ]
-            ]
-        , HH.div [ classes' "control" ]
-            [ HH.span [ classes' "button is-static" ]
-                [ HH.text "€" ]
-            ]
-        , HH.div [ classes' "control" ]
-            [ HH.button
-                [ classes' $ "button is-success" # HtmlUtils.addClassIf state.savingLimit "is-loading"
-                , HP.disabled (isNothing (parseEuros state.limitInput))
-                , HP.type_ HP.ButtonSubmit
-                ]
-                [ HH.text "✓" ]
-            ]
-        , HH.div [ classes' "control" ]
-            [ HH.button
-                [ classes' "button is-light"
-                , HE.onClick \_ -> CancelEditLimit
-                ]
-                [ HH.text "✗" ]
-            ]
-        ]
-    ]
+  let
+    parseResult = AmountInput.tryParseAmountCents state.limitInput
+  in
+    HH.form
+      ( case parseResult of
+          Left _ -> []
+          Right limitCents -> [ HE.onSubmit $ SaveLimit limitCents ]
+
+      )
+      [ HH.div [ classes' "field has-addons mt-2" ]
+          [ HH.div [ classes' "control" ]
+              [ HtmlUtils.input'
+                  [ HP.type_ InputText
+                  , HP.value state.limitInput
+                  , HP.style "width: 8rem"
+                  , classes' "input"
+                  , HE.onValueInput LimitInputChanged
+                  , HH.attr (HH.AttrName "inputmode") "decimal"
+                  ]
+              ]
+          , HH.div [ classes' "control" ]
+              [ HH.span [ classes' "button is-static" ]
+                  [ HH.text "€" ]
+              ]
+          , HH.div [ classes' "control" ]
+              [ HH.button
+                  ( [ classes' $ "button is-success" # HtmlUtils.addClassIf state.savingLimit "is-loading"
+                    , HP.type_ HP.ButtonSubmit
+                    ]
+                      <>
+                        ( case parseResult of
+                            Left errMsg -> [ HP.title errMsg, HP.disabled true ]
+                            Right _ -> []
+                        )
+                  )
+                  [ HH.text "✓" ]
+              ]
+          , HH.div [ classes' "control" ]
+              [ HH.button
+                  [ classes' "button is-light"
+                  , HE.onClick \_ -> CancelEditLimit
+                  ]
+                  [ HH.text "✗" ]
+              ]
+          ]
+      ]
 
 renderStat :: forall w i. String -> String -> Maybe String -> HH.HTML w i
 renderStat label value extraClass =
@@ -216,22 +226,6 @@ overUnderClass cents
   | cents < 0 = "has-text-success"
   | cents > 0 = "has-text-danger"
   | otherwise = ""
-
--- | Parse a euro amount string (e.g. "500", "500.5", "500.50") to cents.
-parseEuros :: String -> Maybe Int
-parseEuros str = do
-  case SCom.split (S.Pattern ".") (SCom.trim str) of
-    [ eurosStr ] -> do
-      euros <- Int.fromString eurosStr
-      guard (euros > 0)
-      pure (euros * 100)
-    [ eurosStr, centsStr ] -> do
-      euros <- Int.fromString eurosStr
-      -- Pad cents to 2 digits (e.g. "5" → "50"), truncate if longer (e.g. "500" → "50")
-      cents <- Int.fromString (S.take 2 (centsStr <> "0"))
-      guard (euros > 0 || cents > 0)
-      pure (euros * 100 + cents)
-    _ -> Nothing
 
 filteredTransactions :: State -> Array API.TransactionItem
 filteredTransactions state =
@@ -268,20 +262,18 @@ handleAction = case _ of
   CancelEditLimit ->
     H.modify_ _ { editingLimit = false }
 
-  SaveLimit ev -> do
+  SaveLimit limitCents ev -> do
     H.liftEffect $ E.preventDefault ev
 
     state <- H.get
-    case parseEuros state.limitInput of
+
+    H.modify_ _ { savingLimit = true }
+    H.liftAff $ API.setBudgetLimit limitCents
+    budgetInfo <- H.liftAff API.getBudget
+    case state.chart of
+      Just chart -> H.liftEffect $ Charts.updateBudgetChart chart budgetInfo.tagStats
       Nothing -> pure unit
-      Just limitCents -> do
-        H.modify_ _ { savingLimit = true }
-        H.liftAff $ API.setBudgetLimit limitCents
-        budgetInfo <- H.liftAff API.getBudget
-        case state.chart of
-          Just chart -> H.liftEffect $ Charts.updateBudgetChart chart budgetInfo.tagStats
-          Nothing -> pure unit
-        H.modify_ _ { budgetInfo = Just budgetInfo, editingLimit = false, savingLimit = false }
+    H.modify_ _ { budgetInfo = Just budgetInfo, editingLimit = false, savingLimit = false }
 
   HandleTransactionsUpdated TransactionsTable.TransactionsUpdated -> do
     budgetInfo <- H.liftAff API.getBudget
