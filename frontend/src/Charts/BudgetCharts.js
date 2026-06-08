@@ -71,7 +71,8 @@ export const _makeFacetChart = containerId => chartData => onSelectionChange => 
       onSelectionChange: (event, args) => {
         if (args.origin !== "user") return;
         let selected = event.selection && event.selection.length > 0 ? event.selection[0] : null;
-        onSelectionChange(selected)();
+        let selectedName = selected?.data?.name;
+        onSelectionChange(selectedName)();
       }
     }
   });
