@@ -3,7 +3,7 @@ module App.Budget where
 import Prelude
 
 import App.TransactionsTable as TransactionsTable
-import Charts.Charts as Charts
+import Charts.BudgetCharts as BudgetCharts
 import Core.API as API
 import Core.APITypes (TagGroupName, TagName)
 import Core.APITypes as API
@@ -150,10 +150,12 @@ filteredTransactions state =
     _, Nothing -> []
     Nothing, Just info -> info.transactions
     Just groupName, Just info ->
-      let mGroup = Arr.find (\g -> g.name == groupName) info.tagGroupStats
-      in case mGroup of
-           Nothing -> info.transactions
-           Just group -> Arr.filter (\tx -> maybe false (_ `Arr.elem` group.tags) tx.tag) info.transactions
+      let
+        mGroup = Arr.find (\g -> g.name == groupName) info.tagGroupStats
+      in
+        case mGroup of
+          Nothing -> info.transactions
+          Just group -> Arr.filter (\tx -> maybe false (_ `Arr.elem` group.tags) tx.tag) info.transactions
 
 handleAction :: forall m. MonadAff m => Action -> H.HalogenM State Action Slots Void m Unit
 handleAction = case _ of
@@ -161,7 +163,7 @@ handleAction = case _ of
     H.modify_ _ { loading = true }
     budgetInfo <- H.liftAff API.getBudget
     { emitter, listener } <- H.liftEffect HS.create
-    chart <- H.liftEffect $ Charts.makeBudgetFacetChart "budget-chart-container" budgetInfo.tagGroupStats
+    chart <- H.liftEffect $ BudgetCharts.makeBudgetFacetChart "budget-chart-container" budgetInfo.tagGroupStats
       \maybeGroup -> HS.notify listener (TagGroupSelected (Null.toMaybe maybeGroup))
     _sub <- H.subscribe emitter
     H.modify_ _ { budgetInfo = Just budgetInfo, loading = false, chart = Just chart }
@@ -175,6 +177,6 @@ handleAction = case _ of
     case state.chart of
       Nothing -> pure unit
       Just chart -> do
-        H.liftEffect $ Charts.clearFacetSelection chart
-        H.liftEffect $ Charts.updateBudgetFacetChart chart budgetInfo.tagGroupStats
+        H.liftEffect $ BudgetCharts.clearFacetSelection chart
+        H.liftEffect $ BudgetCharts.updateBudgetFacetChart chart budgetInfo.tagGroupStats
     H.modify_ _ { budgetInfo = Just budgetInfo, selectedTagGroup = Nothing }

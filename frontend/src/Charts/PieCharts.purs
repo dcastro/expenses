@@ -1,4 +1,4 @@
-module Charts.Charts where
+module Charts.PieCharts where
 
 import Prelude
 
