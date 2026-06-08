@@ -3,7 +3,6 @@ module Expenses.Server.Routes.GetBudget where
 import Config qualified
 import CustomPrelude
 import Data.Aeson.TH (defaultOptions, deriveToJSON)
-import Data.List qualified as List
 import Data.Map.Strict qualified as Map
 import Data.Time (addGregorianMonthsClip, fromGregorian, gregorianMonthLength, toGregorian, utctDay)
 import Database (SearchParams (..))
@@ -13,12 +12,13 @@ import Effectful.Reader.Static (asks)
 import Effectful.Time qualified as Time
 import Expenses.Effects
 import Expenses.Server.Routes.GetTransactions (TransactionItem (..), convertRowToItem)
-import Types (BECents (..), FECents (..), TagName)
+import Types (BECents (..), FECents (..), TagGroupName (..), TagName)
 
-data BudgetTagStats = BudgetTagStats
-  { name :: TagName
-  , tagTotalAmountCents :: FECents
-  , tagPercentage :: Int
+data BudgetTagGroupStats = BudgetTagGroupStats
+  { name :: TagGroupName
+  , spentToDateCents :: FECents
+  , limitCents :: FECents
+  , tags :: [TagName]
   }
   deriving stock (Show, Eq)
 
@@ -28,12 +28,12 @@ data BudgetInfo = BudgetInfo
   , overUnderTodayCents :: FECents
   , transactions :: [TransactionItem]
   , totalSpentCents :: FECents
-  , tagStats :: [BudgetTagStats]
+  , tagGroupStats :: [BudgetTagGroupStats]
   }
   deriving stock (Show, Eq)
 
 $( mconcat
-     [ deriveToJSON defaultOptions ''BudgetTagStats
+     [ deriveToJSON defaultOptions ''BudgetTagGroupStats
      , deriveToJSON defaultOptions ''BudgetInfo
      ]
  )
@@ -76,7 +76,7 @@ getBudgetHandler = do
 
   let txItems = thisMonthRows <&> (\row -> convertRowToItem row)
   let totalSpentCents = sum (map (.itemAmountCents) txItems)
-  let tagStatsResult = mkBudgetTagStats totalSpentCents txItems
+  let tagGroupStatsResult = mkBudgetTagGroupStats budgetGroups txItems
 
   let projectedInt = round ((fromIntegral limitCentsInt :: Double) * fromIntegral todayDayNum / fromIntegral totalDays)
   let projectedLimitTodayCents = FECents projectedInt
@@ -89,23 +89,20 @@ getBudgetHandler = do
       , overUnderTodayCents
       , transactions = txItems
       , totalSpentCents
-      , tagStats = tagStatsResult
+      , tagGroupStats = tagGroupStatsResult
       }
 
-mkBudgetTagStats :: FECents -> [TransactionItem] -> [BudgetTagStats]
-mkBudgetTagStats total txs =
+mkBudgetTagGroupStats :: [Config.BudgetTagGroup] -> [TransactionItem] -> [BudgetTagGroupStats]
+mkBudgetTagGroupStats groups txs =
   let tagMap = Map.fromListWith (+) do
         tx <- txs
         tag <- maybeToList tx.tag
         pure (tag, tx.itemAmountCents)
-   in tagMap
-        & Map.toList
-        & map
-          ( \(tag, tagTotal) ->
-              BudgetTagStats
-                { name = tag
-                , tagTotalAmountCents = tagTotal
-                , tagPercentage = if total == 0 then 0 else (tagTotal.getCents * 100) `div` total.getCents
-                }
-          )
-        & List.sortOn (Down . (.tagTotalAmountCents))
+   in groups <&> \group ->
+        let groupSpent = sum $ mapMaybe (\tag -> Map.lookup tag tagMap) group.tags
+        in BudgetTagGroupStats
+          { name = TagGroupName group.name
+          , spentToDateCents = groupSpent
+          , limitCents = FECents (negate group.limitCents.getCents)
+          , tags = group.tags
+          }

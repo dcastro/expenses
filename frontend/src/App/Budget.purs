@@ -5,17 +5,16 @@ import Prelude
 import App.TransactionsTable as TransactionsTable
 import Charts.Charts as Charts
 import Core.API as API
-import Core.APITypes (TagName)
+import Core.APITypes (TagGroupName, TagName)
 import Core.APITypes as API
 import Data.Array as Arr
 import Data.Foldable (foldMap)
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), maybe)
 import Data.Nullable as Null
 import Effect.Aff.Class (class MonadAff)
 import Foreign (Foreign)
 import Halogen as H
 import Halogen.HTML as HH
-import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import Halogen.Subscription as HS
 import HtmlUtils (classes')
@@ -44,12 +43,12 @@ type State =
   , budgetInfo :: Maybe API.BudgetInfo
   , loading :: Boolean
   , chart :: Maybe Foreign
-  , selectedTag :: Maybe TagName
+  , selectedTagGroup :: Maybe TagGroupName
   }
 
 data Action
   = Initialize
-  | TagSelected (Maybe TagName)
+  | TagGroupSelected (Maybe TagGroupName)
   | HandleTransactionsUpdated TransactionsTable.Output
 
 component :: forall q m. MonadAff m => H.Component q Input Output m
@@ -61,7 +60,7 @@ component =
         , budgetInfo: Nothing
         , loading: false
         , chart: Nothing
-        , selectedTag: Nothing
+        , selectedTagGroup: Nothing
         }
     , render
     , eval: H.mkEval H.defaultEval
@@ -147,10 +146,14 @@ overUnderClass cents
 
 filteredTransactions :: State -> Array API.TransactionItem
 filteredTransactions state =
-  case state.selectedTag, state.budgetInfo of
+  case state.selectedTagGroup, state.budgetInfo of
     _, Nothing -> []
     Nothing, Just info -> info.transactions
-    Just tag, Just info -> Arr.filter (\tx -> tx.tag == Just tag) info.transactions
+    Just groupName, Just info ->
+      let mGroup = Arr.find (\g -> g.name == groupName) info.tagGroupStats
+      in case mGroup of
+           Nothing -> info.transactions
+           Just group -> Arr.filter (\tx -> maybe false (_ `Arr.elem` group.tags) tx.tag) info.transactions
 
 handleAction :: forall m. MonadAff m => Action -> H.HalogenM State Action Slots Void m Unit
 handleAction = case _ of
@@ -158,13 +161,13 @@ handleAction = case _ of
     H.modify_ _ { loading = true }
     budgetInfo <- H.liftAff API.getBudget
     { emitter, listener } <- H.liftEffect HS.create
-    chart <- H.liftEffect $ Charts.makeBudgetChart "budget-chart-container" budgetInfo.tagStats
-      \maybeTag -> HS.notify listener (TagSelected (Null.toMaybe maybeTag))
+    chart <- H.liftEffect $ Charts.makeBudgetFacetChart "budget-chart-container" budgetInfo.tagGroupStats
+      \maybeGroup -> HS.notify listener (TagGroupSelected (Null.toMaybe maybeGroup))
     _sub <- H.subscribe emitter
     H.modify_ _ { budgetInfo = Just budgetInfo, loading = false, chart = Just chart }
 
-  TagSelected maybeTag ->
-    H.modify_ _ { selectedTag = maybeTag }
+  TagGroupSelected maybeGroup ->
+    H.modify_ _ { selectedTagGroup = maybeGroup }
 
   HandleTransactionsUpdated TransactionsTable.TransactionsUpdated -> do
     budgetInfo <- H.liftAff API.getBudget
@@ -172,6 +175,6 @@ handleAction = case _ of
     case state.chart of
       Nothing -> pure unit
       Just chart -> do
-        H.liftEffect $ Charts.clearSelection chart
-        H.liftEffect $ Charts.updateBudgetChart chart budgetInfo.tagStats
-    H.modify_ _ { budgetInfo = Just budgetInfo, selectedTag = Nothing }
+        H.liftEffect $ Charts.clearFacetSelection chart
+        H.liftEffect $ Charts.updateBudgetFacetChart chart budgetInfo.tagGroupStats
+    H.modify_ _ { budgetInfo = Just budgetInfo, selectedTagGroup = Nothing }

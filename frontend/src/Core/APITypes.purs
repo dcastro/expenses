@@ -300,10 +300,11 @@ type NewShortTransactionItem =
 -- GET /budget
 ----------------------------------------------------------------------------
 
-type BudgetTagStats =
-  { name :: TagName
-  , tagTotalAmountCents :: Int
-  , tagPercentage :: Int
+type BudgetTagGroupStats =
+  { name :: TagGroupName
+  , spentToDateCents :: Int
+  , limitCents :: Int
+  , tags :: Array TagName
   }
 
 type BudgetInfo =
@@ -312,5 +313,5 @@ type BudgetInfo =
   , overUnderTodayCents :: Int
   , transactions :: Array TransactionItem
   , totalSpentCents :: Int
-  , tagStats :: Array BudgetTagStats
+  , tagGroupStats :: Array BudgetTagGroupStats
   }

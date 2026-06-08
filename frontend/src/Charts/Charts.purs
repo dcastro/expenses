@@ -2,7 +2,7 @@ module Charts.Charts where
 
 import Prelude
 
-import Core.APITypes (TagGroupName(..), TagName)
+import Core.APITypes (TagGroupName, TagName)
 import Core.APITypes as API
 import Data.Array as Arr
 import Data.Nullable (Nullable)
@@ -32,6 +32,16 @@ foreign import _makeChart
 foreign import _updateChart :: Foreign -> ChartData -> Effect Unit
 
 foreign import _clearSelection :: Foreign -> Effect Unit
+
+foreign import _makeFacetChart
+  :: String
+  -> Array FacetChartItem
+  -> (Nullable TagGroupName -> Effect Unit)
+  -> Effect Foreign
+
+foreign import _updateFacetChart :: Foreign -> Array FacetChartItem -> Effect Unit
+
+foreign import _clearFacetSelection :: Foreign -> Effect Unit
 
 foreign import _drilldown :: Foreign -> TagGroupName -> Effect Unit
 
@@ -123,32 +133,33 @@ makeChartData txs monthsSpan =
       txs.groupsStats
   }
 
--- | Flat pie chart for budget tags (no drill-down). Slices are individual tags;
--- clicking a slice calls the callback with Just the tag name, deselecting calls it with Nothing.
-makeBudgetChart
-  :: String
-  -> Array API.BudgetTagStats
-  -> (Nullable TagName -> Effect Unit)
-  -> Effect Foreign
-makeBudgetChart containerId tagStats onSelectionChange =
-  _makeChart @TagName @Unit
-    containerId
-    (makeBudgetChartData tagStats)
-    (\_ -> pure unit)
-    (\nullableTagName _ -> onSelectionChange nullableTagName)
-
-updateBudgetChart :: Foreign -> Array API.BudgetTagStats -> Effect Unit
-updateBudgetChart chart tagStats = _updateChart chart (makeBudgetChartData tagStats)
-
-makeBudgetChartData :: Array API.BudgetTagStats -> ChartData
-makeBudgetChartData tagStats =
-  { subvalues: tagStats <#> \stat ->
-      asOneOf
-        { name: displayLabel (API.getTagName stat.name) stat.tagTotalAmountCents
-        , id: TagGroupName (API.getTagName stat.name)
-        , value: stat.tagTotalAmountCents
-        }
+type FacetChartItem =
+  { name :: String
+  , spent :: Int
+  , limit :: Int
   }
+
+makeBudgetFacetChart
+  :: String
+  -> Array API.BudgetTagGroupStats
+  -> (Nullable TagGroupName -> Effect Unit)
+  -> Effect Foreign
+makeBudgetFacetChart containerId stats onSelectionChange =
+  _makeFacetChart containerId (makeFacetChartData stats) onSelectionChange
+
+updateBudgetFacetChart :: Foreign -> Array API.BudgetTagGroupStats -> Effect Unit
+updateBudgetFacetChart chart stats = _updateFacetChart chart (makeFacetChartData stats)
+
+clearFacetSelection :: Foreign -> Effect Unit
+clearFacetSelection = _clearFacetSelection
+
+makeFacetChartData :: Array API.BudgetTagGroupStats -> Array FacetChartItem
+makeFacetChartData stats =
+  stats <#> \s ->
+    { name: API.getTagGroupName s.name
+    , spent: s.spentToDateCents
+    , limit: s.limitCents
+    }
 
 -- | Display a tag or tag group.
 -- `displayLabel "groceries" 5000` will return "groceries 50.00€ -".

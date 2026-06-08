@@ -106,6 +106,70 @@ export const _clearSelection = chart => () => {
 }
 
 
+export const _makeFacetChart = containerId => chartData => onSelectionChange => () => {
+  let chart = new FacetChart({
+    assetsUrlBase: "assets",
+    container: document.getElementById(containerId),
+    data: [{ preloaded: { subvalues: chartData } }],
+    facetAxis: { size: 70 },
+    stacks: {
+      "s1": {
+        type: "based",
+        separateNegativeValues: false,
+      }
+    },
+    series: [
+      {
+        id: "spent",
+        name: "Spent to date",
+        data: { field: "spent" },
+        style: { widthScale: 0.95 },
+        stack: "s1"
+      },
+      {
+        id: "limit",
+        name: "Monthly limit",
+        data: { field: "limit" },
+        style: {
+          fillColor: "transparent",
+          lineColor: "black",
+          lineWidth: 2,
+        },
+        stack: "s1"
+      }
+    ],
+    items: {
+      styleFunction: function(item, data) {
+        let spent = item.values[0];
+        let limit = item.values[1];
+        if (spent.value > limit.value) {
+          spent.style.fillColor = "red";
+        } else {
+          spent.style.fillColor = "green";
+        }
+      }
+    },
+    events: {
+      onSelectionChange: (event, args) => {
+        if (args.origin !== "user") return;
+        let selected = event.selection && event.selection.length > 0 ? event.selection[0] : null;
+        onSelectionChange(selected)();
+      }
+    }
+  });
+
+  globalThis[containerId] = chart;
+  return chart;
+}
+
+export const _updateFacetChart = chart => chartData => () => {
+  chart.replaceData([{ preloaded: { subvalues: chartData } }]);
+}
+
+export const _clearFacetSelection = chart => () => {
+  chart.selection([]);
+}
+
 export const _drilldown = chart => tagGroupName => () => {
   chart.setPie(["", tagGroupName]);
 }
