@@ -4,13 +4,16 @@ import Config qualified
 import CustomPrelude
 import Data.Aeson.TH (defaultOptions, deriveToJSON)
 import Data.Map.Strict qualified as Map
-import Data.Time (addGregorianMonthsClip, fromGregorian, gregorianMonthLength, toGregorian, utctDay)
+import Data.Time (gregorianMonthLength, toGregorian, utctDay)
+import Data.Time qualified as Time
+import Data.Time.Calendar.Month (pattern YearMonth)
 import Database (SearchParams (..))
 import Database qualified as Db
 import Effectful
 import Effectful.Reader.Static (asks)
 import Effectful.Time qualified as Time
 import Expenses.Effects
+import Expenses.NonEmptyText qualified as NET
 import Expenses.Server.Routes.GetTransactions (TransactionItem (..), convertRowToItem)
 import Types (BECents (..), FECents (..), TagGroupName (..), TagName)
 
@@ -45,8 +48,6 @@ getBudgetHandler = do
   today <- utctDay <$> Time.currentTime
   let (year, month, todayDayNum) = toGregorian today
   let totalDays = gregorianMonthLength year month
-  let firstDay = fromGregorian year month 1
-  let nextMonthFirstDay = addGregorianMonthsClip 1 firstDay
 
   config <- asks @Env (.config)
   let budgetGroups = config.budget.tagGroups
@@ -54,13 +55,14 @@ getBudgetHandler = do
   let totalLimitBE = BECents $ sum $ map (.limitCents.getCents) budgetGroups
   let limitCentsInt = negate totalLimitBE.getCents
 
+  let thisMonth = YearMonth year month & Time.formatTime Time.defaultTimeLocale "%m-%Y" & toText
   rows <- useConnection \conn ->
     Db.search
       conn
       Db.SearchParams
         { allFields = Db.StringParams [] []
         , transactionId = Nothing
-        , date = Nothing
+        , date = Just $ Db.Contains $ NET.unsafeFromText thisMonth
         , account = Nothing
         , desc = Db.StringParams [] []
         , amount = Nothing
@@ -68,13 +70,9 @@ getBudgetHandler = do
         , notes = Db.StringParams [] []
         , isExpense = Just True
         }
+      <&> toList
 
-  let thisMonthRows =
-        rows
-          & toList
-          & filter (\r -> r.date >= firstDay && r.date < nextMonthFirstDay)
-
-  let txItems = thisMonthRows <&> (\row -> convertRowToItem row)
+  let txItems = rows <&> (\row -> convertRowToItem row)
   let totalSpentCents = sum (map (.itemAmountCents) txItems)
   let tagGroupStatsResult = mkBudgetTagGroupStats budgetGroups txItems
 
@@ -100,9 +98,9 @@ mkBudgetTagGroupStats groups txs =
         pure (tag, tx.itemAmountCents)
    in groups <&> \group ->
         let groupSpent = sum $ mapMaybe (\tag -> Map.lookup tag tagMap) group.tags
-        in BudgetTagGroupStats
-          { name = TagGroupName group.name
-          , spentToDateCents = groupSpent
-          , limitCents = FECents (negate group.limitCents.getCents)
-          , tags = group.tags
-          }
+         in BudgetTagGroupStats
+              { name = TagGroupName group.name
+              , spentToDateCents = groupSpent
+              , limitCents = FECents (negate group.limitCents.getCents)
+              , tags = group.tags
+              }
