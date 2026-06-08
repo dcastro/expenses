@@ -17,31 +17,15 @@ import Utils as Utils
   * https://book.purescript.org/chapter10.html
 -}
 foreign import _makeChart
-  :: forall
-       -- The type of the ID for the slices of first level of the chart (e.g. tag group name).
-       @first
-       -- The type of the ID for the slices of second level of the chart,
-       -- i.e. when the user drills down on the pie chart (e.g. tag name).
-       @second
-   . String
+  :: String
   -> ChartData
-  -> (Nullable first -> Effect Unit)
-  -> (Nullable first -> Nullable second -> Effect Unit)
+  -> (Nullable TagGroupName -> Effect Unit)
+  -> (Nullable TagGroupName -> Nullable TagName -> Effect Unit)
   -> Effect Foreign
 
 foreign import _updateChart :: Foreign -> ChartData -> Effect Unit
 
 foreign import _clearSelection :: Foreign -> Effect Unit
-
-foreign import _makeFacetChart
-  :: String
-  -> Array FacetChartItem
-  -> (Nullable TagGroupName -> Effect Unit)
-  -> Effect Foreign
-
-foreign import _updateFacetChart :: Foreign -> Array FacetChartItem -> Effect Unit
-
-foreign import _clearFacetSelection :: Foreign -> Effect Unit
 
 foreign import _drilldown :: Foreign -> TagGroupName -> Effect Unit
 
@@ -91,7 +75,7 @@ makeChart
   -> (Nullable TagGroupName -> Nullable TagName -> Effect Unit)
   -> Effect Foreign
 makeChart containerId txs monthsSpan onChartUpdate onSelectionChange = do
-  _makeChart @TagGroupName @TagName containerId (makeChartData txs monthsSpan) onChartUpdate onSelectionChange
+  _makeChart containerId (makeChartData txs monthsSpan) onChartUpdate onSelectionChange
 
 updateChart :: Foreign -> API.GetTransactions -> Int -> Effect Unit
 updateChart chart txs monthsSpan = do
@@ -132,34 +116,6 @@ makeChartData txs monthsSpan =
       )
       txs.groupsStats
   }
-
-type FacetChartItem =
-  { name :: String
-  , spent :: String
-  , limit :: String
-  }
-
-makeBudgetFacetChart
-  :: String
-  -> Array API.BudgetTagGroupStats
-  -> (Nullable TagGroupName -> Effect Unit)
-  -> Effect Foreign
-makeBudgetFacetChart containerId stats onSelectionChange =
-  _makeFacetChart containerId (makeFacetChartData stats) onSelectionChange
-
-updateBudgetFacetChart :: Foreign -> Array API.BudgetTagGroupStats -> Effect Unit
-updateBudgetFacetChart chart stats = _updateFacetChart chart (makeFacetChartData stats)
-
-clearFacetSelection :: Foreign -> Effect Unit
-clearFacetSelection = _clearFacetSelection
-
-makeFacetChartData :: Array API.BudgetTagGroupStats -> Array FacetChartItem
-makeFacetChartData stats =
-  stats <#> \s ->
-    { name: API.getTagGroupName s.name
-    , spent: Utils.centsToEurosRaw s.spentToDateCents
-    , limit: Utils.centsToEurosRaw s.limitCents
-    }
 
 -- | Display a tag or tag group.
 -- `displayLabel "groceries" 5000` will return "groceries 50.00€ -".
