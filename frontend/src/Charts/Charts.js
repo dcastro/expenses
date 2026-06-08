@@ -114,17 +114,32 @@ export const _makeFacetChart = containerId => chartData => onSelectionChange => 
     facetAxis: { size: 70 },
     stacks: {
       "s1": {
+        // Overlap the 2 series on top of each other
         type: "based",
-        separateNegativeValues: false,
       }
     },
+    // https://zoomcharts.com/developers/en/facet-chart/api-reference/settings/series.html
+    // https://zoomcharts.com/developers/en/full-reference/FacetChartSettingsSeriesColumns.html
     series: [
       {
         id: "spent",
         name: "Spent to date",
         data: { field: "spent" },
+        // Make this bar narrower
+        // https://zoomcharts.com/developers/en/full-reference/FacetChartSettingsSeriesColumnsStyle.html
         style: { widthScale: 0.95 },
-        stack: "s1"
+        stack: "s1",
+        valueLabels: {
+          enabled: true,
+          position: 'aboveValue',
+          // When the 2 bars have similar values, their labels will overlap.
+          // This option allows the overlapping labels to stack on top of each other instead of hiding one of them.
+          // https://zoomcharts.com/developers/en/full-reference/LinearChartSettingsValueLabels.html
+          allowOverlappingLabelStacking: true,
+          contentsFunction: function (value) {
+            return value.toFixed(2) + '€';
+          }
+        }
       },
       {
         id: "limit",
@@ -135,11 +150,19 @@ export const _makeFacetChart = containerId => chartData => onSelectionChange => 
           lineColor: "black",
           lineWidth: 2,
         },
-        stack: "s1"
+        stack: "s1",
+        valueLabels: {
+          enabled: true,
+          position: 'aboveValue',
+          allowOverlappingLabelStacking: true,
+          contentsFunction: function (value) {
+            return value.toFixed(2) + '€';
+          }
+        }
       }
     ],
     items: {
-      styleFunction: function(item, data) {
+      styleFunction: function (item, data) {
         let spent = item.values[0];
         let limit = item.values[1];
         if (spent.value > limit.value) {

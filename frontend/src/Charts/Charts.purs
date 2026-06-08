@@ -135,8 +135,8 @@ makeChartData txs monthsSpan =
 
 type FacetChartItem =
   { name :: String
-  , spent :: Int
-  , limit :: Int
+  , spent :: String
+  , limit :: String
   }
 
 makeBudgetFacetChart
@@ -157,8 +157,8 @@ makeFacetChartData :: Array API.BudgetTagGroupStats -> Array FacetChartItem
 makeFacetChartData stats =
   stats <#> \s ->
     { name: API.getTagGroupName s.name
-    , spent: s.spentToDateCents
-    , limit: s.limitCents
+    , spent: Utils.centsToEurosRaw s.spentToDateCents
+    , limit: Utils.centsToEurosRaw s.limitCents
     }
 
 -- | Display a tag or tag group.
