@@ -1,12 +1,11 @@
 
 require('@dvsl/zoomcharts');
 
-export const _makeFacetChart = containerId => chartData => onSelectionChange => () => {
+export const _makeChart = containerId => chartData => onSelectionChange => () => {
   let chart = new FacetChart({
     assetsUrlBase: "assets",
     container: document.getElementById(containerId),
     data: [{ preloaded: { subvalues: chartData } }],
-    facetAxis: { size: 70 },
     stacks: {
       "s1": {
         // Overlap the 2 series on top of each other
@@ -81,10 +80,10 @@ export const _makeFacetChart = containerId => chartData => onSelectionChange => 
   return chart;
 }
 
-export const _updateFacetChart = chart => chartData => () => {
+export const _updateChart = chart => chartData => () => {
   chart.replaceData({ subvalues: chartData });
 }
 
-export const _clearFacetSelection = chart => () => {
+export const _clearChart = chart => () => {
   chart.selection([]);
 }

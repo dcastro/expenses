@@ -163,7 +163,7 @@ handleAction = case _ of
     H.modify_ _ { loading = true }
     budgetInfo <- H.liftAff API.getBudget
     { emitter, listener } <- H.liftEffect HS.create
-    chart <- H.liftEffect $ BudgetCharts.makeBudgetFacetChart "budget-chart-container" budgetInfo.tagGroupStats
+    chart <- H.liftEffect $ BudgetCharts.makeChart "budget-chart-container" budgetInfo.tagGroupStats
       \maybeGroup -> HS.notify listener (TagGroupSelected (Null.toMaybe maybeGroup))
     _sub <- H.subscribe emitter
     H.modify_ _ { budgetInfo = Just budgetInfo, loading = false, chart = Just chart }
@@ -177,6 +177,6 @@ handleAction = case _ of
     case state.chart of
       Nothing -> pure unit
       Just chart -> do
-        H.liftEffect $ BudgetCharts.clearFacetSelection chart
-        H.liftEffect $ BudgetCharts.updateBudgetFacetChart chart budgetInfo.tagGroupStats
+        H.liftEffect $ BudgetCharts.clearSelection chart
+        H.liftEffect $ BudgetCharts.updateChart chart budgetInfo.tagGroupStats
     H.modify_ _ { budgetInfo = Just budgetInfo, selectedTagGroup = Nothing }
