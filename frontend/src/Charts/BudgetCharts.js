@@ -82,7 +82,7 @@ export const _makeFacetChart = containerId => chartData => onSelectionChange => 
 }
 
 export const _updateFacetChart = chart => chartData => () => {
-  chart.replaceData([{ preloaded: { subvalues: chartData } }]);
+  chart.replaceData({ subvalues: chartData });
 }
 
 export const _clearFacetSelection = chart => () => {
