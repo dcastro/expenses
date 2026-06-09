@@ -94,7 +94,7 @@ getBudgetHandler = do
             / fromIntegral @DayOfMonth @Double totalDays
   let overUnderCents = actualSpendingToDateCents - expectedSpendingToDateCents
 
-  let tagGroupStatsResult = mkBudgetTagGroupStats budgetGroups includeAllTxsFromAccounts txs
+  let tagGroupStatsResult = mkBudgetTagGroupStats budgetGroups txs
 
   pure
     BudgetInfo
@@ -106,23 +106,23 @@ getBudgetHandler = do
       , tagGroupStats = tagGroupStatsResult
       }
 
-mkBudgetTagGroupStats :: [Config.BudgetTagGroup] -> Set.Set Text -> Vector TransactionItem -> [BudgetTagGroupStats]
-mkBudgetTagGroupStats groups includeAllAccounts txs =
-  let tagMap = Map.fromListWith (+) do
+mkBudgetTagGroupStats :: [Config.BudgetTagGroup] -> Vector TransactionItem -> [BudgetTagGroupStats]
+mkBudgetTagGroupStats groups txs =
+  let budgetTagSet = Set.fromList $ concatMap (.tags) groups
+      tagMap = Map.fromListWith (+) do
         tx <- toList txs
         tag <- maybeToList tx.tag
         pure (tag, tx.itemAmountCents)
-      otherUntaggedSpent =
+      otherSpent =
         sum
           [ tx.itemAmountCents
           | tx <- toList txs
-          , Set.member tx.account includeAllAccounts
-          , isNothing tx.tag
+          , maybe True (`Set.notMember` budgetTagSet) tx.tag
           ]
       hasOtherGroup = any (\g -> g.name == TagGroupName "Other") groups
       mkGroupStats group =
         let groupSpent = sum $ mapMaybe (\tag -> Map.lookup tag tagMap) group.tags
-            extra = if group.name == TagGroupName "Other" then otherUntaggedSpent else 0
+            extra = if group.name == TagGroupName "Other" then otherSpent else 0
          in BudgetTagGroupStats
               { name = group.name
               , spentToDateCents = groupSpent + extra
@@ -130,13 +130,13 @@ mkBudgetTagGroupStats groups includeAllAccounts txs =
               , tags = group.tags
               }
       baseStats = mkGroupStats <$> groups
-   in if hasOtherGroup || otherUntaggedSpent == 0
+   in if hasOtherGroup || otherSpent == 0
         then baseStats
         else
           baseStats
             ++ [ BudgetTagGroupStats
                    { name = TagGroupName "Other"
-                   , spentToDateCents = otherUntaggedSpent
+                   , spentToDateCents = otherSpent
                    , limitCents = FECents 0
                    , tags = []
                    }
