@@ -16,7 +16,7 @@ import Expenses.Effects
 import Expenses.NonEmptyText qualified as NET
 import Expenses.Server.Routes.GetTransactions (TransactionItem (..))
 import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
-import Types (BECents (..), FECents (..), TagGroupName (..), TagName, toFE)
+import Types (FECents (..), TagGroupName (..), TagName, toFE)
 
 data BudgetTagGroupStats = BudgetTagGroupStats
   { name :: TagGroupName
@@ -34,7 +34,7 @@ data BudgetInfo = BudgetInfo
   -- ^ How much we've spent so far this month.
   , overUnderCents :: FECents
   -- ^ How much we're over or under the expected spending for this point in the month.
-  , transactions :: [TransactionItem]
+  , transactions :: Vector TransactionItem
   , tagGroupStats :: [BudgetTagGroupStats]
   }
   deriving stock (Show, Eq)
@@ -59,7 +59,7 @@ getBudgetHandler = do
   let monthlyLimit = toFE (budgetGroups <&> (.limitCents) & sum)
 
   let thisMonth = YearMonth year month & Time.formatTime Time.defaultTimeLocale "%m-%Y" & toText
-  rows <- useConnection \conn ->
+  txItems <- useConnection \conn ->
     Db.search
       conn
       Db.SearchParams
@@ -73,9 +73,8 @@ getBudgetHandler = do
         , notes = Db.StringParams [] []
         , isExpense = Just True
         }
-      <&> toList
+      <&> fmap (\tx -> GetTransactions.convertRowToItem tx)
 
-  let txItems = rows <&> \row -> GetTransactions.convertRowToItem row
   let actualSpendingToDateCents = txItems <&> (.itemAmountCents) & sum
   let expectedSpendingToDateCents =
         round @Double @FECents $
@@ -96,17 +95,17 @@ getBudgetHandler = do
       , tagGroupStats = tagGroupStatsResult
       }
 
-mkBudgetTagGroupStats :: [Config.BudgetTagGroup] -> [TransactionItem] -> [BudgetTagGroupStats]
+mkBudgetTagGroupStats :: [Config.BudgetTagGroup] -> Vector TransactionItem -> [BudgetTagGroupStats]
 mkBudgetTagGroupStats groups txs =
   let tagMap = Map.fromListWith (+) do
-        tx <- txs
+        tx <- toList txs
         tag <- maybeToList tx.tag
         pure (tag, tx.itemAmountCents)
    in groups <&> \group ->
         let groupSpent = sum $ mapMaybe (\tag -> Map.lookup tag tagMap) group.tags
          in BudgetTagGroupStats
-              { name = TagGroupName group.name
+              { name = group.name
               , spentToDateCents = groupSpent
-              , limitCents = FECents (negate group.limitCents.getCents)
+              , limitCents = toFE group.limitCents
               , tags = group.tags
               }

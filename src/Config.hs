@@ -2,8 +2,8 @@ module Config where
 
 import CustomPrelude
 import Data.Aeson (FromJSON (..), withObject, (.:))
-import Data.Aeson.Types (Parser)
 import Data.Aeson.TH (defaultOptions, deriveFromJSON)
+import Data.Aeson.Types (Parser)
 import Data.HashMap.Strict qualified as HM
 import Data.Set qualified as Set
 import Data.Yaml qualified as Y
@@ -15,7 +15,7 @@ cronUser :: Admin
 cronUser = Admin $ Username $ NET.unsafeFromText "cron"
 
 data BudgetTagGroup = BudgetTagGroup
-  { name :: Text
+  { name :: TagGroupName
   , tags :: [TagName]
   , limitCents :: BECents
   }
