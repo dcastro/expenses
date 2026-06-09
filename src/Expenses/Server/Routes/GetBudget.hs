@@ -24,7 +24,7 @@ data BudgetTagGroupStats = BudgetTagGroupStats
   { name :: TagGroupName
   , spentToDateCents :: FECents
   , limitCents :: FECents
-  , tags :: [TagName]
+  , tags :: [Maybe TagName]
   }
   deriving stock (Show, Eq)
 
@@ -113,21 +113,21 @@ mkBudgetTagGroupStats groups txs =
         tx <- toList txs
         tag <- maybeToList tx.tag
         pure (tag, tx.itemAmountCents)
-      otherSpent =
-        sum
-          [ tx.itemAmountCents
-          | tx <- toList txs
-          , maybe True (`Set.notMember` budgetTagSet) tx.tag
-          ]
+      isOtherTx tx = maybe True (`Set.notMember` budgetTagSet) tx.tag
+      otherSpent = sum [tx.itemAmountCents | tx <- toList txs, isOtherTx tx]
+      otherTags = ordNub [tx.tag | tx <- toList txs, isOtherTx tx]
       hasOtherGroup = any (\g -> g.name == TagGroupName "Other") groups
       mkGroupStats group =
         let groupSpent = sum $ mapMaybe (\tag -> Map.lookup tag tagMap) group.tags
-            extra = if group.name == TagGroupName "Other" then otherSpent else 0
+            (extra, extraTags) =
+              if group.name == TagGroupName "Other"
+                then (otherSpent, otherTags)
+                else (0, [])
          in BudgetTagGroupStats
               { name = group.name
               , spentToDateCents = groupSpent + extra
               , limitCents = toFE group.limitCents
-              , tags = group.tags
+              , tags = fmap Just group.tags ++ extraTags
               }
       baseStats = mkGroupStats <$> groups
    in if hasOtherGroup || otherSpent == 0
@@ -138,6 +138,6 @@ mkBudgetTagGroupStats groups txs =
                    { name = TagGroupName "Other"
                    , spentToDateCents = otherSpent
                    , limitCents = FECents 0
-                   , tags = []
+                   , tags = otherTags
                    }
                ]

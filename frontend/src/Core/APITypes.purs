@@ -304,7 +304,7 @@ type BudgetTagGroupStats =
   { name :: TagGroupName
   , spentToDateCents :: Int
   , limitCents :: Int
-  , tags :: Array TagName
+  , tags :: Array (Maybe TagName)
   }
 
 type BudgetInfo =

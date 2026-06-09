@@ -155,7 +155,7 @@ filteredTransactions state =
       in
         case mGroup of
           Nothing -> info.transactions
-          Just group -> Arr.filter (\tx -> maybe false (_ `Arr.elem` group.tags) tx.tag) info.transactions
+          Just group -> Arr.filter (\tx -> tx.tag `Arr.elem` group.tags) info.transactions
 
 handleAction :: forall m. MonadAff m => Action -> H.HalogenM State Action Slots Void m Unit
 handleAction = case _ of
