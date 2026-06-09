@@ -2,14 +2,34 @@
 default:
     just --list
 
+# Address of the Raspberry Pi machine
+
+remote := "192.168.1.244"
+
+# Where we store a db and config for local development.
+
+dev-app-dir := "./resources/dev-app-dir"
+
+restore-dev-app-dir:
+    # Clone the db and event log from the Raspberry Pi to be able to test with real data.
+    rsync --archive --verbose --progress --partial \
+        --exclude 'logs/' \
+        "dc@{{ remote }}:/home/dc/.local/share/expenses-manager/" \
+        "{{ dev-app-dir }}/"
+    # Override with the local config
+    rm {{ dev-app-dir }}/config.yaml
+    ln -s ../prod/config.yaml {{ dev-app-dir }}/config.yaml
+
 run *ARGS:
-    watchexec --restart --clear --exts hs,yaml -- stack run expenses-manager-server -- --user test --verbose {{ ARGS }}
+    watchexec --restart --clear --exts hs,yaml -- \
+        stack run expenses-manager-server -- \
+        --user test \
+        --verbose \
+        --app-dir {{ dev-app-dir }} \
+        {{ ARGS }}
 
 run-demo *ARGS:
     just run --demo-mode {{ ARGS }}
-
-run-user-dir:
-    stack run expenses-manager-server -- --user test --verbose --app-dir /home/dc/.local/share/expenses-manager
 
 test:
     stack test --fast
@@ -106,9 +126,6 @@ renew-logins:
 ##############################################################
 # Raspberry Pi
 ##############################################################
-# Address of the Raspberry Pi machine
-
-remote := "192.168.1.244"
 
 # Cross-compile to 64-bit ARM
 rpi-build:
