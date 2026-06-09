@@ -110,16 +110,16 @@ renderSummary _state info =
             Nothing
         , renderStat
             "Expected spending to date"
-            (Utils.centsToEuros info.projectedLimitTodayCents)
+            (Utils.centsToEuros info.expectedSpendingToDateCents)
             Nothing
         , renderStat
             "Actual spending to date"
-            (Utils.centsToEuros info.totalSpentCents)
+            (Utils.centsToEuros info.actualSpendingToDateCents)
             Nothing
         , renderStat
             "Over / Under expected spending"
-            (overUnderStr info.overUnderTodayCents)
-            (Just $ overUnderClass info.overUnderTodayCents)
+            (overUnderStr info.overUnderCents)
+            (Just $ overUnderClass info.overUnderCents)
         ]
     ]
 

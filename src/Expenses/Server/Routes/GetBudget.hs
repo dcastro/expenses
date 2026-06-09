@@ -4,7 +4,7 @@ import Config qualified
 import CustomPrelude
 import Data.Aeson.TH (defaultOptions, deriveToJSON)
 import Data.Map.Strict qualified as Map
-import Data.Time (gregorianMonthLength, toGregorian, utctDay)
+import Data.Time (DayOfMonth, gregorianMonthLength, toGregorian, utctDay)
 import Data.Time qualified as Time
 import Data.Time.Calendar.Month (pattern YearMonth)
 import Database (SearchParams (..))
@@ -14,8 +14,9 @@ import Effectful.Reader.Static (asks)
 import Effectful.Time qualified as Time
 import Expenses.Effects
 import Expenses.NonEmptyText qualified as NET
-import Expenses.Server.Routes.GetTransactions (TransactionItem (..), convertRowToItem)
-import Types (BECents (..), FECents (..), TagGroupName (..), TagName)
+import Expenses.Server.Routes.GetTransactions (TransactionItem (..))
+import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
+import Types (BECents (..), FECents (..), TagGroupName (..), TagName, toFE)
 
 data BudgetTagGroupStats = BudgetTagGroupStats
   { name :: TagGroupName
@@ -27,10 +28,13 @@ data BudgetTagGroupStats = BudgetTagGroupStats
 
 data BudgetInfo = BudgetInfo
   { monthlyLimitCents :: FECents
-  , projectedLimitTodayCents :: FECents
-  , overUnderTodayCents :: FECents
+  , expectedSpendingToDateCents :: FECents
+  -- ^ How much we expect to spend by this point in the month.
+  , actualSpendingToDateCents :: FECents
+  -- ^ How much we've spent so far this month.
+  , overUnderCents :: FECents
+  -- ^ How much we're over or under the expected spending for this point in the month.
   , transactions :: [TransactionItem]
-  , totalSpentCents :: FECents
   , tagGroupStats :: [BudgetTagGroupStats]
   }
   deriving stock (Show, Eq)
@@ -52,8 +56,7 @@ getBudgetHandler = do
   config <- asks @Env (.config)
   let budgetGroups = config.budget.tagGroups
   let budgetTags = concatMap (.tags) budgetGroups
-  let totalLimitBE = BECents $ sum $ map (.limitCents.getCents) budgetGroups
-  let limitCentsInt = negate totalLimitBE.getCents
+  let monthlyLimit = toFE (budgetGroups <&> (.limitCents) & sum)
 
   let thisMonth = YearMonth year month & Time.formatTime Time.defaultTimeLocale "%m-%Y" & toText
   rows <- useConnection \conn ->
@@ -72,21 +75,24 @@ getBudgetHandler = do
         }
       <&> toList
 
-  let txItems = rows <&> (\row -> convertRowToItem row)
-  let totalSpentCents = sum (map (.itemAmountCents) txItems)
-  let tagGroupStatsResult = mkBudgetTagGroupStats budgetGroups txItems
+  let txItems = rows <&> \row -> GetTransactions.convertRowToItem row
+  let actualSpendingToDateCents = txItems <&> (.itemAmountCents) & sum
+  let expectedSpendingToDateCents =
+        round @Double @FECents $
+          fromIntegral @FECents @Double monthlyLimit
+            * fromIntegral @DayOfMonth @Double todayDayNum
+            / fromIntegral @DayOfMonth @Double totalDays
+  let overUnderCents = actualSpendingToDateCents - expectedSpendingToDateCents
 
-  let projectedInt = round ((fromIntegral limitCentsInt :: Double) * fromIntegral todayDayNum / fromIntegral totalDays)
-  let projectedLimitTodayCents = FECents projectedInt
-  let overUnderTodayCents = FECents (totalSpentCents.getCents - projectedInt)
+  let tagGroupStatsResult = mkBudgetTagGroupStats budgetGroups txItems
 
   pure
     BudgetInfo
-      { monthlyLimitCents = FECents limitCentsInt
-      , projectedLimitTodayCents
-      , overUnderTodayCents
+      { monthlyLimitCents = monthlyLimit
+      , expectedSpendingToDateCents
+      , overUnderCents
       , transactions = txItems
-      , totalSpentCents
+      , actualSpendingToDateCents
       , tagGroupStats = tagGroupStatsResult
       }
 

@@ -47,7 +47,7 @@ newtype TagGroupName = TagGroupName {unTagGroupName :: Text}
 -- This purposefully does not have FromField or ToField instances, to avoid
 -- accidentally using it in the back-end.
 newtype FECents = FECents {getCents :: Int}
-  deriving newtype (Eq, Ord, Show, Num, ToJSON, FromJSON, LinearToJSON)
+  deriving newtype (Eq, Ord, Show, Num, Enum, Real, Integral, ToJSON, FromJSON, LinearToJSON)
   deriving newtype (Linear.Dupable, Linear.Consumable, Linear.Movable)
 
 -- Amount in cents, for use in back-end communication and storage.

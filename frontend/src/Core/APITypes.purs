@@ -309,9 +309,9 @@ type BudgetTagGroupStats =
 
 type BudgetInfo =
   { monthlyLimitCents :: Int
-  , projectedLimitTodayCents :: Int
-  , overUnderTodayCents :: Int
+  , expectedSpendingToDateCents :: Int
+  , overUnderCents :: Int
   , transactions :: Array TransactionItem
-  , totalSpentCents :: Int
+  , actualSpendingToDateCents :: Int
   , tagGroupStats :: Array BudgetTagGroupStats
   }
