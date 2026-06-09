@@ -8,6 +8,7 @@ import Data.Set qualified as Set
 import Data.Time (DayOfMonth, gregorianMonthLength, toGregorian, utctDay)
 import Data.Time qualified as Time
 import Data.Time.Calendar.Month (pattern YearMonth)
+import Data.Vector.Algorithms qualified as V
 import Database (SearchParams (..))
 import Database qualified as Db
 import Effectful
@@ -73,20 +74,19 @@ getBudgetHandler = do
           , notes = Db.StringParams [] []
           , isExpense = Just True
           }
-  txItems <- useConnection \conn ->
-    Db.search conn (mkSearchParams Nothing (Just (Db.SomeTags budgetTags)))
-      <&> fmap (\tx -> GetTransactions.convertRowToItem tx)
 
-  extraTxItems <- fmap concat $ forM (Set.toList includeAllTxsFromAccounts) \accountName ->
-    toList <$> useConnection \conn ->
+  txs <- useConnection \conn -> do
+    taggedTxs <- Db.search conn (mkSearchParams Nothing (Just (Db.SomeTags budgetTags)))
+
+    extraTxs <- forM (Set.toList includeAllTxsFromAccounts) \accountName ->
       Db.search conn (mkSearchParams (Just accountName) Nothing)
-        <&> fmap (\tx -> GetTransactions.convertRowToItem tx)
 
-  let txKey tx = (tx.transactionId, tx.itemIndex)
-  let existingKeys = Set.fromList $ txKey <$> toList txItems
-  let allTxItems = txItems <> fromList (filter (\tx -> Set.notMember (txKey tx) existingKeys) extraTxItems)
+    pure $
+      mconcat (taggedTxs : extraTxs)
+        <&> (\tx -> GetTransactions.convertRowToItem tx)
+        & V.nubBy (comparing (.transactionId) <> comparing (.itemIndex))
 
-  let actualSpendingToDateCents = allTxItems <&> (.itemAmountCents) & sum
+  let actualSpendingToDateCents = txs <&> (.itemAmountCents) & sum
   let expectedSpendingToDateCents =
         round @Double @FECents $
           fromIntegral @FECents @Double monthlyLimit
@@ -94,14 +94,14 @@ getBudgetHandler = do
             / fromIntegral @DayOfMonth @Double totalDays
   let overUnderCents = actualSpendingToDateCents - expectedSpendingToDateCents
 
-  let tagGroupStatsResult = mkBudgetTagGroupStats budgetGroups includeAllTxsFromAccounts allTxItems
+  let tagGroupStatsResult = mkBudgetTagGroupStats budgetGroups includeAllTxsFromAccounts txs
 
   pure
     BudgetInfo
       { monthlyLimitCents = monthlyLimit
       , expectedSpendingToDateCents
       , overUnderCents
-      , transactions = allTxItems
+      , transactions = txs
       , actualSpendingToDateCents
       , tagGroupStats = tagGroupStatsResult
       }

@@ -155,6 +155,7 @@ library:
     - log-effectful
     - monad-time-effectful
     - sqlite-simple-effectful
+    - vector-algorithms
 
 tests:
   test:

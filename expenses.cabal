@@ -155,6 +155,7 @@ library
     , universum
     , unordered-containers
     , uuid
+    , vector-algorithms
     , wai
     , wai-app-static
     , wai-cors
