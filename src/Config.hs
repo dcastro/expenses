@@ -29,8 +29,9 @@ instance FromJSON BudgetTagGroup where
     let limitCents = BECents $ negate $ round (limitEur * 100)
     pure BudgetTagGroup{name, tags, limitCents}
 
-newtype BudgetConfig = BudgetConfig
+data BudgetConfig = BudgetConfig
   { tagGroups :: [BudgetTagGroup]
+  , includeAllTxsFromAccounts :: Set Text
   }
   deriving stock (Eq, Show, Generic)
   deriving anyclass (FromJSON)

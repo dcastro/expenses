@@ -65,6 +65,8 @@ budget:
         - casa
         - eletronica
         - jogos
+  # In addition to the tags listed above, also include all txs from these accounts in the budget calculations.
+  includeAllTxsFromAccounts: []
 
 # Transactions with these tags are marked as "not an expense".
 notExpenses: []

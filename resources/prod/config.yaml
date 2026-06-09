@@ -321,6 +321,9 @@ budget:
         - eletronica
         - jogos
         - prota
+  # In addition to the tags listed above, also include all txs from these accounts in the budget calculations.
+  includeAllTxsFromAccounts:
+    - Moey
 
 # Transactions with these tags are marked as "not an expense".
 notExpenses:

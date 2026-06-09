@@ -4,6 +4,7 @@ import Config qualified
 import CustomPrelude
 import Data.Aeson.TH (defaultOptions, deriveToJSON)
 import Data.Map.Strict qualified as Map
+import Data.Set qualified as Set
 import Data.Time (DayOfMonth, gregorianMonthLength, toGregorian, utctDay)
 import Data.Time qualified as Time
 import Data.Time.Calendar.Month (pattern YearMonth)
@@ -57,25 +58,35 @@ getBudgetHandler = do
   let budgetGroups = config.budget.tagGroups
   let budgetTags = concatMap (.tags) budgetGroups
   let monthlyLimit = toFE (budgetGroups <&> (.limitCents) & sum)
+  let includeAllTxsFromAccounts = config.budget.includeAllTxsFromAccounts
 
   let thisMonth = YearMonth year month & Time.formatTime Time.defaultTimeLocale "%m-%Y" & toText
+  let mkSearchParams account tag =
+        Db.SearchParams
+          { allFields = Db.StringParams [] []
+          , transactionId = Nothing
+          , date = Just $ Db.Contains $ NET.unsafeFromText thisMonth
+          , account
+          , desc = Db.StringParams [] []
+          , amount = Nothing
+          , tag
+          , notes = Db.StringParams [] []
+          , isExpense = Just True
+          }
   txItems <- useConnection \conn ->
-    Db.search
-      conn
-      Db.SearchParams
-        { allFields = Db.StringParams [] []
-        , transactionId = Nothing
-        , date = Just $ Db.Contains $ NET.unsafeFromText thisMonth
-        , account = Nothing
-        , desc = Db.StringParams [] []
-        , amount = Nothing
-        , tag = Just (Db.SomeTags budgetTags)
-        , notes = Db.StringParams [] []
-        , isExpense = Just True
-        }
+    Db.search conn (mkSearchParams Nothing (Just (Db.SomeTags budgetTags)))
       <&> fmap (\tx -> GetTransactions.convertRowToItem tx)
 
-  let actualSpendingToDateCents = txItems <&> (.itemAmountCents) & sum
+  extraTxItems <- fmap concat $ forM (Set.toList includeAllTxsFromAccounts) \accountName ->
+    toList <$> useConnection \conn ->
+      Db.search conn (mkSearchParams (Just accountName) Nothing)
+        <&> fmap (\tx -> GetTransactions.convertRowToItem tx)
+
+  let txKey tx = (tx.transactionId, tx.itemIndex)
+  let existingKeys = Set.fromList $ txKey <$> toList txItems
+  let allTxItems = txItems <> fromList (filter (\tx -> Set.notMember (txKey tx) existingKeys) extraTxItems)
+
+  let actualSpendingToDateCents = allTxItems <&> (.itemAmountCents) & sum
   let expectedSpendingToDateCents =
         round @Double @FECents $
           fromIntegral @FECents @Double monthlyLimit
@@ -83,29 +94,50 @@ getBudgetHandler = do
             / fromIntegral @DayOfMonth @Double totalDays
   let overUnderCents = actualSpendingToDateCents - expectedSpendingToDateCents
 
-  let tagGroupStatsResult = mkBudgetTagGroupStats budgetGroups txItems
+  let tagGroupStatsResult = mkBudgetTagGroupStats budgetGroups includeAllTxsFromAccounts allTxItems
 
   pure
     BudgetInfo
       { monthlyLimitCents = monthlyLimit
       , expectedSpendingToDateCents
       , overUnderCents
-      , transactions = txItems
+      , transactions = allTxItems
       , actualSpendingToDateCents
       , tagGroupStats = tagGroupStatsResult
       }
 
-mkBudgetTagGroupStats :: [Config.BudgetTagGroup] -> Vector TransactionItem -> [BudgetTagGroupStats]
-mkBudgetTagGroupStats groups txs =
+mkBudgetTagGroupStats :: [Config.BudgetTagGroup] -> Set.Set Text -> Vector TransactionItem -> [BudgetTagGroupStats]
+mkBudgetTagGroupStats groups includeAllAccounts txs =
   let tagMap = Map.fromListWith (+) do
         tx <- toList txs
         tag <- maybeToList tx.tag
         pure (tag, tx.itemAmountCents)
-   in groups <&> \group ->
+      otherUntaggedSpent =
+        sum
+          [ tx.itemAmountCents
+          | tx <- toList txs
+          , Set.member tx.account includeAllAccounts
+          , isNothing tx.tag
+          ]
+      hasOtherGroup = any (\g -> g.name == TagGroupName "Other") groups
+      mkGroupStats group =
         let groupSpent = sum $ mapMaybe (\tag -> Map.lookup tag tagMap) group.tags
+            extra = if group.name == TagGroupName "Other" then otherUntaggedSpent else 0
          in BudgetTagGroupStats
               { name = group.name
-              , spentToDateCents = groupSpent
+              , spentToDateCents = groupSpent + extra
               , limitCents = toFE group.limitCents
               , tags = group.tags
               }
+      baseStats = mkGroupStats <$> groups
+   in if hasOtherGroup || otherUntaggedSpent == 0
+        then baseStats
+        else
+          baseStats
+            ++ [ BudgetTagGroupStats
+                   { name = TagGroupName "Other"
+                   , spentToDateCents = otherUntaggedSpent
+                   , limitCents = FECents 0
+                   , tags = []
+                   }
+               ]
