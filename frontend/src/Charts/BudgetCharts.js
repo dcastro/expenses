@@ -6,6 +6,12 @@ export const _makeChart = containerId => chartData => onSelectionChange => () =>
     assetsUrlBase: "assets",
     container: document.getElementById(containerId),
     data: [{ preloaded: { subvalues: chartData } }],
+    // https://zoomcharts.com/developers/en/full-reference/FacetChartSettingsFacetAxis.html
+    facetAxis: {
+      // Make the "facet axis" (the x-axis rendered at the bottom) a little bit taller, so that the "ZoomCharts Unlicensed"
+      // red box doesn't appear above the chart's labels.
+      size: 70
+    },
     stacks: {
       "s1": {
         // Overlap the 2 series on top of each other
