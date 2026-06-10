@@ -70,7 +70,7 @@ unit_getIsExpense = do
           , cronSchedule = ""
           , tagPatterns = mempty
           , notExpenses = ["transfers"]
-          , budget = BudgetConfig { tagGroups = [] }
+          , budget = BudgetConfig{tagGroups = [], includeAllTxsFromAccounts = mempty}
           }
   let txIdNormal = "20220121233851916940"
   let txIdTemporary = "12345678901234"

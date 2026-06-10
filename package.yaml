@@ -181,6 +181,11 @@ tests:
       - effectful-core
       - time
       - containers
+      - monad-time-effectful
+      - log-effectful
+      - log-base
+      - sqlite-simple
+      - vector
     ghc-options:
       - -Wno-x-partial
 
