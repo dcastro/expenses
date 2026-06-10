@@ -28,6 +28,13 @@ institutions:
   #       flipSign: true
 
 allTagGroups:
+  Groceries:
+    - groceries
+  David:
+    - baby
+    - atividades
+    - toys
+    - education
   Contas:
     - renda
     - gym
@@ -59,32 +66,35 @@ allTagGroups:
     - analises
     - exames
     - internamento
-  Budgeted:
-    - groceries
-    - baby # David
-    - atividades # David
-    - toys # David
-    - education # David
-    - car repairs
-    - gifts
+  Roupa:
     - roupa
+  Carro:
+    - car wash
+    - via verde
+    - gasolina
+    - estacionamento
+    - car repairs
+  Gifts:
+    - gifts
+  Go out:
     - go out
+  Takeaway:
     - takeaway
+  Casa:
     - casa
-    - festas
+  Ferias:
+    - ferias
+  Eletronica:
     - eletronica
     - jogos
-    - prota
-  Out of budget:
-    - car wash # carro
-    - via verde # carro
-    - gasolina # carro
-    - estacionamento # carro
+  Gata:
     - vet
-    - ferias
-    - cabelo
+  Festas:
+    - festas
 
 ungroupedTags:
+  - prota
+  - cabelo
   - income
   - transfers
   - investments
