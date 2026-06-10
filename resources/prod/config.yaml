@@ -249,6 +249,9 @@ tagPatterns:
       - ['FARMACIA MAGALHAES FANZERES']
       - ['WELLS BAGUIM']
       - ['WELL S ANTAS PORTO']
+  - tag: car wash
+    contains:
+      - ['LUIS PAULO RAMOS OLIVEIRA'] # GO&WASH no Continente de Rio Tinto
   - tag: vet
     contains:
       - ['CENTRO VETERINARIO']
