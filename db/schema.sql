@@ -34,17 +34,6 @@ CREATE TABLE
 CREATE INDEX
   idx_sync_account_status_status ON sync_account_status (last_sync_status);
 
-CREATE TABLE
-  app_settings (
-    id INTEGER PRIMARY KEY CHECK (id = 1),
-    monthly_budget_limit_cents INTEGER NOT NULL DEFAULT 120000
-  );
-
-INSERT INTO
-  app_settings (id, monthly_budget_limit_cents)
-VALUES
-  (1, 120000);
-
 CREATE VIEW
   _transactions_with_items AS
 SELECT
