@@ -7,7 +7,7 @@ import Data.Map.Strict qualified as Map
 import Data.Set qualified as Set
 import Data.Time (DayOfMonth, gregorianMonthLength, toGregorian, utctDay)
 import Data.Time qualified as Time
-import Data.Time.Calendar.Month (pattern YearMonth)
+import Data.Time.Calendar.Month (Month, pattern YearMonth)
 import Data.Vector.Algorithms qualified as V
 import Database (SearchParams (..))
 import Database qualified as Db
@@ -57,34 +57,9 @@ getBudgetHandler = do
 
   config <- asks @Env (.config)
   let budgetGroups = config.budget.tagGroups
-  let budgetTags = concatMap (.tags) budgetGroups
   let monthlyLimit = toFE (budgetGroups <&> (.limitCents) & sum)
-  let includeAllTxsFromAccounts = config.budget.includeAllTxsFromAccounts
 
-  let thisMonth = YearMonth year month & Time.formatTime Time.defaultTimeLocale "%m-%Y" & toText
-  let mkSearchParams account tag =
-        Db.SearchParams
-          { allFields = Db.StringParams [] []
-          , transactionId = Nothing
-          , date = Just $ Db.Contains $ NET.unsafeFromText thisMonth
-          , account
-          , desc = Db.StringParams [] []
-          , amount = Nothing
-          , tag
-          , notes = Db.StringParams [] []
-          , isExpense = Just True
-          }
-
-  txs <- useConnection \conn -> do
-    taggedTxs <- Db.search conn (mkSearchParams Nothing (Just (Db.SomeTags budgetTags)))
-
-    extraTxs <- forM (Set.toList includeAllTxsFromAccounts) \accountName ->
-      Db.search conn (mkSearchParams (Just accountName) Nothing)
-
-    pure $
-      mconcat (taggedTxs : extraTxs)
-        <&> (\tx -> GetTransactions.convertRowToItem tx)
-        & V.nubBy (comparing (.transactionId) <> comparing (.itemIndex))
+  txs <- findMatchingTxs (YearMonth year month)
 
   let actualSpendingToDateCents = txs <&> (.itemAmountCents) & sum
   let expectedSpendingToDateCents =
@@ -94,7 +69,7 @@ getBudgetHandler = do
             / fromIntegral @DayOfMonth @Double totalDays
   let overUnderCents = actualSpendingToDateCents - expectedSpendingToDateCents
 
-  let tagGroupStatsResult = mkBudgetTagGroupStats budgetGroups txs
+  let tagGroupStats = mkBudgetTagGroupStats budgetGroups txs
 
   pure
     BudgetInfo
@@ -103,8 +78,42 @@ getBudgetHandler = do
       , overUnderCents
       , transactions = txs
       , actualSpendingToDateCents
-      , tagGroupStats = MapAsList tagGroupStatsResult
+      , tagGroupStats = MapAsList tagGroupStats
       }
+
+findMatchingTxs ::
+  (Reader Env :> es, SQLite :> es, Time :> es, Log :> es) =>
+  Month ->
+  Eff es (Vector TransactionItem)
+findMatchingTxs month = do
+  config <- asks @Env (.config)
+
+  let budgetTags = concatMap (.tags) config.budget.tagGroups
+
+  let thisMonth = month & Time.formatTime Time.defaultTimeLocale "%m-%Y" & toText
+
+  useConnection \conn -> do
+    let mkSearchParams account tag =
+          Db.SearchParams
+            { allFields = Db.StringParams [] []
+            , transactionId = Nothing
+            , date = Just $ Db.Contains $ NET.unsafeFromText thisMonth
+            , account
+            , desc = Db.StringParams [] []
+            , amount = Nothing
+            , tag
+            , notes = Db.StringParams [] []
+            , isExpense = Just True
+            }
+    taggedTxs <- Db.search conn (mkSearchParams Nothing (Just (Db.SomeTags budgetTags)))
+
+    extraTxs <- forM (Set.toList config.budget.includeAllTxsFromAccounts) \accountName ->
+      Db.search conn (mkSearchParams (Just accountName) Nothing)
+
+    pure $
+      mconcat (taggedTxs : extraTxs)
+        <&> (\tx -> GetTransactions.convertRowToItem tx)
+        & V.nubBy (comparing (.transactionId) <> comparing (.itemIndex))
 
 mkBudgetTagGroupStats :: [Config.BudgetTagGroup] -> Vector TransactionItem -> Map TagGroupName BudgetTagGroupStats
 mkBudgetTagGroupStats groups txs =
