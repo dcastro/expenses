@@ -299,29 +299,39 @@ tagPatterns:
       - ['PAG.IGCP']
 
 budget:
+  # The budget calculations will include any txs that have one of the tags listed below
+  # OR are from one of the accounts listed below.
+  #
+  # Txs that match an account name but not any of the listed tags will be included in the "Other" tag group.
   tagGroups:
     - name: Groceries
-      tags: [groceries, takeaway]
+      tags: [groceries]
       limit: 650
+    - name: Roupa
+      tags: [roupa]
+      limit: 150
+    - name: Takeaway
+      tags: [takeaway]
+      limit: 50
     - name: Go out
       tags: [go out]
       limit: 100
+    - name: Gifts
+      tags: [gifts]
+      limit: 50
     - name: Other
-      limit: 500
+      limit: 120
       tags:
         - baby
         - atividades
         - toys
         - education
         - car repairs
-        - gifts
-        - roupa
         - casa
         - festas
         - eletronica
         - jogos
         - prota
-  # In addition to the tags listed above, also include all txs from these accounts in the budget calculations.
   includeAllTxsFromAccounts:
     - Moey
 

@@ -52,6 +52,10 @@ ungroupedTags:
 tagPatterns: []
 
 budget:
+  # The budget calculations will include any txs that have one of the tags listed below
+  # OR are from one of the accounts listed below.
+  #
+  # Txs that match an account name but not any of the listed tags will be included in the "Other" tag group.
   tagGroups:
     - name: Groceries
       tags: [groceries]
@@ -65,7 +69,6 @@ budget:
         - casa
         - eletronica
         - jogos
-  # In addition to the tags listed above, also include all txs from these accounts in the budget calculations.
   includeAllTxsFromAccounts: []
 
 # Transactions with these tags are marked as "not an expense".
