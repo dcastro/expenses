@@ -63,12 +63,15 @@ budget:
     - name: Go out
       tags: [go out]
       limit: 100
-    - name: Other
+    - name: Clothes
+      tags: [clothes]
       limit: 100
+    - name: Other
+      limit: 200
       tags:
-        - casa
-        - eletronica
-        - jogos
+        - pharmacy
+        - home
+        - fuel
   includeAllTxsFromAccounts: []
 
 # Transactions with these tags are marked as "not an expense".
