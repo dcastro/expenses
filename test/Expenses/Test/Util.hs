@@ -44,7 +44,6 @@ mkTestEnv = do
       , config
       }
 
-
 mkTestDbConn :: IO (M.MVar SQL.Connection)
 mkTestDbConn = do
   conn <- SQL.open "./resources/test-app-dir/expenses.db"

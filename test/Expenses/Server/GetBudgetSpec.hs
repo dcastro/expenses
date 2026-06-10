@@ -2,12 +2,10 @@ module Expenses.Server.GetBudgetSpec where
 
 import Config qualified
 import CustomPrelude
-import Data.List (sortBy)
 import Data.Map.Strict qualified as Map
-import Data.Ord (comparing)
 import Data.Time (Day, UTCTime (..), fromGregorian, secondsToDiffTime)
 import Data.Vector qualified as V
-import Database.SQLite.Simple qualified as SQLiteSimple
+import Database qualified as Db
 import Effectful
 import Effectful.Concurrent (runConcurrent)
 import Effectful.Log (runLog)
@@ -22,7 +20,6 @@ import Log (LogLevel (..), mkBulkLogger)
 import Test.Hspec (Spec, it)
 import Test.Hspec.Expectations.Pretty (shouldBe)
 import Types
-import Control.Concurrent.MVar qualified as MVar
 
 frozenTime :: UTCTime
 frozenTime = UTCTime (fromGregorian 2026 6 15) (secondsToDiffTime 0)
@@ -42,24 +39,39 @@ mkItem txId date tag amt =
     , details = ""
     }
 
+mkRow :: Text -> Day -> Maybe TagName -> FECents -> Db.TransactionJoinedRow
+mkRow txId date tag amt =
+  Db.TransactionJoinedRow
+    { transactionId = txId
+    , account = "bank"
+    , date
+    , desc = "desc"
+    , totalAmountCents = toBE amt
+    , isExpense = True
+    , itemIndex = 0
+    , itemAmountCents = toBE amt
+    , tag
+    , details = ""
+    }
+
 spec_mkBudgetTagGroupStats :: Spec
 spec_mkBudgetTagGroupStats = it "groups transactions by budget tag group" do
   let
     groups =
-      [ Config.BudgetTagGroup{name = "Groceries", tags = ["groceries"], limitCents = BECents (-65000)}
-      , Config.BudgetTagGroup{name = "Transport", tags = ["fuel"], limitCents = BECents (-10000)}
+      [ Config.BudgetTagGroup{name = "Groceries", tags = ["groceries"], limitCents = BECents (-650_00)}
+      , Config.BudgetTagGroup{name = "Transport", tags = ["fuel"], limitCents = BECents (-100_00)}
       ]
     txs =
       V.fromList
-        [ mkItem "t1" (fromGregorian 2026 6 1) (Just "groceries") (FECents 5000)
-        , mkItem "t2" (fromGregorian 2026 6 1) (Just "fuel") (FECents 2000)
-        , mkItem "t3" (fromGregorian 2026 6 1) (Just "random") (FECents 1000)
+        [ mkItem "t1" (fromGregorian 2026 6 1) (Just "groceries") 50_00
+        , mkItem "t2" (fromGregorian 2026 6 1) (Just "fuel") 20_00
+        , mkItem "t3" (fromGregorian 2026 6 1) (Just "random") 10_00
         ]
     expected =
       Map.fromList
-        [ ("Groceries", BudgetTagGroupStats{spentToDateCents = FECents 5000, limitCents = FECents 65000, tags = [Just "groceries"]})
-        , ("Transport", BudgetTagGroupStats{spentToDateCents = FECents 2000, limitCents = FECents 10000, tags = [Just "fuel"]})
-        , ("Other", BudgetTagGroupStats{spentToDateCents = FECents 1000, limitCents = FECents 0, tags = [Just "random"]})
+        [ ("Groceries", BudgetTagGroupStats{spentToDateCents = 50_00, limitCents = 650_00, tags = [Just "groceries"]})
+        , ("Transport", BudgetTagGroupStats{spentToDateCents = 20_00, limitCents = 100_00, tags = [Just "fuel"]})
+        , ("Other", BudgetTagGroupStats{spentToDateCents = 10_00, limitCents = 0, tags = [Just "random"]})
         ]
   mkBudgetTagGroupStats groups txs `shouldBe` expected
 
@@ -68,30 +80,21 @@ spec_getBudgetHandler = it "returns correct budget info for the current month" d
   env <- Util.mkTestEnv
   conn <- Util.mkInMemoryDbConn
 
-  -- Seed test data directly into the connection before wrapping in MVar
-  MVar.withMVar conn \c -> do
-    let insertTx txId date amt =
-          SQLiteSimple.execute
-            c
-            "INSERT INTO transactions (id, account, date, desc, total_amount_cents) VALUES (?,?,?,?,?)"
-            (txId :: Text, "bank" :: Text, date :: Text, "desc" :: Text, amt :: Int)
-        insertItem txId tag amt =
-          SQLiteSimple.execute
-            c
-            "INSERT INTO transaction_items (transaction_id, item_index, item_amount_cents, tag, details, is_expense) VALUES (?,?,?,?,?,?)"
-            (txId :: Text, 0 :: Int, amt :: Int, tag :: Text, "" :: Text, True)
-
-    insertTx "tx1" "2026-06-05" (-5000)
-    insertItem "tx1" "groceries" (-5000)
-    insertTx "tx2" "2026-06-10" (-2000)
-    insertItem "tx2" "go out" (-2000)
-    insertTx "tx3" "2026-06-03" (-3000)
-    insertItem "tx3" "jogos" (-3000)
-    -- tx4 is in May → excluded by the "06-2026" date filter
-    insertTx "tx4" "2026-05-15" (-1000)
-    insertItem "tx4" "groceries" (-1000)
+  let testRows =
+        [ mkRow "tx1" (fromGregorian 2026 6 5) (Just "groceries") 50_00
+        , mkRow "tx2" (fromGregorian 2026 6 10) (Just "go out") 20_00
+        , mkRow "tx3" (fromGregorian 2026 6 3) (Just "jogos") 30_00
+        , -- tx4 is in May → excluded by the "06-2026" date filter
+          mkRow "tx4" (fromGregorian 2026 5 15) (Just "groceries") 10_00
+        ]
 
   nullLogger <- mkBulkLogger "null" (\_ -> pure ()) (pure ())
+
+  forM_ testRows \row ->
+    SQL.useConnection (\c -> Db.insertTransactionJoinedRow c row)
+      & SQL.runSQLiteSync conn
+      & runConcurrent
+      & runEff
 
   resp <-
     getBudgetHandler
@@ -105,29 +108,29 @@ spec_getBudgetHandler = it "returns correct budget info for the current month" d
   let sortTxs = sortBy (comparing (.transactionId)) . V.toList
 
   let expectedTransactions =
-        [ mkItem "tx1" (fromGregorian 2026 6 5) (Just "groceries") (FECents 5000)
-        , mkItem "tx2" (fromGregorian 2026 6 10) (Just "go out") (FECents 2000)
-        , mkItem "tx3" (fromGregorian 2026 6 3) (Just "jogos") (FECents 3000)
+        [ mkItem "tx1" (fromGregorian 2026 6 5) (Just "groceries") 50_00
+        , mkItem "tx2" (fromGregorian 2026 6 10) (Just "go out") 20_00
+        , mkItem "tx3" (fromGregorian 2026 6 3) (Just "jogos") 30_00
         ]
 
   let expectedTagGroupStats =
         MapAsList $
           Map.fromList
-            [ ("Groceries", BudgetTagGroupStats{spentToDateCents = FECents 5000, limitCents = FECents 65000, tags = [Just "groceries"]})
-            , ("Go out", BudgetTagGroupStats{spentToDateCents = FECents 2000, limitCents = FECents 10000, tags = [Just "go out"]})
+            [ ("Groceries", BudgetTagGroupStats{spentToDateCents = 50_00, limitCents = 650_00, tags = [Just "groceries"]})
+            , ("Go out", BudgetTagGroupStats{spentToDateCents = 20_00, limitCents = 100_00, tags = [Just "go out"]})
             ,
               ( "Other"
               , BudgetTagGroupStats
-                  { spentToDateCents = FECents 3000
-                  , limitCents = FECents 10000
+                  { spentToDateCents = 30_00
+                  , limitCents = 100_00
                   , tags = [Just "casa", Just "eletronica", Just "jogos"]
                   }
               )
             ]
 
   sortTxs resp.transactions `shouldBe` sortBy (comparing (.transactionId)) expectedTransactions
-  resp.monthlyLimitCents `shouldBe` FECents 85000
-  resp.expectedSpendingToDateCents `shouldBe` FECents 42500
-  resp.actualSpendingToDateCents `shouldBe` FECents 10000
-  resp.overUnderCents `shouldBe` FECents (-32500)
+  resp.monthlyLimitCents `shouldBe` 850_00
+  resp.expectedSpendingToDateCents `shouldBe` 425_00
+  resp.actualSpendingToDateCents `shouldBe` 100_00
+  resp.overUnderCents `shouldBe` (-325_00)
   resp.tagGroupStats `shouldBe` expectedTagGroupStats
