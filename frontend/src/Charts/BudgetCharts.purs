@@ -4,7 +4,10 @@ import Prelude
 
 import Core.APITypes (TagGroupName)
 import Core.APITypes as API
+import Data.Map (Map)
+import Data.Map as Map
 import Data.Nullable (Nullable)
+import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Foreign (Foreign)
 import Utils as Utils
@@ -27,22 +30,24 @@ type FacetChartItem =
 
 makeChart
   :: String
-  -> Array API.BudgetTagGroupStats
+  -> Map TagGroupName API.BudgetTagGroupStats
   -> (Nullable TagGroupName -> Effect Unit)
   -> Effect Foreign
 makeChart containerId stats onSelectionChange =
   _makeChart containerId (makeChartData stats) onSelectionChange
 
-updateChart :: Foreign -> Array API.BudgetTagGroupStats -> Effect Unit
+updateChart :: Foreign -> Map TagGroupName API.BudgetTagGroupStats -> Effect Unit
 updateChart chart stats = _updateChart chart (makeChartData stats)
 
 clearSelection :: Foreign -> Effect Unit
 clearSelection = _clearChart
 
-makeChartData :: Array API.BudgetTagGroupStats -> Array FacetChartItem
+makeChartData :: Map TagGroupName API.BudgetTagGroupStats -> Array FacetChartItem
 makeChartData stats =
-  stats <#> \s ->
-    { name: API.getTagGroupName s.name
-    , spent: Utils.centsToEurosRaw s.spentToDateCents
-    , limit: Utils.centsToEurosRaw s.limitCents
-    }
+  Map.toUnfoldable stats <#>
+    ( \(Tuple name s) ->
+        { name: API.getTagGroupName name
+        , spent: Utils.centsToEurosRaw s.spentToDateCents
+        , limit: Utils.centsToEurosRaw s.limitCents
+        }
+    )

@@ -18,11 +18,11 @@ import Expenses.Effects
 import Expenses.NonEmptyText qualified as NET
 import Expenses.Server.Routes.GetTransactions (TransactionItem (..))
 import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
+import Expenses.Server.Utils (MapAsList (..))
 import Types (FECents (..), TagGroupName (..), TagName, toFE)
 
 data BudgetTagGroupStats = BudgetTagGroupStats
-  { name :: TagGroupName
-  , spentToDateCents :: FECents
+  { spentToDateCents :: FECents
   , limitCents :: FECents
   , tags :: [Maybe TagName]
   }
@@ -37,7 +37,7 @@ data BudgetInfo = BudgetInfo
   , overUnderCents :: FECents
   -- ^ How much we're over or under the expected spending for this point in the month.
   , transactions :: Vector TransactionItem
-  , tagGroupStats :: [BudgetTagGroupStats]
+  , tagGroupStats :: MapAsList TagGroupName BudgetTagGroupStats
   }
   deriving stock (Show, Eq)
 
@@ -103,41 +103,59 @@ getBudgetHandler = do
       , overUnderCents
       , transactions = txs
       , actualSpendingToDateCents
-      , tagGroupStats = tagGroupStatsResult
+      , tagGroupStats = MapAsList tagGroupStatsResult
       }
 
-mkBudgetTagGroupStats :: [Config.BudgetTagGroup] -> Vector TransactionItem -> [BudgetTagGroupStats]
+mkBudgetTagGroupStats :: [Config.BudgetTagGroup] -> Vector TransactionItem -> Map TagGroupName BudgetTagGroupStats
 mkBudgetTagGroupStats groups txs =
-  let budgetTagSet = Set.fromList $ concatMap (.tags) groups
-      tagMap = Map.fromListWith (+) do
-        tx <- toList txs
-        tag <- maybeToList tx.tag
-        pure (tag, tx.itemAmountCents)
-      isOtherTx tx = maybe True (`Set.notMember` budgetTagSet) tx.tag
-      otherSpent = sum [tx.itemAmountCents | tx <- toList txs, isOtherTx tx]
-      otherTags = ordNub [tx.tag | tx <- toList txs, isOtherTx tx]
-      hasOtherGroup = any (\g -> g.name == TagGroupName "Other") groups
-      mkGroupStats group =
-        let groupSpent = sum $ mapMaybe (\tag -> Map.lookup tag tagMap) group.tags
-            (extra, extraTags) =
-              if group.name == TagGroupName "Other"
-                then (otherSpent, otherTags)
-                else (0, [])
-         in BudgetTagGroupStats
-              { name = group.name
-              , spentToDateCents = groupSpent + extra
-              , limitCents = toFE group.limitCents
-              , tags = fmap Just group.tags ++ extraTags
-              }
-      baseStats = mkGroupStats <$> groups
-   in if hasOtherGroup || otherSpent == 0
-        then baseStats
-        else
-          baseStats
-            ++ [ BudgetTagGroupStats
-                   { name = TagGroupName "Other"
-                   , spentToDateCents = otherSpent
-                   , limitCents = FECents 0
-                   , tags = otherTags
-                   }
-               ]
+  let
+    -- How much we've spent for each tag in the budget config
+    tagMap = Map.fromListWith (+) do
+      tx <- toList txs
+      tag <- maybeToList tx.tag
+      pure (tag, tx.itemAmountCents)
+
+    -- Collect the stats for each tag group declared in the config.
+    groupStats =
+      Map.fromList $
+        groups <&> \group ->
+          let groupSpent = sum $ mapMaybe (\tag -> Map.lookup tag tagMap) group.tags
+           in ( group.name
+              , BudgetTagGroupStats
+                  { spentToDateCents = groupSpent
+                  , limitCents = toFE group.limitCents
+                  , tags = Just <$> group.tags
+                  }
+              )
+
+    -- Collect the stats for all transactions that don't have any of the tags in the config.
+    -- We'll lump these together in an "Other" bucket.
+    otherGroupStats =
+      let
+        -- All tags explicitly called out in the budget config, across all groups.
+        budgetTagSet = Set.fromList $ concatMap (.tags) groups
+        isOtherTx tx = maybe True (`Set.notMember` budgetTagSet) tx.tag
+        otherSpent = sum [tx.itemAmountCents | tx <- toList txs, isOtherTx tx]
+        otherTags = ordNub [tx.tag | tx <- toList txs, isOtherTx tx]
+       in
+        if otherSpent == 0
+          then Map.empty
+          else
+            Map.singleton
+              (TagGroupName "Other")
+              BudgetTagGroupStats
+                { spentToDateCents = otherSpent
+                , limitCents = FECents 0
+                , tags = otherTags
+                }
+   in
+    Map.unionWith
+      ( \otherGroup1 otherGroup2 ->
+          BudgetTagGroupStats
+            { spentToDateCents = otherGroup1.spentToDateCents + otherGroup2.spentToDateCents
+            , tags = otherGroup1.tags <> otherGroup2.tags
+            , limitCents = max otherGroup1.limitCents otherGroup2.limitCents
+            }
+      )
+      groupStats
+      otherGroupStats

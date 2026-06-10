@@ -9,7 +9,8 @@ import Core.APITypes (TagGroupName, TagName)
 import Core.APITypes as API
 import Data.Array as Arr
 import Data.Foldable (foldMap)
-import Data.Maybe (Maybe(..), maybe)
+import Data.Map as Map
+import Data.Maybe (Maybe(..))
 import Data.Nullable as Null
 import Effect.Aff.Class (class MonadAff)
 import Foreign (Foreign)
@@ -150,12 +151,9 @@ filteredTransactions state =
     _, Nothing -> []
     Nothing, Just info -> info.transactions
     Just groupName, Just info ->
-      let
-        mGroup = Arr.find (\g -> g.name == groupName) info.tagGroupStats
-      in
-        case mGroup of
-          Nothing -> info.transactions
-          Just group -> Arr.filter (\tx -> tx.tag `Arr.elem` group.tags) info.transactions
+      case Map.lookup groupName info.tagGroupStats of
+        Nothing -> info.transactions
+        Just group -> Arr.filter (\tx -> tx.tag `Arr.elem` group.tags) info.transactions
 
 handleAction :: forall m. MonadAff m => Action -> H.HalogenM State Action Slots Void m Unit
 handleAction = case _ of

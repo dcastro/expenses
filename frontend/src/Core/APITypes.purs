@@ -86,6 +86,7 @@ derive newtype instance Eq TagGroupName
 
 derive newtype instance Ord JDate
 derive newtype instance Ord TagName
+derive newtype instance Ord TagGroupName
 
 ----------------------------------------------------------------------------
 -- GET /transactions
@@ -301,8 +302,7 @@ type NewShortTransactionItem =
 ----------------------------------------------------------------------------
 
 type BudgetTagGroupStats =
-  { name :: TagGroupName
-  , spentToDateCents :: Int
+  { spentToDateCents :: Int
   , limitCents :: Int
   , tags :: Array (Maybe TagName)
   }
@@ -313,5 +313,5 @@ type BudgetInfo =
   , overUnderCents :: Int
   , transactions :: Array TransactionItem
   , actualSpendingToDateCents :: Int
-  , tagGroupStats :: Array BudgetTagGroupStats
+  , tagGroupStats :: Map TagGroupName BudgetTagGroupStats
   }
