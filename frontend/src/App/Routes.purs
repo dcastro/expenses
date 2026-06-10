@@ -8,10 +8,11 @@ import Core.Sorting (SortedOrder(..), SortingColumn(..))
 import Core.Sorting as Sorting
 import Data.Either (Either(..))
 import Data.Generic.Rep (class Generic)
+import Data.Array as Array
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Profunctor (dimap)
 import Data.Show.Generic (genericShow)
-import Prelude (class Eq, class Show, ($), (<<<), (<>), (==), (>>>))
+import Prelude (class Eq, class Show, ($), (<<<), (<$>), (<>), (==), (>>>))
 import Record as Record
 import Routing.Duplex.Generic (sum)
 import Routing.Duplex.Generic.Syntax ((/))
@@ -29,6 +30,7 @@ data AppRoute
   | MonthRange ModalFlag
   | Search SearchAppRoute
   | Accounts ModalFlag
+  | Budget ModalFlag
 
 derive instance Eq AppRoute
 derive instance Generic AppRoute _
@@ -56,6 +58,7 @@ routeCodec = root $ sum
   , "MonthRange": "month-range" / modalParams
   , "Search": "search" / searchParamsCodec
   , "Accounts": "accounts" / modalParams
+  , "Budget": "budget" / modalParams
   }
   where
   modalParams :: RouteDuplex' ModalFlag
@@ -71,6 +74,9 @@ defaultSingleMonthRoute = SingleMonth defaultModalFlag
 
 defaultMonthRangeRoute :: AppRoute
 defaultMonthRangeRoute = MonthRange defaultModalFlag
+
+defaultBudgetRoute :: AppRoute
+defaultBudgetRoute = Budget defaultModalFlag
 
 mkSearchAppRoute :: SearchRoute -> Boolean -> AppRoute
 mkSearchAppRoute searchRoute isOpen =
@@ -96,12 +102,18 @@ isAccountsRoute = case _ of
   Accounts _ -> true
   _ -> false
 
+isBudgetRoute :: AppRoute -> Boolean
+isBudgetRoute = case _ of
+  Budget _ -> true
+  _ -> false
+
 isModalOpen :: AppRoute -> Boolean
 isModalOpen = case _ of
   SingleMonth flag -> flag.newTx
   MonthRange flag -> flag.newTx
   Search record -> record.newTx
   Accounts flag -> flag.newTx
+  Budget flag -> flag.newTx
 
 setModalOpen :: Boolean -> AppRoute -> AppRoute
 setModalOpen isOpen = case _ of
@@ -109,6 +121,7 @@ setModalOpen isOpen = case _ of
   MonthRange flag -> MonthRange (flag { newTx = isOpen })
   Search record -> Search (record { newTx = isOpen })
   Accounts flag -> Accounts (flag { newTx = isOpen })
+  Budget flag -> Budget (flag { newTx = isOpen })
 
 getSearchRoute :: AppRoute -> Maybe SearchRoute
 getSearchRoute = case _ of
@@ -176,12 +189,12 @@ tagParams = as toStr fromStr
   toStr :: TagParams -> String
   toStr = case _ of
     NoTag -> "notag"
-    SomeTag tag -> API.getTagName tag
+    SomeTags tags -> fromMaybe "" (API.getTagName <$> Array.head tags)
 
   fromStr :: String -> Either String TagParams
   fromStr = case _ of
     "notag" -> Right NoTag
-    str -> Right $ SomeTag (TagName str)
+    str -> Right $ SomeTags [ TagName str ]
 
 nonemptystring :: RouteDuplex' String -> RouteDuplex' String
 nonemptystring =

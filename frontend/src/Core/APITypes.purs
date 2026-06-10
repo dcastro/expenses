@@ -86,6 +86,7 @@ derive newtype instance Eq TagGroupName
 
 derive newtype instance Ord JDate
 derive newtype instance Ord TagName
+derive newtype instance Ord TagGroupName
 
 ----------------------------------------------------------------------------
 -- GET /transactions
@@ -149,7 +150,7 @@ type RawSearchParams =
 
 data TagParams
   = NoTag
-  | SomeTag TagName
+  | SomeTags (Array TagName)
 
 derive instance Eq TagParams
 
@@ -294,4 +295,23 @@ type NewShortTransactionItem =
   , details :: String
   , tag :: TagName
   , isExpense :: Boolean
+  }
+
+----------------------------------------------------------------------------
+-- GET /budget
+----------------------------------------------------------------------------
+
+type BudgetTagGroupStats =
+  { spentToDateCents :: Int
+  , limitCents :: Int
+  , tags :: Array (Maybe TagName)
+  }
+
+type BudgetInfo =
+  { monthlyLimitCents :: Int
+  , expectedSpendingToDateCents :: Int
+  , overUnderCents :: Int
+  , transactions :: Array TransactionItem
+  , actualSpendingToDateCents :: Int
+  , tagGroupStats :: Map TagGroupName BudgetTagGroupStats
   }

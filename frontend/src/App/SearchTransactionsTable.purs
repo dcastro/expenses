@@ -18,7 +18,7 @@ import Data.Array as Arr
 import Data.Array.NonEmpty as NE
 import Data.Foldable (sum)
 import Data.Function (on)
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Ord.Down (Down(..))
 import Data.String as Str
 import Data.Tuple.Nested ((/\))
@@ -730,7 +730,7 @@ handleAction =
           else if idx == 0 then
             Just NoTag
           else
-            Arr.index allTags (idx - 1) <#> SomeTag
+            Arr.index allTags (idx - 1) <#> \t -> SomeTags [ t ]
 
       Console.log $ "[Search] Selected tag: '" <> show tagParams <> "', navigating to Search route"
       handleAction $ ModifySearchQuery _
@@ -851,8 +851,8 @@ updateControls = do
         Choices.clearSelection state.tagChoicesControl
       Just NoTag ->
         Choices.selectValue state.tagChoicesControl "No tag"
-      Just (SomeTag tagName) -> do
-        Choices.selectValue state.tagChoicesControl (display tagName)
+      Just (SomeTags tagNames) -> do
+        Choices.selectValue state.tagChoicesControl (fromMaybe "" (display <$> Arr.head tagNames))
 
   H.liftEffect $
     case state.searchParams.account of

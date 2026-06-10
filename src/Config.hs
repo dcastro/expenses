@@ -1,8 +1,10 @@
 module Config where
 
+import Control.Lens (classIdFields, makeLensesWith)
 import CustomPrelude
-import Data.Aeson (FromJSON (..))
+import Data.Aeson (FromJSON (..), withObject, (.:))
 import Data.Aeson.TH (defaultOptions, deriveFromJSON)
+import Data.Aeson.Types (Parser)
 import Data.HashMap.Strict qualified as HM
 import Data.Set qualified as Set
 import Data.Yaml qualified as Y
@@ -12,6 +14,28 @@ import Types
 
 cronUser :: Admin
 cronUser = Admin $ Username $ NET.unsafeFromText "cron"
+
+data BudgetTagGroup = BudgetTagGroup
+  { name :: TagGroupName
+  , tags :: [TagName]
+  , limitCents :: BECents
+  }
+  deriving stock (Eq, Show)
+
+instance FromJSON BudgetTagGroup where
+  parseJSON = withObject "BudgetTagGroup" \o -> do
+    name <- o .: "name"
+    tags <- o .: "tags"
+    limitEur <- o .: "limit" :: Parser Double
+    let limitCents = BECents $ negate $ round (limitEur * 100)
+    pure BudgetTagGroup{name, tags, limitCents}
+
+data BudgetConfig = BudgetConfig
+  { tagGroups :: [BudgetTagGroup]
+  , includeAllTxsFromAccounts :: Set Text
+  }
+  deriving stock (Eq, Show, Generic)
+  deriving anyclass (FromJSON)
 
 data AppConfig = AppConfig
   { institutions :: [InstitutionInfo]
@@ -23,6 +47,7 @@ data AppConfig = AppConfig
   , cronSchedule :: Text
   , tagPatterns :: [TagPatternEntry]
   , notExpenses :: [TagName]
+  , budget :: BudgetConfig
   }
   deriving stock (Eq, Show)
 
@@ -42,6 +67,7 @@ type Substring = Text
 
 $( mconcat
      [ deriveFromJSON defaultOptions ''AppConfig
+     , makeLensesWith classIdFields ''AppConfig
      ]
  )
 loadAppConfig :: (MonadIO m) => FilePath -> m AppConfig

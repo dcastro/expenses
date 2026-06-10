@@ -2,14 +2,41 @@
 default:
     just --list
 
+# Address of the Raspberry Pi machine
+
+remote := "192.168.1.244"
+
+# Where we store a db and config for local development.
+
+dev-app-dir := "./resources/dev-app-dir"
+demo-app-dir := "./resources/test-app-dir"
+
+restore-dev-app-dir:
+    # Clone the db and event log from the Raspberry Pi to be able to test with real data.
+    rsync --archive --verbose --progress --partial \
+        --exclude 'logs/' \
+        "dc@{{ remote }}:/home/dc/.local/share/expenses-manager/" \
+        "{{ dev-app-dir }}/"
+    # Override with the local config
+    rm {{ dev-app-dir }}/config.yaml
+    ln -s ../prod/config.yaml {{ dev-app-dir }}/config.yaml
+
 run *ARGS:
-    stack run expenses-manager-server -- --user test --verbose {{ ARGS }}
+    watchexec --restart --clear --exts hs,yaml -- \
+        stack run expenses-manager-server -- \
+        --user test \
+        --verbose \
+        --app-dir {{ dev-app-dir }} \
+        {{ ARGS }}
 
 run-demo *ARGS:
-    just run --demo-mode {{ ARGS }}
-
-run-user-dir:
-    stack run expenses-manager-server -- --user test --verbose --app-dir /home/dc/.local/share/expenses-manager
+    watchexec --restart --clear --exts hs,yaml -- \
+        stack run expenses-manager-server -- \
+        --user test \
+        --verbose \
+        --app-dir {{ demo-app-dir }} \
+        --demo-mode \
+        {{ ARGS }}
 
 test:
     stack test --fast
@@ -83,7 +110,7 @@ commit-migration:
     # We have to stop the service before overwriting the db, otherwise opens connections might continue reading from the old db file.
     ssh {{ remote }} -- "sudo systemctl stop expenses-manager expenses-manager-demo"
     scp ./migrations/expenses.db                  dc@{{ remote }}:/home/dc/.local/share/expenses-manager/expenses.db
-    scp ./resources/test-app-dir/expenses.db      dc@{{ remote }}:{{ demo-app-dir }}/expenses.db
+    scp ./resources/test-app-dir/expenses.db      dc@{{ remote }}:{{ remote-demo-app-dir }}/expenses.db
     ssh {{ remote }} -- "sudo systemctl start expenses-manager expenses-manager-demo"
 
 # Setup a cloudflare quick tunnel to test the local server
@@ -97,9 +124,6 @@ renew-logins:
 ##############################################################
 # Raspberry Pi
 ##############################################################
-# Address of the Raspberry Pi machine
-
-remote := "192.168.1.244"
 
 # Cross-compile to 64-bit ARM
 rpi-build:
@@ -174,18 +198,18 @@ rpi-sync:
 # Raspberry Pi - Public demo page
 ##############################################################
 
-demo-app-dir := "/home/dc/.local/share/expenses-manager-demo"
+remote-demo-app-dir := "/home/dc/.local/share/expenses-manager-demo"
 
 rpi-setup-demo-service env_file:
-    ssh {{ remote }} -- mkdir -p {{ demo-app-dir }}
-    scp ./resources/test-app-dir/expenses.db              dc@{{ remote }}:{{ demo-app-dir }}/expenses.db
-    scp ./resources/test-app-dir/config.yaml              dc@{{ remote }}:{{ demo-app-dir }}/config.yaml
-    scp ./resources/demo/expenses-manager-demo.service    dc@{{ remote }}:{{ demo-app-dir }}/expenses-manager-demo.service
-    scp {{ env_file }}                                      dc@{{ remote }}:{{ demo-app-dir }}/override.conf
+    ssh {{ remote }} -- mkdir -p {{ remote-demo-app-dir }}
+    scp ./resources/test-app-dir/expenses.db              dc@{{ remote }}:{{ remote-demo-app-dir }}/expenses.db
+    scp ./resources/test-app-dir/config.yaml              dc@{{ remote }}:{{ remote-demo-app-dir }}/config.yaml
+    scp ./resources/demo/expenses-manager-demo.service    dc@{{ remote }}:{{ remote-demo-app-dir }}/expenses-manager-demo.service
+    scp {{ env_file }}                                      dc@{{ remote }}:{{ remote-demo-app-dir }}/override.conf
     ssh {{ remote }} -- " \
-      sudo mv {{ demo-app-dir }}/expenses-manager-demo.service    /etc/systemd/system/expenses-manager-demo.service;  \
+      sudo mv {{ remote-demo-app-dir }}/expenses-manager-demo.service    /etc/systemd/system/expenses-manager-demo.service;  \
       sudo mkdir -p                                             /etc/systemd/system/expenses-manager-demo.service.d ; \
-      sudo mv {{ demo-app-dir }}/override.conf                    /etc/systemd/system/expenses-manager-demo.service.d/override.conf ; \
+      sudo mv {{ remote-demo-app-dir }}/override.conf                    /etc/systemd/system/expenses-manager-demo.service.d/override.conf ; \
       sudo systemctl daemon-reload ; \
       sudo systemctl enable expenses-manager-demo ; \
       sudo systemctl restart expenses-manager-demo ; "

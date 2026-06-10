@@ -51,5 +51,28 @@ ungroupedTags:
 
 tagPatterns: []
 
+budget:
+  # The budget calculations will include any txs that have one of the tags listed below
+  # OR are from one of the accounts listed below.
+  #
+  # Txs that match an account name but not any of the listed tags will be included in the "Other" tag group.
+  tagGroups:
+    - name: Groceries
+      tags: [groceries]
+      limit: 650
+    - name: Go out
+      tags: [go out]
+      limit: 100
+    - name: Clothes
+      tags: [clothes]
+      limit: 100
+    - name: Other
+      limit: 200
+      tags:
+        - pharmacy
+        - home
+        - fuel
+  includeAllTxsFromAccounts: []
+
 # Transactions with these tags are marked as "not an expense".
 notExpenses: []

@@ -36,7 +36,12 @@ Each effect has its own module under `src/Expenses/Effects/` (SQLite, EventLog, 
 
 ### API Layer
 
-Servant routes are defined with the Named Routes pattern in `src/Expenses/Server/Routes.hs`. Each route has its own handler module under `src/Expenses/Server/Routes/`. Authentication uses Cloudflare Zero Trust JWT (`AuthProtect "cloudflare-auth"`); admin routes additionally check the user's email against regexes in the config.
+Servant routes are defined with the Named Routes pattern in `src/Expenses/Server/Routes.hs`.
+
+Each route has its own handler module under `src/Expenses/Server/Routes/`.
+Ensure each new route handler has its own dedicated module.
+
+Authentication uses Cloudflare Zero Trust JWT (`AuthProtect "cloudflare-auth"`); admin routes additionally check the user's email against regexes in the config.
 
 ### Currency Amounts — Important Invariant
 
@@ -44,7 +49,10 @@ There are two amount types that must not be mixed:
 - **`FECents`** (frontend): expenses are **positive**, refunds **negative** — used in JSON serialization
 - **`BECents`** (backend): expenses are **negative**, refunds **positive** — used in SQLite
 
-Convert with `toBE` / `toFE`. The type system enforces this boundary; do not add conversions in unexpected places.
+Conversions between `FECents` and `BECents` **MUST** use the `toBE` and `toFE` functions.
+
+The frontend **MUST NOT** use `Int` or similar to model amounts of cents, it must use `FECents`.
+The database **MUST NOT** use `Int` or similar to model amounts of cents, it must use `BECents`.
 
 ### Configuration
 
@@ -54,7 +62,9 @@ Required environment variables for Nordigen sync: `EXPENSES_NORDIGEN_SECRET_ID`,
 
 ### Database Migrations
 
-Migrations are standalone executables in `db-migrations/` named `M01`–`M09`. Each migration is a separate cabal component. When adding a new migration, add it as a new component in `package.yaml` following the existing pattern.
+Migrations are standalone executables in `db-migrations/` named `M01`–`M09`. Each migration is a new module.
+
+When modifying the db schema, also update `schema.sql`
 
 ### Testing
 
@@ -67,3 +77,7 @@ Tests use Tasty (orchestration) with HSpec and golden files. Golden file outputs
 * Nordigen allows us to create "requisitions", which connects us to an institution.
 * While approving the "requisition", the user tells Nordigen which accounts from that institution they want to enable.
 * Therefore, our app keeps track of the institutions the user is connected to, each institution's requisition status, and the accounts for each institution.
+
+## Instructions
+
+* Ensure the tests compile and pass after non-trivial changes.

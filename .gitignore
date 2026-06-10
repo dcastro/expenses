@@ -16,3 +16,5 @@ result
 .psc-ide-port
 
 migrations/
+
+resources/dev-app-dir/

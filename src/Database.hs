@@ -4,7 +4,6 @@ import Control.GroupWith qualified as GW
 import CustomPrelude
 import Data.Aeson.TH (defaultOptions, deriveFromJSON)
 import Data.Coerce (coerce)
-import Data.List qualified as List
 import Data.Map qualified as Map
 import Data.Set qualified as Set
 import Data.Text qualified as T
@@ -115,9 +114,10 @@ filterNewTxs conn txs = do
   existingIds :: [Only Text] <-
     SQL.query
       conn
-      ( "SELECT id FROM transactions WHERE id IN ("
-          <> makePlaceholders (length txIds)
-          <> ")"
+      ( Query
+          [i|
+          SELECT id FROM transactions WHERE id IN (#{mkPlaceholders (length txIds)})
+        |]
       )
       txIds
   let existingSet = Set.fromList @Text (coerce existingIds)
@@ -275,7 +275,7 @@ data StringParams = StringParams
 
 data TagParams
   = NoTag
-  | SomeTag TagName
+  | SomeTags [TagName]
   deriving stock (Eq)
 
 data AmountParams
@@ -298,15 +298,15 @@ newtype IsLT = IsLT {isLT :: Double}
 
 data WhereClause = WhereClause
   { sql :: Text
-  , value :: Maybe SQLData
+  , values :: [SQLData]
   }
   deriving stock (Show, Eq)
 
-mkClause :: forall a. (ToField a) => Text -> a -> WhereClause
-mkClause sql value = WhereClause sql (Just $ SQL.toField value)
+mkClause :: forall a. (ToField a) => Text -> [a] -> WhereClause
+mkClause sql values = WhereClause sql (SQL.toField <$> values)
 
 mkClauseWithoutVal :: Text -> WhereClause
-mkClauseWithoutVal sql = WhereClause sql Nothing
+mkClauseWithoutVal sql = WhereClause sql []
 
 search :: (SQLite :> es, Log :> es, Time :> es) => Connection -> SearchParams -> Eff es (Vector TransactionJoinedRow)
 search conn params = do
@@ -325,7 +325,7 @@ mkSearchQuery params = do
           then ("TRUE", [])
           else
             ( T.intercalate " AND \n\t" ((.sql) <$> clauses)
-            , clauses & mapMaybe (.value)
+            , clauses >>= (.values)
             )
   let query =
         Query $
@@ -347,10 +347,11 @@ mkSearchQueryClauses params =
     <> maybeToList do
       account <- params.account
       Just $ mkIsEq accountCol account
-    <> maybeToList do
-      params.tag <&> \case
-        NoTag -> mkIsNull tagCol
-        SomeTag tag -> mkIsEq tagCol tag.unTagName.getNonEmptyText
+    <> case params.tag of
+      Nothing -> []
+      Just NoTag -> [mkIsNull tagCol]
+      Just (SomeTags []) -> []
+      Just (SomeTags tags) -> [mkIn tagCol (SQL.toField . (.unTagName.getNonEmptyText) <$> tags)]
     <> mkStringParams detailsCol params.notes
     <> maybeToList do
       params.amount <&> \case
@@ -389,19 +390,22 @@ mkSearchQueryClauses params =
   mkIsNull field = mkClauseWithoutVal [i|#{field} IS NULL|]
 
   mkIsEq :: Text -> Text -> WhereClause
-  mkIsEq field value = mkClause [i|#{field} = ?|] value
+  mkIsEq field value = mkClause [i|#{field} = ?|] [value]
 
   mkIsGTE :: Text -> IsGTE -> WhereClause
-  mkIsGTE field value = mkClause [i|#{field} >= ?|] value
+  mkIsGTE field value = mkClause [i|#{field} >= ?|] [value]
 
   mkIsLT :: Text -> IsLT -> WhereClause
-  mkIsLT field value = mkClause [i|#{field} < ?|] value
+  mkIsLT field value = mkClause [i|#{field} < ?|] [value]
 
   mkContains :: Text -> Contains -> WhereClause
-  mkContains field value = mkClause [i|LOWER(#{field}) GLOB ?|] (mkGlobPattern value.getContains.getNonEmptyText)
+  mkContains field value = mkClause [i|LOWER(#{field}) GLOB ?|] [mkGlobPattern value.getContains.getNonEmptyText]
 
   mkDoesNotContain :: Text -> DoesNotContain -> WhereClause
-  mkDoesNotContain field value = mkClause [i|LOWER(#{field}) NOT GLOB ?|] (mkGlobPattern value.getDoesNotContain.getNonEmptyText)
+  mkDoesNotContain field value = mkClause [i|LOWER(#{field}) NOT GLOB ?|] [mkGlobPattern value.getDoesNotContain.getNonEmptyText]
+
+  mkIn :: (ToField a) => Text -> [a] -> WhereClause
+  mkIn field values = mkClause [i|#{field} IN (#{mkPlaceholders (length values)})|] values
 
 -- >>> mkGlobPattern "ÁgUa"
 -- "*[a\225\224\226\227]g[u\250\249][a\225\224\226\227]*"
@@ -626,15 +630,14 @@ insertTransactionJoinedRow conn TransactionJoinedRow{transactionId, account, dat
 -- Utils
 ----------------------------------------------------------------------------
 
--- >>> makePlaceholders 0
--- >>> makePlaceholders 1
--- >>> makePlaceholders 3
+-- >>> mkPlaceholders 0
+-- >>> mkPlaceholders 1
+-- >>> mkPlaceholders 3
 -- ""
 -- "?"
 -- "?, ?, ?"
-makePlaceholders :: Int -> Query
-makePlaceholders n =
-  mconcat $ List.intersperse ", " (replicate n "?")
+mkPlaceholders :: Int -> Text
+mkPlaceholders n = T.intercalate ", " (replicate n "?")
 
 ----------------------------------------------------------------------------
 -- Instances

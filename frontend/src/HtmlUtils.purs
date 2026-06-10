@@ -30,12 +30,6 @@ addClassIf :: Boolean -> String -> String -> String
 addClassIf cond className classes =
   if cond then classes <> " " <> className else classes
 
-addStringWhenJust :: forall @a. Maybe a -> (a -> String) -> String -> String
-addStringWhenJust ma mkString str =
-  case ma of
-    Nothing -> str
-    Just a -> str <> mkString a
-
 tooltip :: forall r i. String -> IProp r i
 tooltip text = HH.attr (AttrName "data-tooltip") text
 

@@ -105,7 +105,6 @@ export const _clearSelection = chart => () => {
   chart.setPie([""]);
 }
 
-
 export const _drilldown = chart => tagGroupName => () => {
   chart.setPie(["", tagGroupName]);
 }

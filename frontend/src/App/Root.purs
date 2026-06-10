@@ -3,6 +3,7 @@ module App.Root where
 import Prelude
 
 import App.Accounts as Accounts
+import App.Budget as Budget
 import App.MonthRange as MonthRange
 import App.NewTransactionModal as NewTransactionModal
 import App.Routes (AppRoute(..))
@@ -45,6 +46,7 @@ type Slots =
   , monthRange :: MonthRange.Slot Unit
   , search :: Search.Slot Unit
   , accounts :: Accounts.Slot Unit
+  , budget :: Budget.Slot Unit
   , newTransactionModal :: NewTransactionModal.Slot Unit
   )
 
@@ -52,6 +54,7 @@ _singleMonth = Proxy :: Proxy "singleMonth"
 _monthRange = Proxy :: Proxy "monthRange"
 _search = Proxy :: Proxy "search"
 _accounts = Proxy :: Proxy "accounts"
+_budget = Proxy :: Proxy "budget"
 _newTransactionModal = Proxy :: Proxy "newTransactionModal"
 
 type Input =
@@ -145,6 +148,7 @@ render state =
     monthRangeRoute = Routes.defaultMonthRangeRoute
     searchRoute = Routes.mkSearchAppRoute state.cachedSearchRoute false -- Navigate to the Search route, preserving the last tag params.
     accountsRoute = Routes.Accounts Routes.defaultModalFlag
+    budgetRoute = Routes.Budget Routes.defaultModalFlag
     newTransactionRoute = Routes.setModalOpen true state.currentRoute
     routeToHref route = "#" <> RouteDuplex.print Routes.routeCodec route
   in
@@ -187,6 +191,12 @@ render state =
                         , HE.onClick (HandleNavClick searchRoute)
                         ]
                         [ HH.text "Search" ]
+                    , HH.a
+                        [ classes' $ "navbar-item is-tab" # HtmlUtils.addClassIf (Routes.isBudgetRoute state.currentRoute) "is-active"
+                        , HP.href (routeToHref budgetRoute)
+                        , HE.onClick (HandleNavClick budgetRoute)
+                        ]
+                        [ HH.text "Budget" ]
                     , HH.a
                         [ classes' $ "navbar-item is-tab" # HtmlUtils.addClassIf (Routes.isAccountsRoute state.currentRoute) "is-active"
                         , HP.href (routeToHref accountsRoute)
@@ -263,6 +273,14 @@ render state =
             { isAdmin: state.isAdmin
             }
             HandleAccountsOutput
+      , HtmlUtils.displayIf (Routes.isBudgetRoute state.currentRoute) $
+          HH.slot_
+            _budget
+            unit
+            Budget.component
+            { isAdmin: state.isAdmin
+            , allTags: state.allTags
+            }
       , HtmlUtils.displayIf (Routes.isModalOpen state.currentRoute) $
           HH.slot
             _newTransactionModal
@@ -340,7 +358,8 @@ handleAction = case _ of
               -- Navigate to the Search route, preserving the last tag params.
               state <- H.get
               handleAction $ NavigateTo $ Routes.mkSearchAppRoute state.cachedSearchRoute false
-            Search _ -> handleAction $ NavigateTo (Routes.Accounts Routes.defaultModalFlag)
+            Search _ -> handleAction $ NavigateTo Routes.defaultBudgetRoute
+            Budget _ -> handleAction $ NavigateTo (Routes.Accounts Routes.defaultModalFlag)
             Accounts _ -> handleAction $ NavigateTo Routes.defaultSingleMonthRoute
         _ -> pure unit
     pure unit

@@ -198,6 +198,7 @@ tagPatterns:
       - ['CONTINENTE']
       - ['MODELO Portugal']
       - ['BONJOUR Portugal PT'] # Continente
+      - ['COMPRA BONJOUR'] # Continente
       - ['AUCHAN']
       - ['PINGO DOCE']
       - ['MERCADONA']
@@ -296,6 +297,43 @@ tagPatterns:
     contains:
       - ['23021632430'] # seg social
       - ['PAG.IGCP']
+
+budget:
+  # The budget calculations will include any txs that have one of the tags listed below
+  # OR are from one of the accounts listed below.
+  #
+  # Txs that match an account name but not any of the listed tags will be included in the "Other" tag group.
+  tagGroups:
+    - name: Groceries
+      tags: [groceries]
+      limit: 650
+    - name: Roupa
+      tags: [roupa]
+      limit: 150
+    - name: Takeaway
+      tags: [takeaway]
+      limit: 50
+    - name: Go out
+      tags: [go out]
+      limit: 100
+    - name: Gifts
+      tags: [gifts]
+      limit: 50
+    - name: Other
+      limit: 120
+      tags:
+        - baby
+        - atividades
+        - toys
+        - education
+        - car repairs
+        - casa
+        - festas
+        - eletronica
+        - jogos
+        - prota
+  includeAllTxsFromAccounts:
+    - Moey
 
 # Transactions with these tags are marked as "not an expense".
 notExpenses:

@@ -1,4 +1,4 @@
-module Charts.Charts where
+module Charts.PieCharts where
 
 import Prelude
 
@@ -69,7 +69,9 @@ makeChart
   :: String
   -> API.GetTransactions
   -> Int
+  -- | This callback is called when the user drills-down into a tag group, or when they go back up.
   -> (Nullable TagGroupName -> Effect Unit)
+  -- | This callback is called when the user selects a slice when no subvalues (it doesn't drill down or up).
   -> (Nullable TagGroupName -> Nullable TagName -> Effect Unit)
   -> Effect Foreign
 makeChart containerId txs monthsSpan onChartUpdate onSelectionChange = do
@@ -114,10 +116,11 @@ makeChartData txs monthsSpan =
       )
       txs.groupsStats
   }
-  where
-  displayLabel :: String -> Int -> String
-  displayLabel name value =
-    let
-      valueStr = Utils.centsToEuros value
-    in
-      name <> " " <> valueStr <> " -"
+
+-- | Display a tag or tag group.
+-- `displayLabel "groceries" 5000` will return "groceries 50.00€ -".
+-- The zoomcharts package will fill the rest of the label with the percentage,
+-- e.g. "groceries 50.00€ - 25%".
+displayLabel :: String -> Int -> String
+displayLabel name value =
+  name <> " " <> Utils.centsToEuros value <> " -"

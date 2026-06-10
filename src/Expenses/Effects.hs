@@ -27,6 +27,7 @@ module Expenses.Effects (
 import Control.Monad.Except (liftEither)
 import CustomPrelude
 import Data.Text qualified as T
+import Data.Time (UTCTime (..), fromGregorian, secondsToDiffTime)
 import Effectful
 import Effectful.Concurrent
 import Effectful.Dispatch.Static (unsafeEff_)
@@ -60,7 +61,7 @@ naturalTransformation isVerbose conn env logger app = do
           & Uuid.runNextUUID
           & runErrorNoCallStack @ServerError
           & SQL.runSQLiteSync conn
-          & Time.runTime
+          & runTime
           & EventLog.runEventLog
           & N.runNordigen
           & runReader env
@@ -74,6 +75,14 @@ naturalTransformation isVerbose conn env logger app = do
 
   either <- liftIO io
   liftEither either
+ where
+  runTime :: forall es a. (IOE :> es) => Eff (Time ': es) a -> Eff es a
+  runTime =
+    -- When we run in "demo mode", we only have data up to Oct 2025.
+    -- So we set the current time to be in Oct 2025 as well, to make sure the budget calculations include the demo data.
+    if env.demoMode
+      then Time.runFrozenTime (UTCTime (fromGregorian 2025 10 23) (secondsToDiffTime 0))
+      else Time.runTime
 
 type CronM = Eff '[SQLite, Time, EventLog, Nordigen, Reader Env, FileSystem, Concurrent, Log, IOE]
 

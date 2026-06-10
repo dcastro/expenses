@@ -155,6 +155,7 @@ library:
     - log-effectful
     - monad-time-effectful
     - sqlite-simple-effectful
+    - vector-algorithms
 
 tests:
   test:
@@ -180,6 +181,12 @@ tests:
       - effectful-core
       - time
       - containers
+      - monad-time-effectful
+      - log-effectful
+      - log-base
+      - sqlite-simple
+      - vector
+      - lens
     ghc-options:
       - -Wno-x-partial
 

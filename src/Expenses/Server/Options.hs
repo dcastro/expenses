@@ -31,7 +31,9 @@ data ServerOptions = ServerOptions
   -- ^ Whether to run the Nordigen cron job.
   , demoMode :: Bool
   {- ^ Whether to run in demo mode: https://expenses-demo.diogocastro.com/
-  In this mode, we use fake data instead of syncing with Nordigen.
+  In this mode:
+    * we use fake data instead of syncing with Nordigen.
+    * we set the current date to Oct 2025.
   -}
   , user :: Maybe Username
   {- ^ If set, and if the auth header is missing, the server authenticate the request as this user.

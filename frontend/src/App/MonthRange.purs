@@ -3,7 +3,7 @@ module App.MonthRange where
 import Prelude
 
 import App.TransactionsTable as TransactionsTable
-import Charts.Charts as Charts
+import Charts.PieCharts as PieCharts
 import Charts.TimeCharts as TimeCharts
 import Core.API as API
 import Core.APITypes (TagGroupName, TagName)
@@ -384,7 +384,7 @@ tryInitializeCharts = do
 
     { emitter, listener } <- H.liftEffect HS.create
 
-    chart <- H.liftEffect $ Charts.makeChart "month-range-chart-container" state.transactions (getMonthsSpanForChart state)
+    chart <- H.liftEffect $ PieCharts.makeChart "month-range-chart-container" state.transactions (getMonthsSpanForChart state)
       -- This callback is called when the user drills-down into a tag group, or when they go back up.
       ( \tagGroupName -> do
           HS.notify listener $ ChartSelectionChanged $
@@ -455,8 +455,8 @@ updateChart' state = do
   -- So we need to undo the selection, update the chart, then reapply the selection (if it still exists).
   let previousSelection = state.selection
   newSelection <- H.liftEffect do
-    Charts.clearSelection state.chart
-    Charts.updateChart state.chart txs (getMonthsSpanForChart state)
+    PieCharts.clearSelection state.chart
+    PieCharts.updateChart state.chart txs (getMonthsSpanForChart state)
     -- If the selection is still valid, re-select in the pie chart
     -- If it's no longer valid, update `LoadedState`'s selection to NoSelection
     case previousSelection of
@@ -467,14 +467,14 @@ updateChart' state = do
             pure NoSelection
           Just group -> do
             if Arr.length group.tags == 1 then do
-              Charts.selectSlice state.chart (API.getTagGroupName groupName)
+              PieCharts.selectSlice state.chart (API.getTagGroupName groupName)
             else do
-              Charts.drilldown state.chart groupName
+              PieCharts.drilldown state.chart groupName
             pure previousSelection
       SelectedTag groupName tagName ->
         if Arr.any (\g -> g.name == groupName && elem tagName (g.tags <#> _.name)) txs.groupsStats then do
-          Charts.drilldown state.chart groupName
-          Charts.selectSlice state.chart (API.getTagName tagName)
+          PieCharts.drilldown state.chart groupName
+          PieCharts.selectSlice state.chart (API.getTagName tagName)
           pure previousSelection
         else do
           pure NoSelection

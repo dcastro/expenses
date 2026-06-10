@@ -21,6 +21,7 @@ import Expenses.Server.Routes.AllAccounts qualified as AllAccounts
 import Expenses.Server.Routes.AllTags qualified as AllTags
 import Expenses.Server.Routes.GetAvailableDateRange (DateRange)
 import Expenses.Server.Routes.GetAvailableDateRange qualified as GetAvailableDateRange
+import Expenses.Server.Routes.GetBudget qualified as GetBudget
 import Expenses.Server.Routes.GetSyncStatus qualified as GetSyncStatus
 import Expenses.Server.Routes.GetTransactionItems qualified as GetTransactionItems
 import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
@@ -91,6 +92,7 @@ data PrivateAPI mode = PrivateAPI
   , allAccounts :: mode :- "accounts" :> Get '[JSON] [Text]
   , syncStatus :: mode :- "sync-status" :> Get '[JSON] GetSyncStatus.SyncStatusResponse
   , getAvailableDateRange :: mode :- "dates" :> Get '[JSON] DateRange
+  , budget :: mode :- "budget" :> Get '[JSON] GetBudget.BudgetInfo
   }
   deriving stock (Generic)
 
@@ -271,6 +273,7 @@ mkServer resourcesDir =
           , allAccounts = AllAccounts.allAccountsHandler
           , syncStatus = GetSyncStatus.getSyncStatusHandler
           , getAvailableDateRange = GetAvailableDateRange.getAvailableDateRangeHandler
+          , budget = GetBudget.getBudgetHandler
           }
     , admin = \admin ->
         AdminAPI

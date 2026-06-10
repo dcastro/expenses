@@ -36,6 +36,7 @@ library
       Expenses.Server.Routes.AllAccounts
       Expenses.Server.Routes.AllTags
       Expenses.Server.Routes.GetAvailableDateRange
+      Expenses.Server.Routes.GetBudget
       Expenses.Server.Routes.GetSyncStatus
       Expenses.Server.Routes.GetTransactionItems
       Expenses.Server.Routes.GetTransactions
@@ -154,6 +155,7 @@ library
     , universum
     , unordered-containers
     , uuid
+    , vector-algorithms
     , wai
     , wai-app-static
     , wai-cors
@@ -324,6 +326,7 @@ test-suite test
   main-is: Spec.hs
   other-modules:
       Expenses.DatabaseSpec
+      Expenses.Server.GetBudgetSpec
       Expenses.Server.GetTransactionsSpec
       Expenses.Test.Util
       UtilSpec
@@ -401,7 +404,12 @@ test-suite test
     , expenses
     , hspec
     , hspec-expectations-pretty-diff
+    , lens
+    , log-base
+    , log-effectful
+    , monad-time-effectful
     , servant-server
+    , sqlite-simple
     , sqlite-simple-effectful
     , tasty
     , tasty-golden
@@ -410,4 +418,5 @@ test-suite test
     , text
     , time
     , universum
+    , vector
   default-language: Haskell2010

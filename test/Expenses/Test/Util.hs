@@ -8,7 +8,9 @@ import CustomPrelude
 import Data.Aeson (ToJSON (..))
 import Data.Aeson qualified as J
 import Data.Text qualified as T
+import Data.Text.IO qualified as TIO
 import Database (Contains (..), DoesNotContain (..), IsGTE (..), IsLT (..))
+import Database.SQLite.Simple qualified as SQLiteSimple
 import Effectful.SQLite.Simple qualified as SQL
 import Expenses.NonEmptyText (NonEmptyText)
 import Expenses.NonEmptyText qualified as NET
@@ -42,10 +44,18 @@ mkTestEnv = do
       , config
       }
 
-
 mkTestDbConn :: IO (M.MVar SQL.Connection)
 mkTestDbConn = do
   conn <- SQL.open "./resources/test-app-dir/expenses.db"
+  M.newMVar conn
+
+mkInMemoryDbConn :: IO (M.MVar SQL.Connection)
+mkInMemoryDbConn = do
+  conn <- SQL.open ":memory:"
+  schema <- TIO.readFile "db/schema.sql"
+  let stmts = T.splitOn ";" schema & fmap T.strip & filter (not . T.null)
+  forM_ stmts \stmt ->
+    SQLiteSimple.execute_ conn (SQLiteSimple.Query (stmt <> ";"))
   M.newMVar conn
 
 mkTestConfig :: IO AppConfig

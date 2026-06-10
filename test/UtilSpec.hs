@@ -1,6 +1,6 @@
 module UtilSpec where
 
-import Config (AppConfig (..))
+import Config (AppConfig (..), BudgetConfig (..))
 import CustomPrelude
 import Expenses.Server.CronJob qualified as CronJob
 import Expenses.Test.Util ()
@@ -70,6 +70,7 @@ unit_getIsExpense = do
           , cronSchedule = ""
           , tagPatterns = mempty
           , notExpenses = ["transfers"]
+          , budget = BudgetConfig{tagGroups = [], includeAllTxsFromAccounts = mempty}
           }
   let txIdNormal = "20220121233851916940"
   let txIdTemporary = "12345678901234"
