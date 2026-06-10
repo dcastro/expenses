@@ -1,5 +1,6 @@
 module Config where
 
+import Control.Lens (classIdFields, makeLensesWith)
 import CustomPrelude
 import Data.Aeson (FromJSON (..), withObject, (.:))
 import Data.Aeson.TH (defaultOptions, deriveFromJSON)
@@ -66,6 +67,7 @@ type Substring = Text
 
 $( mconcat
      [ deriveFromJSON defaultOptions ''AppConfig
+     , makeLensesWith classIdFields ''AppConfig
      ]
  )
 loadAppConfig :: (MonadIO m) => FilePath -> m AppConfig

@@ -1,6 +1,7 @@
 module Expenses.Server.Env where
 
 import Config (AppConfig)
+import Control.Lens (classIdFields, makeLensesWith)
 import CustomPrelude
 
 data Env = Env
@@ -11,3 +12,5 @@ data Env = Env
   , nordigenSecretKey :: Text
   , config :: AppConfig
   }
+
+makeLensesWith classIdFields ''Env

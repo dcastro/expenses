@@ -1,6 +1,7 @@
 module Expenses.Server.GetBudgetSpec where
 
-import Config qualified
+import Config
+import Control.Lens
 import CustomPrelude
 import Data.Map.Strict qualified as Map
 import Data.Time (Day, UTCTime (..), fromGregorian, secondsToDiffTime)
@@ -12,6 +13,7 @@ import Effectful.Log (runLog)
 import Effectful.Reader.Static (runReader)
 import Effectful.SQLite.Simple qualified as SQL
 import Effectful.Time qualified as Time
+import Expenses.Server.Env
 import Expenses.Server.Routes.GetBudget
 import Expenses.Server.Routes.GetTransactions (TransactionItem (..))
 import Expenses.Server.Utils (MapAsList (..))
@@ -55,29 +57,52 @@ mkRow txId date tag amt =
     }
 
 spec_mkBudgetTagGroupStats :: Spec
-spec_mkBudgetTagGroupStats = it "groups transactions by budget tag group" do
+spec_mkBudgetTagGroupStats = it "groups transactions by tag group" do
   let
     groups =
-      [ Config.BudgetTagGroup{name = "Groceries", tags = ["groceries"], limitCents = BECents (-650_00)}
-      , Config.BudgetTagGroup{name = "Transport", tags = ["fuel"], limitCents = BECents (-100_00)}
+      [ Config.BudgetTagGroup{name = "Groceries", tags = ["groceries"], limitCents = BECents -650_00}
+      , Config.BudgetTagGroup{name = "Transport", tags = ["fuel", "parking"], limitCents = BECents -100_00}
+      , Config.BudgetTagGroup{name = "Other", tags = ["takeaway"], limitCents = BECents -50_00}
       ]
     txs =
       V.fromList
-        [ mkItem "t1" (fromGregorian 2026 6 1) (Just "groceries") 50_00
-        , mkItem "t2" (fromGregorian 2026 6 1) (Just "fuel") 20_00
-        , mkItem "t3" (fromGregorian 2026 6 1) (Just "random") 10_00
+        [ mkItem "tx" (fromGregorian 2026 6 1) (Just "groceries") 50_00
+        , mkItem "tx" (fromGregorian 2026 6 1) (Just "groceries") 1_00
+        , mkItem "tx" (fromGregorian 2026 6 1) (Just "fuel") 20_00
+        , mkItem "tx" (fromGregorian 2026 6 1) (Just "parking") 2_00
+        , mkItem "tx" (fromGregorian 2026 6 1) (Just "takeaway") 5_00
+        , mkItem "tx" (fromGregorian 2026 6 1) (Just "random") 10_00
+        , mkItem "tx" (fromGregorian 2026 6 1) (Just "random") 3_00
+        , mkItem "tx" (fromGregorian 2026 6 1) Nothing 15_00
+        , mkItem "tx" (fromGregorian 2026 6 1) Nothing 4_00
         ]
     expected =
       Map.fromList
-        [ ("Groceries", BudgetTagGroupStats{spentToDateCents = 50_00, limitCents = 650_00, tags = [Just "groceries"]})
-        , ("Transport", BudgetTagGroupStats{spentToDateCents = 20_00, limitCents = 100_00, tags = [Just "fuel"]})
-        , ("Other", BudgetTagGroupStats{spentToDateCents = 10_00, limitCents = 0, tags = [Just "random"]})
+        [ ("Groceries", BudgetTagGroupStats{spentToDateCents = 51_00, limitCents = 650_00, tags = [Just "groceries"]})
+        , ("Transport", BudgetTagGroupStats{spentToDateCents = 22_00, limitCents = 100_00, tags = [Just "fuel", Just "parking"]})
+        , ("Other", BudgetTagGroupStats{spentToDateCents = 37_00, limitCents = 50_00, tags = [Just "takeaway", Just "random", Nothing]})
         ]
   mkBudgetTagGroupStats groups txs `shouldBe` expected
 
+  -- The sum of the groups should equal the total spending
+  let totalGroupSpending = expected <&> (.spentToDateCents) & sum
+  let totalSpending = txs <&> (.itemAmountCents) & sum
+  totalGroupSpending `shouldBe` totalSpending
+
 spec_getBudgetHandler :: Spec
 spec_getBudgetHandler = it "returns correct budget info for the current month" do
-  env <- Util.mkTestEnv
+  env <-
+    Util.mkTestEnv <&> \env ->
+      env
+        & config . budget
+          .~ BudgetConfig
+            { tagGroups =
+                [ Config.BudgetTagGroup{name = "Groceries", tags = ["groceries"], limitCents = BECents -650_00}
+                , Config.BudgetTagGroup{name = "Go out", tags = ["go out"], limitCents = BECents -100_00}
+                , Config.BudgetTagGroup{name = "Other", tags = ["casa", "eletronica", "jogos"], limitCents = BECents -100_00}
+                ]
+            , includeAllTxsFromAccounts = mempty
+            }
   conn <- Util.mkInMemoryDbConn
 
   let testRows =

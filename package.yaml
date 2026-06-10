@@ -186,6 +186,7 @@ tests:
       - log-base
       - sqlite-simple
       - vector
+      - lens
     ghc-options:
       - -Wno-x-partial
 
