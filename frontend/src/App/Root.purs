@@ -192,17 +192,17 @@ render state =
                         ]
                         [ HH.text "Search" ]
                     , HH.a
-                        [ classes' $ "navbar-item is-tab" # HtmlUtils.addClassIf (Routes.isAccountsRoute state.currentRoute) "is-active"
-                        , HP.href (routeToHref accountsRoute)
-                        , HE.onClick (HandleNavClick accountsRoute)
-                        ]
-                        [ HH.text "Accounts" ]
-                    , HH.a
                         [ classes' $ "navbar-item is-tab" # HtmlUtils.addClassIf (Routes.isBudgetRoute state.currentRoute) "is-active"
                         , HP.href (routeToHref budgetRoute)
                         , HE.onClick (HandleNavClick budgetRoute)
                         ]
                         [ HH.text "Budget" ]
+                    , HH.a
+                        [ classes' $ "navbar-item is-tab" # HtmlUtils.addClassIf (Routes.isAccountsRoute state.currentRoute) "is-active"
+                        , HP.href (routeToHref accountsRoute)
+                        , HE.onClick (HandleNavClick accountsRoute)
+                        ]
+                        [ HH.text "Accounts" ]
                     ]
                 ]
                   <>
@@ -358,9 +358,9 @@ handleAction = case _ of
               -- Navigate to the Search route, preserving the last tag params.
               state <- H.get
               handleAction $ NavigateTo $ Routes.mkSearchAppRoute state.cachedSearchRoute false
-            Search _ -> handleAction $ NavigateTo (Routes.Accounts Routes.defaultModalFlag)
-            Accounts _ -> handleAction $ NavigateTo Routes.defaultBudgetRoute
-            Budget _ -> handleAction $ NavigateTo Routes.defaultSingleMonthRoute
+            Search _ -> handleAction $ NavigateTo Routes.defaultBudgetRoute
+            Budget _ -> handleAction $ NavigateTo (Routes.Accounts Routes.defaultModalFlag)
+            Accounts _ -> handleAction $ NavigateTo Routes.defaultSingleMonthRoute
         _ -> pure unit
     pure unit
 
