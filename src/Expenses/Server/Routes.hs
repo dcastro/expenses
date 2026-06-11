@@ -13,7 +13,7 @@ import Effectful.SQLite.Simple (Connection)
 import Effectful.SQLite.Simple qualified as SQL
 import Expenses.Effects (AppM)
 import Expenses.Effects qualified as Effects
-import Expenses.Server.CronJob qualified as CronJob
+import Expenses.Server.CronJobs qualified as CronJob
 import Expenses.Server.Env (Env (..))
 import Expenses.Server.Options (ServerOptions (..))
 import Expenses.Server.Options qualified as Opt

@@ -58,7 +58,10 @@ The database **MUST NOT** use `Int` or similar to model amounts of cents, it mus
 
 Runtime config is a YAML file loaded from `--app-dir` (default `~/.local/share/expenses-manager/`). The directory also contains `expenses.db` and `eventlog.jsonl`. For dev, use `--app-dir ./resources/test-app-dir/`.
 
-Required environment variables for Nordigen sync: `EXPENSES_NORDIGEN_SECRET_ID`, `EXPENSES_NORDIGEN_SECRET_KEY`. Use `--demo-mode` in dev to skip real API calls.
+Required environment variables for Nordigen sync: `EXPENSES_NORDIGEN_SECRET_ID`, `EXPENSES_NORDIGEN_SECRET_KEY`.
+Treat these env vars as secrets.
+
+Use `--demo-mode` in dev to skip real API calls.
 
 ### Database Migrations
 
@@ -80,4 +83,5 @@ Tests use Tasty (orchestration) with HSpec and golden files. Golden file outputs
 
 ## Instructions
 
+* ALWAYS make sure the code compiles without warnings.
 * Ensure the tests compile and pass after non-trivial changes.

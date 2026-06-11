@@ -5,7 +5,7 @@ import Effectful
 import Effectful.Concurrent qualified as Conc
 import Effectful.Reader.Static qualified as R
 import Expenses.Effects
-import Expenses.Server.CronJob qualified as CronJob
+import Expenses.Server.CronJobs.Sync qualified as CronJob
 import Servant (NoContent (..))
 
 runCronHandler ::

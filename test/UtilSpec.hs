@@ -2,7 +2,7 @@ module UtilSpec where
 
 import Config (AppConfig (..), BudgetConfig (..))
 import CustomPrelude
-import Expenses.Server.CronJob qualified as CronJob
+import Expenses.Server.CronJobs.Sync qualified as CronJob
 import Expenses.Test.Util ()
 import Test.Tasty.HUnit
 import Universum.Unsafe qualified as Unsafe
