@@ -52,6 +52,10 @@ ungroupedTags:
 tagPatterns: []
 
 budget:
+  pushNotifications:
+    # cronSchedule defaults to '30 9 */2 * *' (every 2 days at 9:30am)
+    openUrl: http://expenses.diogocastro.com/#/budget
+    thresholdEuros: 100
   # The budget calculations will include any txs that have one of the tags listed below
   # OR are from one of the accounts listed below.
   #

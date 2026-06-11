@@ -26,9 +26,11 @@ library
       Expenses.Effects.EventLog
       Expenses.Effects.NextUUID
       Expenses.Effects.Nordigen
+      Expenses.Effects.Ntfy
       Expenses.Linear
       Expenses.NonEmptyText
       Expenses.Server.CronJobs
+      Expenses.Server.CronJobs.BudgetCheck
       Expenses.Server.CronJobs.Sync
       Expenses.Server.Env
       Expenses.Server.EventLog
@@ -327,6 +329,7 @@ test-suite test
   main-is: Spec.hs
   other-modules:
       Expenses.DatabaseSpec
+      Expenses.Server.CronJobs.BudgetCheckSpec
       Expenses.Server.GetBudgetSpec
       Expenses.Server.GetTransactionsSpec
       Expenses.Test.Util

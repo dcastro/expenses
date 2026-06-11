@@ -169,9 +169,9 @@ main = do
           }
 
   mkEnv :: (MonadIO m) => ServerOptions -> m Env
-  mkEnv ServerOptions{eventLogPath, logsDir, demoMode, nordigenSecretId, nordigenSecretKey, configPath} = do
+  mkEnv ServerOptions{eventLogPath, logsDir, demoMode, nordigenSecretId, nordigenSecretKey, ntfyTopic, configPath} = do
     config <- Config.loadAppConfig configPath
-    pure Env{eventLogPath, logsDir, demoMode, nordigenSecretId, nordigenSecretKey, config}
+    pure Env{eventLogPath, logsDir, demoMode, nordigenSecretId, nordigenSecretKey, ntfyTopic, config}
 
   mkDbConn :: (MonadIO m, MonadLog m) => ServerOptions -> Logger -> m (MVar Connection)
   mkDbConn ServerOptions{dbPath, isVerbose} logger = do

@@ -2,7 +2,7 @@ module Config where
 
 import Control.Lens (classIdFields, makeLensesWith)
 import CustomPrelude
-import Data.Aeson (FromJSON (..), withObject, (.:))
+import Data.Aeson (FromJSON (..), withObject, (.!=), (.:), (.:?))
 import Data.Aeson.TH (defaultOptions, deriveFromJSON)
 import Data.Aeson.Types (Parser)
 import Data.HashMap.Strict qualified as HM
@@ -30,9 +30,25 @@ instance FromJSON BudgetTagGroup where
     let limitCents = FECents $ round (limitEur * 100)
     pure BudgetTagGroup{name, tags, limitCents}
 
+data PushNotificationsConfig = PushNotificationsConfig
+  { cronSchedule :: Text
+  , openUrl :: Text
+  , thresholdCents :: FECents
+  }
+  deriving stock (Eq, Show)
+
+instance FromJSON PushNotificationsConfig where
+  parseJSON = withObject "PushNotificationsConfig" \o -> do
+    cronSchedule <- o .:? "cronSchedule" .!= "30 9 */2 * *"
+    openUrl <- o .: "openUrl"
+    thresholdEur <- o .: "thresholdEuros" :: Parser Double
+    let thresholdCents = FECents $ round (thresholdEur * 100)
+    pure PushNotificationsConfig{cronSchedule, openUrl, thresholdCents}
+
 data BudgetConfig = BudgetConfig
   { tagGroups :: [BudgetTagGroup]
   , includeAllTxsFromAccounts :: Set Text
+  , pushNotifications :: PushNotificationsConfig
   }
   deriving stock (Eq, Show, Generic)
   deriving anyclass (FromJSON)

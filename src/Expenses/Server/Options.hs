@@ -45,6 +45,7 @@ data ServerOptions = ServerOptions
   , isVerbose :: Bool
   , nordigenSecretId :: Text
   , nordigenSecretKey :: Text
+  , ntfyTopic :: Text
   }
   deriving stock (Show, Generic)
 
@@ -52,6 +53,7 @@ mkServerOptions :: (MonadIO m, MonadLog m) => m ServerOptions
 mkServerOptions = do
   nordigenSecretId <- liftIO $ getEnv "EXPENSES_NORDIGEN_SECRET_ID"
   nordigenSecretKey <- liftIO $ getEnv "EXPENSES_NORDIGEN_SECRET_KEY"
+  ntfyTopic <- liftIO $ getEnv "EXPENSES_NTFY_TOPIC"
   RawServerOptions{port, appDir, runCron, demoMode, user, isVerbose} <- liftIO parseRawServerOptions
 
   appDir <- liftIO $ Dir.canonicalizePath appDir
@@ -94,6 +96,7 @@ mkServerOptions = do
       , isVerbose
       , nordigenSecretId = T.pack nordigenSecretId
       , nordigenSecretKey = T.pack nordigenSecretKey
+      , ntfyTopic = T.pack ntfyTopic
       }
 
 parseRawServerOptions :: IO RawServerOptions

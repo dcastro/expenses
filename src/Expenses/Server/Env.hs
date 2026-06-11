@@ -10,6 +10,7 @@ data Env = Env
   , demoMode :: Bool
   , nordigenSecretId :: Text
   , nordigenSecretKey :: Text
+  , ntfyTopic :: Text
   , config :: AppConfig
   }
 
