@@ -19,7 +19,7 @@ import Expenses.NonEmptyText qualified as NET
 import Expenses.Server.Routes.GetTransactions (TransactionItem (..))
 import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
 import Expenses.Server.Utils (MapAsList (..))
-import Types (FECents (..), TagGroupName (..), TagName, toFE)
+import Types (FECents (..), TagGroupName (..), TagName)
 
 data BudgetTagGroupStats = BudgetTagGroupStats
   { spentToDateCents :: FECents
@@ -57,7 +57,7 @@ getBudgetHandler = do
 
   config <- asks @Env (.config)
   let budgetGroups = config.budget.tagGroups
-  let monthlyLimit = toFE (budgetGroups <&> (.limitCents) & sum)
+  let monthlyLimit = budgetGroups <&> (.limitCents) & sum
 
   txs <- findMatchingTxs (YearMonth year month)
 
@@ -132,7 +132,7 @@ mkBudgetTagGroupStats groups txs =
            in ( group.name
               , BudgetTagGroupStats
                   { spentToDateCents = groupSpent
-                  , limitCents = toFE group.limitCents
+                  , limitCents = group.limitCents
                   , tags = Just <$> group.tags
                   }
               )

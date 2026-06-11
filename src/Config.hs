@@ -18,7 +18,7 @@ cronUser = Admin $ Username $ NET.unsafeFromText "cron"
 data BudgetTagGroup = BudgetTagGroup
   { name :: TagGroupName
   , tags :: [TagName]
-  , limitCents :: BECents
+  , limitCents :: FECents
   }
   deriving stock (Eq, Show)
 
@@ -27,7 +27,7 @@ instance FromJSON BudgetTagGroup where
     name <- o .: "name"
     tags <- o .: "tags"
     limitEur <- o .: "limit" :: Parser Double
-    let limitCents = BECents $ negate $ round (limitEur * 100)
+    let limitCents = FECents $ round (limitEur * 100)
     pure BudgetTagGroup{name, tags, limitCents}
 
 data BudgetConfig = BudgetConfig

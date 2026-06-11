@@ -59,9 +59,9 @@ spec_mkBudgetTagGroupStats :: Spec
 spec_mkBudgetTagGroupStats = it "groups transactions by tag group" do
   let
     groups =
-      [ Config.BudgetTagGroup{name = "Groceries", tags = ["groceries"], limitCents = BECents -650_00}
-      , Config.BudgetTagGroup{name = "Transport", tags = ["fuel", "parking"], limitCents = BECents -100_00}
-      , Config.BudgetTagGroup{name = "Other", tags = ["takeaway", "gifts"], limitCents = BECents -50_00}
+      [ Config.BudgetTagGroup{name = "Groceries", tags = ["groceries"], limitCents = 650_00}
+      , Config.BudgetTagGroup{name = "Transport", tags = ["fuel", "parking"], limitCents = 100_00}
+      , Config.BudgetTagGroup{name = "Other", tags = ["takeaway", "gifts"], limitCents = 50_00}
       ]
     txs =
       V.fromList
@@ -106,9 +106,9 @@ spec_getBudgetHandler = it "returns correct budget info for the current month" d
         & config . budget
           .~ BudgetConfig
             { tagGroups =
-                [ Config.BudgetTagGroup{name = "Groceries", tags = ["groceries"], limitCents = BECents -650_00}
-                , Config.BudgetTagGroup{name = "Go out", tags = ["go out"], limitCents = BECents -100_00}
-                , Config.BudgetTagGroup{name = "Other", tags = ["home", "electronics"], limitCents = BECents -100_00}
+                [ Config.BudgetTagGroup{name = "Groceries", tags = ["groceries"], limitCents = 650_00}
+                , Config.BudgetTagGroup{name = "Go out", tags = ["go out"], limitCents = 100_00}
+                , Config.BudgetTagGroup{name = "Other", tags = ["home", "electronics"], limitCents = 100_00}
                 ]
             , includeAllTxsFromAccounts = Set.fromList ["bank1"]
             }
