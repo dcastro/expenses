@@ -28,7 +28,7 @@ import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
 import Expenses.Server.Routes.InsertNew qualified as InsertNew
 import Expenses.Server.Routes.ModifyTransaction qualified as ModifyTransaction
 import Expenses.Server.Routes.RenewRequisition qualified as RenewRequisition
-import Expenses.Server.Routes.RunCron qualified as RunCron
+import Expenses.Server.Routes.RunSync qualified as RunSync
 import Expenses.Server.Routes.Search qualified as Search
 import Expenses.Server.Routes.SplitTransactionItems qualified as SplitTransactionItems
 import Expenses.Server.Utils (throwJsonError')
@@ -115,7 +115,7 @@ data AdminAPI mode = AdminAPI
           :> "split"
           :> ReqBody '[JSON] [GetTransactions.NewShortTransactionItem]
           :> PostNoContent
-  , runCronSync :: mode :- "sync" :> PostNoContent
+  , runSync :: mode :- "sync" :> PostNoContent
   , renewRequisition ::
       mode
         :- "institutions"
@@ -280,7 +280,7 @@ mkServer resourcesDir =
           { modifyTransaction = ModifyTransaction.modifyTransactionHandler admin
           , insertTransaction = InsertNew.insertTransactionHandler admin
           , splitTransactionItems = SplitTransactionItems.splitTransactionItemsHandler admin
-          , runCronSync = RunCron.runCronHandler
+          , runSync = RunSync.runSyncHandler
           , renewRequisition = RenewRequisition.renewRequisitionHandler admin
           }
     , health = pure "OK"
