@@ -118,7 +118,7 @@ library
       InstanceSigs
   ghc-options: -Weverything -Wno-name-shadowing -Wno-missing-exported-signatures -Wno-missing-import-lists -Wno-missing-export-lists -Wno-missed-specialisations -Wno-all-missed-specialisations -Wno-unsafe -Wno-safe -Wno-missing-local-signatures -Wno-monomorphism-restriction -Wno-implicit-prelude -Wno-prepositive-qualified-module -Wno-missing-safe-haskell-mode -Wno-missing-kind-signatures -Wno-missing-role-annotations
   build-tool-depends:
-      tasty-discover:tasty-discover
+      sydtest-discover:sydtest-discover
   build-depends:
       aeson
     , aeson-casing
@@ -244,7 +244,7 @@ executable db-migrations
       InstanceSigs
   ghc-options: -Weverything -Wno-name-shadowing -Wno-missing-exported-signatures -Wno-missing-import-lists -Wno-missing-export-lists -Wno-missed-specialisations -Wno-all-missed-specialisations -Wno-unsafe -Wno-safe -Wno-missing-local-signatures -Wno-monomorphism-restriction -Wno-implicit-prelude -Wno-prepositive-qualified-module -Wno-missing-safe-haskell-mode -Wno-missing-kind-signatures -Wno-missing-role-annotations
   build-tool-depends:
-      tasty-discover:tasty-discover
+      sydtest-discover:sydtest-discover
   build-depends:
       base
     , expenses
@@ -319,7 +319,7 @@ executable expenses-manager-server
       InstanceSigs
   ghc-options: -Weverything -Wno-name-shadowing -Wno-missing-exported-signatures -Wno-missing-import-lists -Wno-missing-export-lists -Wno-missed-specialisations -Wno-all-missed-specialisations -Wno-unsafe -Wno-safe -Wno-missing-local-signatures -Wno-monomorphism-restriction -Wno-implicit-prelude -Wno-prepositive-qualified-module -Wno-missing-safe-haskell-mode -Wno-missing-kind-signatures -Wno-missing-role-annotations -threaded
   build-tool-depends:
-      tasty-discover:tasty-discover
+      sydtest-discover:sydtest-discover
   build-depends:
       base
     , expenses
@@ -396,9 +396,9 @@ test-suite test
       TypeAbstractions
       LinearTypes
       InstanceSigs
-  ghc-options: -Weverything -Wno-name-shadowing -Wno-missing-exported-signatures -Wno-missing-import-lists -Wno-missing-export-lists -Wno-missed-specialisations -Wno-all-missed-specialisations -Wno-unsafe -Wno-safe -Wno-missing-local-signatures -Wno-monomorphism-restriction -Wno-implicit-prelude -Wno-prepositive-qualified-module -Wno-missing-safe-haskell-mode -Wno-missing-kind-signatures -Wno-missing-role-annotations -Wno-x-partial
+  ghc-options: -Weverything -Wno-name-shadowing -Wno-missing-exported-signatures -Wno-missing-import-lists -Wno-missing-export-lists -Wno-missed-specialisations -Wno-all-missed-specialisations -Wno-unsafe -Wno-safe -Wno-missing-local-signatures -Wno-monomorphism-restriction -Wno-implicit-prelude -Wno-prepositive-qualified-module -Wno-missing-safe-haskell-mode -Wno-missing-kind-signatures -Wno-missing-role-annotations -Wno-x-partial -threaded -rtsopts -with-rtsopts=-N
   build-tool-depends:
-      tasty-discover:tasty-discover
+      sydtest-discover:sydtest-discover
   build-depends:
       aeson
     , aeson-pretty
@@ -407,8 +407,6 @@ test-suite test
     , effectful
     , effectful-core
     , expenses
-    , hspec
-    , hspec-expectations-pretty-diff
     , lens
     , log-base
     , log-effectful
@@ -416,10 +414,7 @@ test-suite test
     , servant-server
     , sqlite-simple
     , sqlite-simple-effectful
-    , tasty
-    , tasty-golden
-    , tasty-hspec
-    , tasty-hunit
+    , sydtest
     , text
     , time
     , universum

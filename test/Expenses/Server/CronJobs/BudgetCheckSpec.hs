@@ -19,9 +19,13 @@ import Expenses.Server.CronJobs.BudgetCheck (budgetCheckJob)
 import Expenses.Server.Env
 import Expenses.Test.Util qualified as Util
 import Log (LogLevel (..))
-import Test.Hspec (Spec, describe, it)
-import Test.Hspec.Expectations.Pretty (shouldBe)
+import Test.Syd (Spec, describe, it, shouldBe)
 import Types
+
+spec :: Spec
+spec = do
+  specBudgetCheckJob
+  specPushNotificationsConfig
 
 -- | Records every Ntfy call instead of hitting the real API.
 data NtfyCall
@@ -92,8 +96,8 @@ runBudgetCheckJob frozenTime txRows = do
 
   readIORef callsRef
 
-spec_budgetCheckJob :: Spec
-spec_budgetCheckJob = describe "budgetCheckJob" do
+specBudgetCheckJob :: Spec
+specBudgetCheckJob = describe "budgetCheckJob" do
   let midMonth = UTCTime (fromGregorian 2026 6 15) (secondsToDiffTime 0)
 
   it "clears notifications and sends a new one with the remaining budget" do
@@ -122,8 +126,8 @@ spec_budgetCheckJob = describe "budgetCheckJob" do
                        }
                  ]
 
-spec_pushNotificationsConfig :: Spec
-spec_pushNotificationsConfig = describe "PushNotificationsConfig" do
+specPushNotificationsConfig :: Spec
+specPushNotificationsConfig = describe "PushNotificationsConfig" do
   it "parses the cron schedule and open url" do
     let json = [i|{"cronSchedule": "0 0 * * *", "openUrl": "#{testOpenUrl}"}|] :: Text
     J.eitherDecode (encodeUtf8 json)

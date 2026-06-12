@@ -85,7 +85,7 @@ When modifying the db schema, also update `schema.sql`
 
 ### Testing
 
-Tests use Tasty (orchestration) with HSpec and golden files. Golden file outputs live in `test/golden/`. When a golden test fails due to intentional output changes, run `just test-accept` to update the snapshots.
+Tests use sydtest (with `sydtest-discover` for test discovery) and golden files. Golden file outputs live in `test/golden/`. When a golden test fails due to intentional output changes, run `just test-accept` to update the snapshots.
 
 
 ### Domain

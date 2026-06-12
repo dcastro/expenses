@@ -42,11 +42,11 @@ test:
     stack test --fast
 
 test-filter filter:
-    stack test --fast --test-arguments='--pattern "{{ filter }}"' --file-watch
+    stack test --fast --test-arguments='--filter "{{ filter }}"' --file-watch
 
 # Run stack tests and accept any changes to golden files.
 test-accept:
-    stack test --fast --test-arguments='--accept'
+    stack test --fast --test-arguments='--golden-reset'
 
 nix-show:
     nix flake show --allow-import-from-derivation

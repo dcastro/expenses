@@ -15,14 +15,16 @@ import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
 import Expenses.Server.Utils (MapAsList (..))
 import Expenses.Test.Util ()
 import Expenses.Test.Util qualified as Util
-import Test.Hspec (Spec, it)
-import Test.Hspec.Expectations.Pretty (shouldBe)
-import Test.Tasty
-import Test.Tasty.Golden (goldenVsString)
+import Test.Syd (Spec, goldenLazyByteStringFile, it, shouldBe)
 import Types
 
-spec_mkGroupStats :: Spec
-spec_mkGroupStats = it "calculates group and tag stats" do
+spec :: Spec
+spec = do
+  specMkGroupStats
+  specGetTransactionsHandler
+
+specMkGroupStats :: Spec
+specMkGroupStats = it "calculates group and tag stats" do
   config <- Util.mkTestConfig
   let
     mkTransactionRow :: MonthOfYear -> Maybe TagName -> BECents -> Db.TransactionJoinedRow
@@ -107,15 +109,16 @@ spec_mkGroupStats = it "calculates group and tag stats" do
           Just (tx, tag)
   mkGroupStats config itemsWithTags `shouldBe` expected
 
-test_getTransactionsHandler :: TestTree
-test_getTransactionsHandler = do
-  goldenVsString "mkGroupStats golden test" "test/golden/getTransactionsHandler.json" do
-    env <- Util.mkTestEnv
-    conn <- Util.mkTestDbConn
-    resp <-
-      getTransactionsHandler (YearMonth 2025 08) (YearMonth 2025 09)
-        & SQL.runSQLiteSync conn
-        & runReader env
-        & runConcurrent
-        & runEff
-    pure $ J.encodePretty resp
+specGetTransactionsHandler :: Spec
+specGetTransactionsHandler =
+  it "mkGroupStats golden test" $
+    goldenLazyByteStringFile "test/golden/getTransactionsHandler.json" do
+      env <- Util.mkTestEnv
+      conn <- Util.mkTestDbConn
+      resp <-
+        getTransactionsHandler (YearMonth 2025 08) (YearMonth 2025 09)
+          & SQL.runSQLiteSync conn
+          & runReader env
+          & runConcurrent
+          & runEff
+      pure $ J.encodePretty resp

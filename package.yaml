@@ -164,12 +164,7 @@ tests:
     dependencies:
       - base
       - expenses
-      - tasty
-      - tasty-hunit
-      - tasty-hspec
-      - hspec
-      - hspec-expectations-pretty-diff
-      - tasty-golden
+      - sydtest
 
       - universum
       - servant-server
@@ -189,6 +184,9 @@ tests:
       - lens
     ghc-options:
       - -Wno-x-partial
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
 
 build-tools:
-  - tasty-discover:tasty-discover
+  - sydtest-discover:sydtest-discover

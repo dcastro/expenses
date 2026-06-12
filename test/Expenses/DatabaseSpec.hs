@@ -4,8 +4,7 @@ import CustomPrelude
 import Database (TagParams (..), WhereClause, mkClause, mkClauseWithoutVal, mkSearchQueryClauses)
 import Expenses.Server.Routes.Search (RawSearchParams (..), parseSearchParams)
 import Expenses.Test.Util ()
-import Test.Hspec (Spec, it)
-import Test.Hspec.Expectations.Pretty (Expectation, shouldBe)
+import Test.Syd (Spec, describe, it, shouldBe)
 
 emptyParams :: RawSearchParams
 emptyParams =
@@ -20,8 +19,8 @@ emptyParams =
     , isExpense = Nothing
     }
 
-spec_mkSearchQueryClauses :: Spec
-spec_mkSearchQueryClauses = do
+spec :: Spec
+spec = describe "mkSearchQueryClauses" do
   it "handles contains and doesNotContain for allFields only" $
     emptyParams
       { allFields = "Foó báAR -báZ"
@@ -113,5 +112,5 @@ spec_mkSearchQueryClauses = do
   it "handles empty params" $ do
     emptyParams `shouldQuery` []
 
-shouldQuery :: RawSearchParams -> [WhereClause] -> Expectation
+shouldQuery :: RawSearchParams -> [WhereClause] -> IO ()
 shouldQuery params expected = mkSearchQueryClauses (parseSearchParams params) `shouldBe` expected

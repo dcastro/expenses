@@ -21,9 +21,13 @@ import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
 import Expenses.Server.Utils (MapAsList (..))
 import Expenses.Test.Util qualified as Util
 import Log (LogLevel (..))
-import Test.Hspec (Spec, it)
-import Test.Hspec.Expectations.Pretty (shouldBe)
+import Test.Syd (Spec, describe, it, shouldBe)
 import Types
+
+spec :: Spec
+spec = do
+  describe "mkBudgetTagGroupStats" specMkBudgetTagGroupStats
+  describe "getBudgetHandler" specGetBudgetHandler
 
 mkItem :: Text -> Day -> Maybe TagName -> FECents -> TransactionItem
 mkItem txId date tag amt =
@@ -55,8 +59,8 @@ mkRow txId date accountName tag amt =
     , details = ""
     }
 
-spec_mkBudgetTagGroupStats :: Spec
-spec_mkBudgetTagGroupStats = it "groups transactions by tag group" do
+specMkBudgetTagGroupStats :: Spec
+specMkBudgetTagGroupStats = it "groups transactions by tag group" do
   let
     groups =
       [ Config.BudgetTagGroup{name = "Groceries", tags = ["groceries"], limitCents = 650_00}
@@ -94,8 +98,8 @@ spec_mkBudgetTagGroupStats = it "groups transactions by tag group" do
   let totalSpending = txs <&> (.itemAmountCents) & sum
   totalGroupSpending `shouldBe` totalSpending
 
-spec_getBudgetHandler :: Spec
-spec_getBudgetHandler = it "returns correct budget info for the current month" do
+specGetBudgetHandler :: Spec
+specGetBudgetHandler = it "returns correct budget info for the current month" do
   -- Get the budget info for 2026-06-15
   let
     frozenTime = UTCTime (fromGregorian 2026 6 15) (secondsToDiffTime 0)
