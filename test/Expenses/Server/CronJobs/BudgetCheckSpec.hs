@@ -52,9 +52,10 @@ mkRow txId date tag amt =
 testOpenUrl :: Text
 testOpenUrl = "http://expenses.example.com/#/budget"
 
--- | Runs the budget check job at the given (frozen) time,
--- against a db containing the given transactions,
--- and returns the Ntfy calls made.
+{- | Runs the budget check job at the given (frozen) time,
+against a db containing the given transactions,
+and returns the Ntfy calls made.
+-}
 runBudgetCheckJob :: UTCTime -> [Db.TransactionJoinedRow] -> IO [NtfyCall]
 runBudgetCheckJob frozenTime txRows = do
   -- Monthly limit: 600€.
@@ -102,11 +103,11 @@ spec_budgetCheckJob = describe "budgetCheckJob" do
     calls
       `shouldBe` [ Cleared
                  , Sent
-                    Notification
-                      { title = "Budget update"
-                      , message = "You have 499.80€ left to spend this month."
-                      , clickUrl = testOpenUrl
-                      }
+                     Notification
+                       { title = "Budget update: Mon, 15 Jun"
+                       , message = "You have 499.80€ left to spend this month."
+                       , clickUrl = testOpenUrl
+                       }
                  ]
 
   it "reports a negative amount when the monthly limit has been exceeded" do
@@ -115,11 +116,11 @@ spec_budgetCheckJob = describe "budgetCheckJob" do
     calls
       `shouldBe` [ Cleared
                  , Sent
-                    Notification
-                      { title = "Budget update"
-                      , message = "You have -0.20€ left to spend this month."
-                      , clickUrl = testOpenUrl
-                      }
+                     Notification
+                       { title = "Budget update: Mon, 15 Jun"
+                       , message = "You have -0.20€ left to spend this month."
+                       , clickUrl = testOpenUrl
+                       }
                  ]
 
 spec_pushNotificationsConfig :: Spec

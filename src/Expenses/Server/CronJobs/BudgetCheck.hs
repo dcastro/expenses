@@ -2,9 +2,11 @@ module Expenses.Server.CronJobs.BudgetCheck where
 
 import Config qualified
 import CustomPrelude
+import Data.Time (defaultTimeLocale, formatTime, utctDay)
 import Effectful
 import Effectful.Exception qualified as Eff
 import Effectful.Reader.Static (asks)
+import Effectful.Time qualified as Time
 import Expenses.Effects
 import Expenses.Effects.Ntfy qualified as Ntfy
 import Expenses.Server.Routes.GetBudget (BudgetInfo (..), getBudgetHandler)
@@ -31,6 +33,7 @@ budgetCheckJob' = do
   logInfo_ "[Cron] Starting budget check job."
   pushConfig <- asks @Env (.config.budget.pushNotifications)
   budgetInfo <- getBudgetHandler
+  today <- utctDay <$> Time.currentTime
   let remaining = budgetInfo.monthlyLimitCents - budgetInfo.actualSpendingToDateCents
   logInfo_ [i|[Cron] Budget check done: #{formatEuros remaining}€ left to spend this month, sending push notification.|]
   -- Clear notifications and send a new one.
@@ -38,7 +41,7 @@ budgetCheckJob' = do
   Ntfy.clearNotifications
   Ntfy.sendNotification
     Ntfy.Notification
-      { title = "Budget update"
+      { title = [i|Budget update: #{formatTime defaultTimeLocale "%a, %-d %b" today}|]
       , message = [i|You have #{formatEuros remaining}€ left to spend this month.|]
       , clickUrl = pushConfig.openUrl
       }
