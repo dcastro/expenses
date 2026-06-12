@@ -20,7 +20,7 @@ import Expenses.Server.Routes.GetTransactions (TransactionItem (..))
 import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
 import Expenses.Server.Utils (MapAsList (..))
 import Expenses.Test.Util qualified as Util
-import Log (LogLevel (..), mkBulkLogger)
+import Log (LogLevel (..))
 import Test.Hspec (Spec, it)
 import Test.Hspec.Expectations.Pretty (shouldBe)
 import Types
@@ -59,9 +59,9 @@ spec_mkBudgetTagGroupStats :: Spec
 spec_mkBudgetTagGroupStats = it "groups transactions by tag group" do
   let
     groups =
-      [ Config.BudgetTagGroup{name = "Groceries", tags = ["groceries"], limitCents = BECents -650_00}
-      , Config.BudgetTagGroup{name = "Transport", tags = ["fuel", "parking"], limitCents = BECents -100_00}
-      , Config.BudgetTagGroup{name = "Other", tags = ["takeaway", "gifts"], limitCents = BECents -50_00}
+      [ Config.BudgetTagGroup{name = "Groceries", tags = ["groceries"], limitCents = 650_00}
+      , Config.BudgetTagGroup{name = "Transport", tags = ["fuel", "parking"], limitCents = 100_00}
+      , Config.BudgetTagGroup{name = "Other", tags = ["takeaway", "gifts"], limitCents = 50_00}
       ]
     txs =
       V.fromList
@@ -106,11 +106,16 @@ spec_getBudgetHandler = it "returns correct budget info for the current month" d
         & config . budget
           .~ BudgetConfig
             { tagGroups =
-                [ Config.BudgetTagGroup{name = "Groceries", tags = ["groceries"], limitCents = BECents -650_00}
-                , Config.BudgetTagGroup{name = "Go out", tags = ["go out"], limitCents = BECents -100_00}
-                , Config.BudgetTagGroup{name = "Other", tags = ["home", "electronics"], limitCents = BECents -100_00}
+                [ Config.BudgetTagGroup{name = "Groceries", tags = ["groceries"], limitCents = 650_00}
+                , Config.BudgetTagGroup{name = "Go out", tags = ["go out"], limitCents = 100_00}
+                , Config.BudgetTagGroup{name = "Other", tags = ["home", "electronics"], limitCents = 100_00}
                 ]
             , includeAllTxsFromAccounts = Set.fromList ["bank1"]
+            , pushNotifications =
+                PushNotificationsConfig
+                  { cronSchedule = ""
+                  , openUrl = ""
+                  }
             }
   conn <- Util.mkInMemoryDbConn
 
@@ -130,8 +135,6 @@ spec_getBudgetHandler = it "returns correct budget info for the current month" d
     testRows = [tx1, tx2, tx3, tx4, tx5]
     expectedTxs = [tx1, tx2, tx3] <&> \tx -> GetTransactions.convertRowToItem tx
 
-  nullLogger <- mkBulkLogger "null" (\_ -> pure ()) (pure ())
-
   forM_ testRows \row ->
     SQL.useConnection (\c -> Db.insertTransactionJoinedRow c row)
       & SQL.runSQLiteSync conn
@@ -144,7 +147,7 @@ spec_getBudgetHandler = it "returns correct budget info for the current month" d
       & Time.runFrozenTime frozenTime
       & runReader env
       & runConcurrent
-      & runLog "test" nullLogger LogAttention
+      & runLog "test" mempty LogAttention
       & runEff
 
   let expectedTagGroupStats =
@@ -165,8 +168,6 @@ spec_getBudgetHandler = it "returns correct budget info for the current month" d
   let sortTxs = sortBy (comparing (.transactionId))
   sortTxs (V.toList resp.transactions) `shouldBe` sortTxs expectedTxs
   resp.monthlyLimitCents `shouldBe` 850_00
-  -- we're halfway through the month, so we expect to have spent half of the monthly limit by now
-  resp.expectedSpendingToDateCents `shouldBe` 425_00
   resp.actualSpendingToDateCents `shouldBe` 100_00
-  resp.overUnderCents `shouldBe` -325_00
+  resp.remainingCents `shouldBe` 750_00
   resp.tagGroupStats `shouldBe` expectedTagGroupStats

@@ -41,6 +41,7 @@ mkTestEnv = do
       , demoMode = False
       , nordigenSecretId = ""
       , nordigenSecretKey = ""
+      , ntfyTopic = ""
       , config
       }
 

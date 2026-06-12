@@ -1,4 +1,4 @@
-module Expenses.Server.CronJob where
+module Expenses.Server.CronJobs.Sync where
 
 import Config (AppConfig)
 import Config qualified
@@ -15,28 +15,17 @@ import Effectful.Exception qualified as Eff
 import Effectful.FileSystem qualified as FS
 import Effectful.FileSystem.IO.ByteString.Lazy qualified as FS
 import Effectful.Reader.Static (asks)
-import Effectful.SQLite.Simple (Connection)
 import Effectful.Time qualified as Time
 import Expenses.Effects
-import Expenses.Effects qualified as Eff
 import Expenses.Effects.EventLog qualified as EventLog
 import Expenses.Effects.Nordigen qualified as N
 import Expenses.Linear (liftConsume)
 import Expenses.Server.EventLog qualified as EventLog
 import Log
 import Servant.Auth.Client qualified as SA
-import System.Cron.Schedule (addJob, execSchedule)
 import System.FilePath ((</>))
 import Types
 import Util qualified
-
-startCronJobs :: MVar Connection -> Env -> Logger -> LogT IO ()
-startCronJobs conn env logger = do
-  let schedule = env.config.cronSchedule
-  logInfo_ [i|Scheduling Nordigen sync job: #{schedule}.|]
-  void $
-    liftIO $ execSchedule do
-      addJob (nordigenJob & Eff.runCronM conn env logger) schedule
 
 nordigenJob ::
   forall es.

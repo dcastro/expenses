@@ -12,6 +12,7 @@ module Expenses.Effects (
   Time,
   EventLog,
   Nordigen,
+  Ntfy,
   Reader,
   Env (..),
   FileSystem,
@@ -45,6 +46,8 @@ import Expenses.Effects.NextUUID (NextUUID)
 import Expenses.Effects.NextUUID qualified as Uuid
 import Expenses.Effects.Nordigen (Nordigen)
 import Expenses.Effects.Nordigen qualified as N
+import Expenses.Effects.Ntfy (Ntfy)
+import Expenses.Effects.Ntfy qualified as Ntfy
 import Expenses.Server.Env (Env (..))
 import Servant.Server (Handler, ServerError)
 import System.Exit qualified as Exit
@@ -52,7 +55,7 @@ import System.Exit qualified as Exit
 loggerName :: Text
 loggerName = "expenses-server"
 
-type AppM = Eff '[NextUUID, Error ServerError, SQLite, Time, EventLog, Nordigen, Reader Env, FileSystem, Concurrent, Log, IOE]
+type AppM = Eff '[NextUUID, Error ServerError, SQLite, Time, EventLog, Nordigen, Ntfy, Reader Env, FileSystem, Concurrent, Log, IOE]
 
 naturalTransformation :: forall a. Bool -> MVar Connection -> Env -> Logger -> AppM a -> Handler a
 naturalTransformation isVerbose conn env logger app = do
@@ -64,6 +67,7 @@ naturalTransformation isVerbose conn env logger app = do
           & runTime
           & EventLog.runEventLog
           & N.runNordigen
+          & Ntfy.runNtfy
           & runReader env
           & runFileSystem
           & runConcurrent
@@ -84,7 +88,7 @@ naturalTransformation isVerbose conn env logger app = do
       then Time.runFrozenTime (UTCTime (fromGregorian 2025 10 23) (secondsToDiffTime 0))
       else Time.runTime
 
-type CronM = Eff '[SQLite, Time, EventLog, Nordigen, Reader Env, FileSystem, Concurrent, Log, IOE]
+type CronM = Eff '[SQLite, Time, EventLog, Nordigen, Ntfy, Reader Env, FileSystem, Concurrent, Log, IOE]
 
 runCronM :: forall a. MVar Connection -> Env -> Logger -> CronM a -> IO a
 runCronM conn env logger app = do
@@ -93,6 +97,7 @@ runCronM conn env logger app = do
     & Time.runTime
     & EventLog.runEventLog
     & N.runNordigen
+    & Ntfy.runNtfy
     & runReader env
     & runFileSystem
     & runConcurrent

@@ -28,11 +28,12 @@ data ServerOptions = ServerOptions
   , eventLogPath :: FilePath
   , configPath :: FilePath
   , runCron :: Bool
-  -- ^ Whether to run the Nordigen cron job.
+  -- ^ Whether to run cron jobs.
   , demoMode :: Bool
   {- ^ Whether to run in demo mode: https://expenses-demo.diogocastro.com/
   In this mode:
     * we use fake data instead of syncing with Nordigen.
+    * we don't send push notifications via nfty.sh
     * we set the current date to Oct 2025.
   -}
   , user :: Maybe Username
@@ -45,6 +46,7 @@ data ServerOptions = ServerOptions
   , isVerbose :: Bool
   , nordigenSecretId :: Text
   , nordigenSecretKey :: Text
+  , ntfyTopic :: Text
   }
   deriving stock (Show, Generic)
 
@@ -52,6 +54,7 @@ mkServerOptions :: (MonadIO m, MonadLog m) => m ServerOptions
 mkServerOptions = do
   nordigenSecretId <- liftIO $ getEnv "EXPENSES_NORDIGEN_SECRET_ID"
   nordigenSecretKey <- liftIO $ getEnv "EXPENSES_NORDIGEN_SECRET_KEY"
+  ntfyTopic <- liftIO $ getEnv "EXPENSES_NTFY_TOPIC"
   RawServerOptions{port, appDir, runCron, demoMode, user, isVerbose} <- liftIO parseRawServerOptions
 
   appDir <- liftIO $ Dir.canonicalizePath appDir
@@ -94,6 +97,7 @@ mkServerOptions = do
       , isVerbose
       , nordigenSecretId = T.pack nordigenSecretId
       , nordigenSecretKey = T.pack nordigenSecretKey
+      , ntfyTopic = T.pack ntfyTopic
       }
 
 parseRawServerOptions :: IO RawServerOptions

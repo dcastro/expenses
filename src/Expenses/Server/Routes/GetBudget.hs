@@ -5,7 +5,7 @@ import CustomPrelude
 import Data.Aeson.TH (defaultOptions, deriveToJSON)
 import Data.Map.Strict qualified as Map
 import Data.Set qualified as Set
-import Data.Time (DayOfMonth, gregorianMonthLength, toGregorian, utctDay)
+import Data.Time (toGregorian, utctDay)
 import Data.Time qualified as Time
 import Data.Time.Calendar.Month (Month, pattern YearMonth)
 import Data.Vector.Algorithms qualified as V
@@ -19,7 +19,7 @@ import Expenses.NonEmptyText qualified as NET
 import Expenses.Server.Routes.GetTransactions (TransactionItem (..))
 import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
 import Expenses.Server.Utils (MapAsList (..))
-import Types (FECents (..), TagGroupName (..), TagName, toFE)
+import Types (FECents (..), TagGroupName (..), TagName)
 
 data BudgetTagGroupStats = BudgetTagGroupStats
   { spentToDateCents :: FECents
@@ -30,12 +30,10 @@ data BudgetTagGroupStats = BudgetTagGroupStats
 
 data BudgetInfo = BudgetInfo
   { monthlyLimitCents :: FECents
-  , expectedSpendingToDateCents :: FECents
-  -- ^ How much we expect to spend by this point in the month.
   , actualSpendingToDateCents :: FECents
   -- ^ How much we've spent so far this month.
-  , overUnderCents :: FECents
-  -- ^ How much we're over or under the expected spending for this point in the month.
+  , remainingCents :: FECents
+  -- ^ How much of the monthly budget is left to spend.
   , transactions :: Vector TransactionItem
   , tagGroupStats :: MapAsList TagGroupName BudgetTagGroupStats
   }
@@ -52,30 +50,23 @@ getBudgetHandler ::
   Eff es BudgetInfo
 getBudgetHandler = do
   today <- utctDay <$> Time.currentTime
-  let (year, month, todayDayNum) = toGregorian today
-  let totalDays = gregorianMonthLength year month
+  let (year, month, _) = toGregorian today
 
   config <- asks @Env (.config)
   let budgetGroups = config.budget.tagGroups
-  let monthlyLimit = toFE (budgetGroups <&> (.limitCents) & sum)
+  let monthlyLimit = budgetGroups <&> (.limitCents) & sum
 
   txs <- findMatchingTxs (YearMonth year month)
 
   let actualSpendingToDateCents = txs <&> (.itemAmountCents) & sum
-  let expectedSpendingToDateCents =
-        round @Double @FECents $
-          fromIntegral @FECents @Double monthlyLimit
-            * fromIntegral @DayOfMonth @Double todayDayNum
-            / fromIntegral @DayOfMonth @Double totalDays
-  let overUnderCents = actualSpendingToDateCents - expectedSpendingToDateCents
+  let remainingCents = monthlyLimit - actualSpendingToDateCents
 
   let tagGroupStats = mkBudgetTagGroupStats budgetGroups txs
 
   pure
     BudgetInfo
       { monthlyLimitCents = monthlyLimit
-      , expectedSpendingToDateCents
-      , overUnderCents
+      , remainingCents
       , transactions = txs
       , actualSpendingToDateCents
       , tagGroupStats = MapAsList tagGroupStats
@@ -132,7 +123,7 @@ mkBudgetTagGroupStats groups txs =
            in ( group.name
               , BudgetTagGroupStats
                   { spentToDateCents = groupSpent
-                  , limitCents = toFE group.limitCents
+                  , limitCents = group.limitCents
                   , tags = Just <$> group.tags
                   }
               )

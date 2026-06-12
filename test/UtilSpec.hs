@@ -1,8 +1,8 @@
 module UtilSpec where
 
-import Config (AppConfig (..), BudgetConfig (..))
+import Config (AppConfig (..), BudgetConfig (..), PushNotificationsConfig (..))
 import CustomPrelude
-import Expenses.Server.CronJob qualified as CronJob
+import Expenses.Server.CronJobs.Sync qualified as CronJob
 import Expenses.Test.Util ()
 import Test.Tasty.HUnit
 import Universum.Unsafe qualified as Unsafe
@@ -70,7 +70,16 @@ unit_getIsExpense = do
           , cronSchedule = ""
           , tagPatterns = mempty
           , notExpenses = ["transfers"]
-          , budget = BudgetConfig{tagGroups = [], includeAllTxsFromAccounts = mempty}
+          , budget =
+              BudgetConfig
+                { tagGroups = []
+                , includeAllTxsFromAccounts = mempty
+                , pushNotifications =
+                    PushNotificationsConfig
+                      { cronSchedule = ""
+                      , openUrl = ""
+                      }
+                }
           }
   let txIdNormal = "20220121233851916940"
   let txIdTemporary = "12345678901234"

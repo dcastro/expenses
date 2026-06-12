@@ -26,9 +26,12 @@ library
       Expenses.Effects.EventLog
       Expenses.Effects.NextUUID
       Expenses.Effects.Nordigen
+      Expenses.Effects.Ntfy
       Expenses.Linear
       Expenses.NonEmptyText
-      Expenses.Server.CronJob
+      Expenses.Server.CronJobs
+      Expenses.Server.CronJobs.BudgetCheck
+      Expenses.Server.CronJobs.Sync
       Expenses.Server.Env
       Expenses.Server.EventLog
       Expenses.Server.Options
@@ -43,7 +46,8 @@ library
       Expenses.Server.Routes.InsertNew
       Expenses.Server.Routes.ModifyTransaction
       Expenses.Server.Routes.RenewRequisition
-      Expenses.Server.Routes.RunCron
+      Expenses.Server.Routes.RunBudgetCheck
+      Expenses.Server.Routes.RunSync
       Expenses.Server.Routes.Search
       Expenses.Server.Routes.SplitTransactionItems
       Expenses.Server.Utils
@@ -326,6 +330,7 @@ test-suite test
   main-is: Spec.hs
   other-modules:
       Expenses.DatabaseSpec
+      Expenses.Server.CronJobs.BudgetCheckSpec
       Expenses.Server.GetBudgetSpec
       Expenses.Server.GetTransactionsSpec
       Expenses.Test.Util

@@ -52,6 +52,10 @@ ungroupedTags:
 tagPatterns: []
 
 budget:
+  pushNotifications:
+    # Every 5 days, at 9:30am
+    cronSchedule: '30 9 */5 * *'
+    openUrl: http://expenses.diogocastro.com/#/budget
   # The budget calculations will include any txs that have one of the tags listed below
   # OR are from one of the accounts listed below.
   #

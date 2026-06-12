@@ -8,7 +8,9 @@ import Effectful.Time qualified as ETime
 import Expenses.Effects
 import Log
 import System.Directory qualified as Dir
+import Text.Printf (printf)
 import Text.Read qualified as Read
+import Types (FECents)
 
 checkDbExists :: (MonadIO m) => (MonadLog m) => FilePath -> m ()
 checkDbExists dbPath = do
@@ -32,6 +34,10 @@ eurosToCents txt = do
       cents = Read.read (T.unpack centsPart) :: Int
       total = euros * 100 + cents
   sign total
+
+centsToEuros :: FECents -> Text
+centsToEuros cents =
+  toText @String $ printf "%.2f" (fromIntegral @FECents @Double cents / 100)
 
 timed :: (Time :> es, Log :> es) => Text -> Eff es a -> Eff es a
 timed actionName action = do
