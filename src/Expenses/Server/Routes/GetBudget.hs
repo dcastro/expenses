@@ -47,16 +47,21 @@ $( mconcat
 
 getBudgetHandler ::
   (Reader Env :> es, SQLite :> es, Time :> es, Log :> es) =>
+  Maybe Month ->
   Eff es BudgetInfo
-getBudgetHandler = do
-  today <- utctDay <$> Time.currentTime
-  let (year, month, _) = toGregorian today
+getBudgetHandler maybeMonth = do
+  month <- case maybeMonth of
+    Just month -> pure month
+    Nothing -> do
+      today <- utctDay <$> Time.currentTime
+      let (year, monthOfYear, _) = toGregorian today
+      pure $ YearMonth year monthOfYear
 
   config <- asks @Env (.config)
   let budgetGroups = config.budget.tagGroups
   let monthlyLimit = budgetGroups <&> (.limitCents) & sum
 
-  txs <- findMatchingTxs (YearMonth year month)
+  txs <- findMatchingTxs month
 
   let actualSpendingToDateCents = txs <&> (.itemAmountCents) & sum
   let remainingCents = monthlyLimit - actualSpendingToDateCents

@@ -7,15 +7,20 @@ import Charts.BudgetCharts as BudgetCharts
 import Core.API as API
 import Core.APITypes (TagGroupName, TagName)
 import Core.APITypes as API
+import Core.YearMonth (YearMonth)
+import Core.YearMonth as YM
 import Data.Array as Arr
 import Data.Foldable (foldMap)
 import Data.Map as Map
 import Data.Maybe (Maybe(..))
 import Data.Nullable as Null
 import Effect.Aff.Class (class MonadAff)
+import Effect.Now as Now
 import Foreign (Foreign)
 import Halogen as H
 import Halogen.HTML as HH
+import Halogen.HTML.Events as HE
+import Halogen.HTML.Properties (InputType(..))
 import Halogen.HTML.Properties as HP
 import Halogen.Subscription as HS
 import HtmlUtils (classes')
@@ -34,6 +39,7 @@ _transactionsTable = Proxy :: Proxy "transactionsTable"
 type Input =
   { isAdmin :: Boolean
   , allTags :: Array TagName
+  , minMonth :: YearMonth -- ^ The oldest month the user can select.
   }
 
 type Output = Void
@@ -41,27 +47,35 @@ type Output = Void
 type State =
   { isAdmin :: Boolean
   , allTags :: Array TagName
+  , minMonth :: YearMonth -- ^ The oldest month the user can select.
   , budgetInfo :: Maybe API.BudgetInfo
   , loading :: Boolean
   , chart :: Maybe Foreign
   , selectedTagGroup :: Maybe TagGroupName
+  -- These two are `Nothing` until `Initialize` figures out the current month.
+  , selectedMonth :: Maybe YearMonth
+  , maxMonth :: Maybe YearMonth -- ^ The current month; the most recent month the user can select.
   }
 
 data Action
   = Initialize
   | TagGroupSelected (Maybe TagGroupName)
+  | MonthSelectionChanged String
   | HandleTransactionsUpdated TransactionsTable.Output
 
 component :: forall q m. MonadAff m => H.Component q Input Output m
 component =
   H.mkComponent
-    { initialState: \{ isAdmin, allTags } ->
+    { initialState: \{ isAdmin, allTags, minMonth } ->
         { isAdmin
         , allTags
+        , minMonth
         , budgetInfo: Nothing
         , loading: false
         , chart: Nothing
         , selectedTagGroup: Nothing
+        , selectedMonth: Nothing
+        , maxMonth: Nothing
         }
     , render
     , eval: H.mkEval H.defaultEval
@@ -76,6 +90,7 @@ render state =
     [ HH.section [ classes' "section" ]
         [ HH.h4 [ classes' "title is-4 has-text-centered" ]
             [ HH.text "Budget" ]
+        , renderMonthPicker state
         , if state.loading then
             HH.p [ classes' "has-text-grey has-text-centered mt-4" ] [ HH.text "Loading..." ]
           else
@@ -97,6 +112,28 @@ render state =
             HandleTransactionsUpdated
         ]
     ]
+
+renderMonthPicker :: forall m. State -> H.ComponentHTML Action Slots m
+renderMonthPicker state =
+  case state.selectedMonth, state.maxMonth of
+    Just selectedMonth, Just maxMonth ->
+      HH.div [ classes' "columns is-centered" ]
+        [ HH.div [ classes' "column is-narrow" ]
+            [ HH.div [ classes' "field" ]
+                [ HH.div [ classes' "control" ]
+                    [ HtmlUtils.input'
+                        [ HP.type_ InputMonth
+                        , HP.value $ YM.formatYearMonth selectedMonth
+                        , HtmlUtils.minYearMonth state.minMonth
+                        , HtmlUtils.maxYearMonth maxMonth
+                        , classes' "input"
+                        , HE.onValueChange MonthSelectionChanged
+                        ]
+                    ]
+                ]
+            ]
+        ]
+    _, _ -> HH.text ""
 
 renderSummary :: forall m. State -> API.BudgetInfo -> H.ComponentHTML Action Slots m
 renderSummary _state info =
@@ -146,8 +183,9 @@ filteredTransactions state =
 handleAction :: forall m. MonadAff m => Action -> H.HalogenM State Action Slots Void m Unit
 handleAction = case _ of
   Initialize -> do
-    H.modify_ _ { loading = true }
-    budgetInfo <- H.liftAff API.getBudget
+    currentMonth <- YM.dateToYearMonth <$> H.liftEffect Now.nowDate
+    H.modify_ _ { loading = true, selectedMonth = Just currentMonth, maxMonth = Just currentMonth }
+    budgetInfo <- H.liftAff $ API.getBudget currentMonth
     { emitter, listener } <- H.liftEffect HS.create
     chart <- H.liftEffect $ BudgetCharts.makeChart "budget-chart-container" budgetInfo.tagGroupStats
       \maybeGroup -> HS.notify listener (TagGroupSelected (Null.toMaybe maybeGroup))
@@ -157,12 +195,27 @@ handleAction = case _ of
   TagGroupSelected maybeGroup ->
     H.modify_ _ { selectedTagGroup = maybeGroup }
 
-  HandleTransactionsUpdated TransactionsTable.TransactionsUpdated -> do
-    budgetInfo <- H.liftAff API.getBudget
-    state <- H.get
-    case state.chart of
+  MonthSelectionChanged inputStr ->
+    case YM.parseYearMonth inputStr of
       Nothing -> pure unit
-      Just chart -> do
-        H.liftEffect $ BudgetCharts.clearSelection chart
-        H.liftEffect $ BudgetCharts.updateChart chart budgetInfo.tagGroupStats
-    H.modify_ _ { budgetInfo = Just budgetInfo, selectedTagGroup = Nothing }
+      Just ym -> do
+        H.modify_ _ { selectedMonth = Just ym }
+        refreshBudget
+
+  HandleTransactionsUpdated TransactionsTable.TransactionsUpdated ->
+    refreshBudget
+
+-- Re-fetch the budget info for the selected month and refresh the chart.
+refreshBudget :: forall m. MonadAff m => H.HalogenM State Action Slots Void m Unit
+refreshBudget = do
+  state <- H.get
+  case state.selectedMonth of
+    Nothing -> pure unit
+    Just month -> do
+      budgetInfo <- H.liftAff $ API.getBudget month
+      case state.chart of
+        Nothing -> pure unit
+        Just chart -> H.liftEffect do
+          BudgetCharts.clearSelection chart
+          BudgetCharts.updateChart chart budgetInfo.tagGroupStats
+      H.modify_ _ { budgetInfo = Just budgetInfo, selectedTagGroup = Nothing }

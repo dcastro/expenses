@@ -31,7 +31,7 @@ budgetCheckJob' ::
 budgetCheckJob' = do
   logInfo_ "[Cron] Starting budget check job."
   pushConfig <- asks @Env (.config.budget.pushNotifications)
-  budgetInfo <- getBudgetHandler
+  budgetInfo <- getBudgetHandler Nothing
   today <- utctDay <$> Time.currentTime
   let remaining = Util.centsToEuros budgetInfo.remainingCents
   logInfo_ [i|[Cron] Budget check done: #{remaining}€ left to spend this month, sending push notification.|]

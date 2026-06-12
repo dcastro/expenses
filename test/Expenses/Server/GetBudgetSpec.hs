@@ -6,6 +6,7 @@ import CustomPrelude
 import Data.Map.Strict qualified as Map
 import Data.Set qualified as Set
 import Data.Time (Day, UTCTime (..), fromGregorian, secondsToDiffTime)
+import Data.Time.Calendar.Month (Month, pattern YearMonth)
 import Data.Vector qualified as V
 import Database qualified as Db
 import Effectful
@@ -99,79 +100,102 @@ specMkBudgetTagGroupStats = it "groups transactions by tag group" do
   totalGroupSpending `shouldBe` totalSpending
 
 specGetBudgetHandler :: Spec
-specGetBudgetHandler = it "returns correct budget info for the current month" do
-  -- Get the budget info for 2026-06-15
-  let
-    frozenTime = UTCTime (fromGregorian 2026 6 15) (secondsToDiffTime 0)
+specGetBudgetHandler = do
+  it "returns correct budget info for the current month" do
+    resp <- runGetBudgetHandler Nothing
 
-  env <-
-    Util.mkTestEnv <&> \env ->
-      env
-        & config . budget
-          .~ BudgetConfig
-            { tagGroups =
-                [ Config.BudgetTagGroup{name = "Groceries", tags = ["groceries"], limitCents = 650_00}
-                , Config.BudgetTagGroup{name = "Go out", tags = ["go out"], limitCents = 100_00}
-                , Config.BudgetTagGroup{name = "Other", tags = ["home", "electronics"], limitCents = 100_00}
-                ]
-            , includeAllTxsFromAccounts = Set.fromList ["bank1"]
-            , pushNotifications =
-                PushNotificationsConfig
-                  { cronSchedule = ""
-                  , openUrl = ""
-                  }
-            }
-  conn <- Util.mkInMemoryDbConn
+    let expectedTxs = [tx1, tx2, tx3] <&> \tx -> GetTransactions.convertRowToItem tx
+    let expectedTagGroupStats =
+          MapAsList $
+            Map.fromList
+              [ ("Groceries", BudgetTagGroupStats{spentToDateCents = 50_00, limitCents = 650_00, tags = [Just "groceries"]})
+              , ("Go out", BudgetTagGroupStats{spentToDateCents = 20_00, limitCents = 100_00, tags = [Just "go out"]})
+              ,
+                ( "Other"
+                , BudgetTagGroupStats
+                    { spentToDateCents = 30_00
+                    , limitCents = 100_00
+                    , tags = [Just "home", Just "electronics", Just "some-other-tag"]
+                    }
+                )
+              ]
 
-  let
-    -- The endpoint returns txs that match the date filter (06-2026) AND (EITHER the tag filter OR the account name filter).
-    --
-    -- Tx1 matches the tag filter, the account name filter, and the date filter, so it's included in the results.
-    tx1 = mkRow "tx1" (fromGregorian 2026 6 5) "bank1" (Just "groceries") 50_00
-    -- Tx2 matches the date and tag filter (but not the account name filter), so it's included.
-    tx2 = mkRow "tx2" (fromGregorian 2026 6 10) "some-other-bank" (Just "go out") 20_00
-    -- Tx3 matches the date and account name filter (but not the tag filter), so it's included.
-    tx3 = mkRow "tx3" (fromGregorian 2026 6 3) "bank1" (Just "some-other-tag") 30_00
-    -- tx4 is in May, so it's excluded by the date filter
-    tx4 = mkRow "tx4" (fromGregorian 2026 5 15) "bank1" (Just "groceries") 10_00
-    -- tx5 matches the date filter but not the tag or account filters, so it's excluded.
-    tx5 = mkRow "tx5" (fromGregorian 2026 6 3) "some-other-bank" (Just "some-other-tag") 30_00
-    testRows = [tx1, tx2, tx3, tx4, tx5]
-    expectedTxs = [tx1, tx2, tx3] <&> \tx -> GetTransactions.convertRowToItem tx
+    sortTxs (V.toList resp.transactions) `shouldBe` sortTxs expectedTxs
+    resp.monthlyLimitCents `shouldBe` 850_00
+    resp.actualSpendingToDateCents `shouldBe` 100_00
+    resp.remainingCents `shouldBe` 750_00
+    resp.tagGroupStats `shouldBe` expectedTagGroupStats
 
-  forM_ testRows \row ->
-    SQL.useConnection (\c -> Db.insertTransactionJoinedRow c row)
-      & SQL.runSQLiteSync conn
-      & runConcurrent
-      & runEff
+  it "returns correct budget info for a given month" do
+    -- Query May 2026 explicitly, even though "today" is 2026-06-15.
+    resp <- runGetBudgetHandler (Just (YearMonth 2026 5))
 
-  resp <-
-    getBudgetHandler
+    let expectedTxs = [tx4] <&> \tx -> GetTransactions.convertRowToItem tx
+    let expectedTagGroupStats =
+          MapAsList $
+            Map.fromList
+              [ ("Groceries", BudgetTagGroupStats{spentToDateCents = 10_00, limitCents = 650_00, tags = [Just "groceries"]})
+              , ("Go out", BudgetTagGroupStats{spentToDateCents = 0, limitCents = 100_00, tags = [Just "go out"]})
+              , ("Other", BudgetTagGroupStats{spentToDateCents = 0, limitCents = 100_00, tags = [Just "home", Just "electronics"]})
+              ]
+
+    sortTxs (V.toList resp.transactions) `shouldBe` sortTxs expectedTxs
+    resp.monthlyLimitCents `shouldBe` 850_00
+    resp.actualSpendingToDateCents `shouldBe` 10_00
+    resp.remainingCents `shouldBe` 840_00
+    resp.tagGroupStats `shouldBe` expectedTagGroupStats
+ where
+  sortTxs = sortBy (comparing (.transactionId))
+
+  -- The endpoint returns txs that match the date filter (06-2026, the current month, unless
+  -- another month is requested) AND (EITHER the tag filter OR the account name filter).
+  --
+  -- Tx1 matches the tag filter, the account name filter, and the date filter, so it's included in the results.
+  tx1 = mkRow "tx1" (fromGregorian 2026 6 5) "bank1" (Just "groceries") 50_00
+  -- Tx2 matches the date and tag filter (but not the account name filter), so it's included.
+  tx2 = mkRow "tx2" (fromGregorian 2026 6 10) "some-other-bank" (Just "go out") 20_00
+  -- Tx3 matches the date and account name filter (but not the tag filter), so it's included.
+  tx3 = mkRow "tx3" (fromGregorian 2026 6 3) "bank1" (Just "some-other-tag") 30_00
+  -- tx4 is in May, so it's excluded by the date filter (but included when May is requested explicitly).
+  tx4 = mkRow "tx4" (fromGregorian 2026 5 15) "bank1" (Just "groceries") 10_00
+  -- tx5 matches the date filter but not the tag or account filters, so it's excluded.
+  tx5 = mkRow "tx5" (fromGregorian 2026 6 3) "some-other-bank" (Just "some-other-tag") 30_00
+  testRows = [tx1, tx2, tx3, tx4, tx5]
+
+  runGetBudgetHandler :: Maybe Month -> IO BudgetInfo
+  runGetBudgetHandler maybeMonth = do
+    -- Freeze "today" at 2026-06-15
+    let frozenTime = UTCTime (fromGregorian 2026 6 15) (secondsToDiffTime 0)
+
+    env <-
+      Util.mkTestEnv <&> \env ->
+        env
+          & config . budget
+            .~ BudgetConfig
+              { tagGroups =
+                  [ Config.BudgetTagGroup{name = "Groceries", tags = ["groceries"], limitCents = 650_00}
+                  , Config.BudgetTagGroup{name = "Go out", tags = ["go out"], limitCents = 100_00}
+                  , Config.BudgetTagGroup{name = "Other", tags = ["home", "electronics"], limitCents = 100_00}
+                  ]
+              , includeAllTxsFromAccounts = Set.fromList ["bank1"]
+              , pushNotifications =
+                  PushNotificationsConfig
+                    { cronSchedule = ""
+                    , openUrl = ""
+                    }
+              }
+    conn <- Util.mkInMemoryDbConn
+
+    forM_ testRows \row ->
+      SQL.useConnection (\c -> Db.insertTransactionJoinedRow c row)
+        & SQL.runSQLiteSync conn
+        & runConcurrent
+        & runEff
+
+    getBudgetHandler maybeMonth
       & SQL.runSQLiteSync conn
       & Time.runFrozenTime frozenTime
       & runReader env
       & runConcurrent
       & runLog "test" mempty LogAttention
       & runEff
-
-  let expectedTagGroupStats =
-        MapAsList $
-          Map.fromList
-            [ ("Groceries", BudgetTagGroupStats{spentToDateCents = 50_00, limitCents = 650_00, tags = [Just "groceries"]})
-            , ("Go out", BudgetTagGroupStats{spentToDateCents = 20_00, limitCents = 100_00, tags = [Just "go out"]})
-            ,
-              ( "Other"
-              , BudgetTagGroupStats
-                  { spentToDateCents = 30_00
-                  , limitCents = 100_00
-                  , tags = [Just "home", Just "electronics", Just "some-other-tag"]
-                  }
-              )
-            ]
-
-  let sortTxs = sortBy (comparing (.transactionId))
-  sortTxs (V.toList resp.transactions) `shouldBe` sortTxs expectedTxs
-  resp.monthlyLimitCents `shouldBe` 850_00
-  resp.actualSpendingToDateCents `shouldBe` 100_00
-  resp.remainingCents `shouldBe` 750_00
-  resp.tagGroupStats `shouldBe` expectedTagGroupStats
