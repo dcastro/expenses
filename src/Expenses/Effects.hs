@@ -55,7 +55,7 @@ import System.Exit qualified as Exit
 loggerName :: Text
 loggerName = "expenses-server"
 
-type AppM = Eff '[NextUUID, Error ServerError, SQLite, Time, EventLog, Nordigen, Reader Env, FileSystem, Concurrent, Log, IOE]
+type AppM = Eff '[NextUUID, Error ServerError, SQLite, Time, EventLog, Nordigen, Ntfy, Reader Env, FileSystem, Concurrent, Log, IOE]
 
 naturalTransformation :: forall a. Bool -> MVar Connection -> Env -> Logger -> AppM a -> Handler a
 naturalTransformation isVerbose conn env logger app = do
@@ -67,6 +67,7 @@ naturalTransformation isVerbose conn env logger app = do
           & runTime
           & EventLog.runEventLog
           & N.runNordigen
+          & Ntfy.runNtfy
           & runReader env
           & runFileSystem
           & runConcurrent

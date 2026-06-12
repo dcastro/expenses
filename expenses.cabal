@@ -46,6 +46,7 @@ library
       Expenses.Server.Routes.InsertNew
       Expenses.Server.Routes.ModifyTransaction
       Expenses.Server.Routes.RenewRequisition
+      Expenses.Server.Routes.RunBudgetCheck
       Expenses.Server.Routes.RunSync
       Expenses.Server.Routes.Search
       Expenses.Server.Routes.SplitTransactionItems
