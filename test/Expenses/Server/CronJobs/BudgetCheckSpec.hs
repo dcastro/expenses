@@ -124,16 +124,7 @@ spec_budgetCheckJob = describe "budgetCheckJob" do
 
 spec_pushNotificationsConfig :: Spec
 spec_pushNotificationsConfig = describe "PushNotificationsConfig" do
-  it "defaults the cron schedule to every 5 days at 9:30am" do
-    let json = [i|{"openUrl": "#{testOpenUrl}"}|] :: Text
-    J.eitherDecode (encodeUtf8 json)
-      `shouldBe` Right
-        PushNotificationsConfig
-          { cronSchedule = "30 9 */5 * *"
-          , openUrl = testOpenUrl
-          }
-
-  it "uses the configured cron schedule when present" do
+  it "parses the cron schedule and open url" do
     let json = [i|{"cronSchedule": "0 0 * * *", "openUrl": "#{testOpenUrl}"}|] :: Text
     J.eitherDecode (encodeUtf8 json)
       `shouldBe` Right

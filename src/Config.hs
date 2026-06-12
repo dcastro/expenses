@@ -2,7 +2,7 @@ module Config where
 
 import Control.Lens (classIdFields, makeLensesWith)
 import CustomPrelude
-import Data.Aeson (FromJSON (..), withObject, (.!=), (.:), (.:?))
+import Data.Aeson (FromJSON (..), withObject, (.:))
 import Data.Aeson.TH (defaultOptions, deriveFromJSON)
 import Data.Aeson.Types (Parser)
 import Data.HashMap.Strict qualified as HM
@@ -34,13 +34,8 @@ data PushNotificationsConfig = PushNotificationsConfig
   { cronSchedule :: Text
   , openUrl :: Text
   }
-  deriving stock (Eq, Show)
-
-instance FromJSON PushNotificationsConfig where
-  parseJSON = withObject "PushNotificationsConfig" \o -> do
-    cronSchedule <- o .:? "cronSchedule" .!= "30 9 */5 * *"
-    openUrl <- o .: "openUrl"
-    pure PushNotificationsConfig{cronSchedule, openUrl}
+  deriving stock (Eq, Show, Generic)
+  deriving anyclass (FromJSON)
 
 data BudgetConfig = BudgetConfig
   { tagGroups :: [BudgetTagGroup]
