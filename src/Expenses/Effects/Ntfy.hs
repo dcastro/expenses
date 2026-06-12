@@ -32,8 +32,7 @@ import Servant.Client
 ----------------------------------------------------------------------------
 
 data NtfyAction = NtfyAction
-  { id :: Text
-  , action :: Text
+  { action :: Text
   , label :: Text
   , clear :: Bool
   , url :: Text
@@ -121,9 +120,6 @@ makeEffect ''Ntfy
 ntfySequenceId :: Text
 ntfySequenceId = "xOxg5AKKyjK3"
 
-ntfyActionId :: Text
-ntfyActionId = "FsscKOaziA"
-
 runNtfy :: (Reader Env :> es, IOE :> es) => Eff (Ntfy : es) a -> Eff es a
 runNtfy action = do
   manager <- liftIO $ Client.newManager TLS.tlsManagerSettings
@@ -145,12 +141,12 @@ mkNtfyMessage topic notification =
     , title = notification.title
     , message = notification.message
     , priority = 5
-    , tags = ["warning", "bangbang"]
+    , -- https://docs.ntfy.sh/emojis/
+      tags = ["warning", "bangbang"]
     , click = notification.clickUrl
     , actions =
         [ NtfyAction
-            { id = ntfyActionId
-            , action = "view"
+            { action = "view"
             , label = "View Budget"
             , clear = False
             , url = notification.clickUrl
