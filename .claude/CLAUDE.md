@@ -6,9 +6,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 just run                       # Run server in dev mode (port 8081, hot-reload)
+just run-demo                  # Run server in demo mode (no real Nordigen API calls)
 just test                      # Run all tests
 just test-filter <pattern>     # Run tests matching pattern, with file watch
 just test-accept               # Accept golden file changes
+```
+
+For the PureScript frontend (in `frontend/`):
+```bash
+cd frontend && spago build     # Build the frontend
 ```
 
 For Stack directly:
@@ -30,9 +36,9 @@ Full-stack expense manager that syncs with bank accounts via the GoCardless Nord
 
 ### Effect System
 
-The application uses `effectful` for effect management. All handlers run in `AppM`, a stack defined in `src/Expenses/Effects/Effects.hs`. Effects are layered bottom-up: `NextUUID → ErrorHandler → Db → Time → EventLog → Nordigen → Reader → FileSystem → Concurrent → Log → IOE`.
+The application uses `effectful` for effect management. All handlers run in `AppM`, a stack defined in `src/Expenses/Effects.hs`: `NextUUID → Error ServerError → SQLite → Time → EventLog → Nordigen → Ntfy → Reader Env → FileSystem → Concurrent → Log → IOE`.
 
-Each effect has its own module under `src/Expenses/Effects/` (SQLite, EventLog, NextUUID, Nordigen). When adding new functionality, prefer adding to an existing effect interface rather than creating new ones.
+Each custom effect has its own module under `src/Expenses/Effects/` (EventLog, NextUUID, Nordigen, Ntfy). The SQLite effect comes from the `sqlite-simple-effectful` package. When adding new functionality, prefer adding to an existing effect interface rather than creating new ones.
 
 ### API Layer
 
@@ -42,6 +48,14 @@ Each route has its own handler module under `src/Expenses/Server/Routes/`.
 Ensure each new route handler has its own dedicated module.
 
 Authentication uses Cloudflare Zero Trust JWT (`AuthProtect "cloudflare-auth"`); admin routes additionally check the user's email against regexes in the config.
+
+### Cron Jobs & Push Notifications
+
+Background jobs live in `src/Expenses/Server/CronJobs/` and are scheduled in `src/Expenses/Server/CronJobs.hs` (via `cron`'s `execSchedule`):
+- **Sync** — syncs transactions from Nordigen; schedule from `cronSchedule` in the config.
+- **BudgetCheck** — sends a push notification (via ntfy.sh, through the `Ntfy` effect) saying how much of the monthly budget is left; schedule from `budget.pushNotifications.cronSchedule`.
+
+Cron jobs run in `CronM` (see `runCronM` in `src/Expenses/Effects.hs`). Admin routes exist to trigger them manually (e.g. `RunSync`, `RunBudgetCheck`).
 
 ### Currency Amounts — Important Invariant
 
@@ -56,16 +70,16 @@ The database **MUST NOT** use `Int` or similar to model amounts of cents, it mus
 
 ### Configuration
 
-Runtime config is a YAML file loaded from `--app-dir` (default `~/.local/share/expenses-manager/`). The directory also contains `expenses.db` and `eventlog.jsonl`. For dev, use `--app-dir ./resources/test-app-dir/`.
+Runtime config is a YAML file loaded from `--app-dir` (default `~/.local/share/expenses-manager/`). The directory also contains `expenses.db` and `eventlog.jsonl`.
+
+For dev, `just run` uses `--app-dir ./resources/dev-app-dir/` (populate it with real data via `just restore-dev-app-dir`). `just run-demo` uses `--app-dir ./resources/test-app-dir/` with `--demo-mode`, which skips real API calls.
 
 Required environment variables for Nordigen sync: `EXPENSES_NORDIGEN_SECRET_ID`, `EXPENSES_NORDIGEN_SECRET_KEY`.
 Treat these env vars as secrets.
 
-Use `--demo-mode` in dev to skip real API calls.
-
 ### Database Migrations
 
-Migrations are standalone executables in `db-migrations/` named `M01`–`M09`. Each migration is a new module.
+Migrations are standalone executables in `db-migrations/` named sequentially (`M01`, `M02`, …). Each migration is a new module.
 
 When modifying the db schema, also update `schema.sql`
 
