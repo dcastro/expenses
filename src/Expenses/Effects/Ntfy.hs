@@ -83,8 +83,7 @@ data Routes routes = Routes
       routes
         :- Capture "topic" Text
           Servant.:> Capture "sequenceId" SequenceId
-          Servant.:> "clear"
-          Servant.:> Put '[JSON] Value
+          Servant.:> Delete '[JSON] Value
   }
   deriving stock (Generic)
 
