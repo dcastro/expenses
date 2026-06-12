@@ -11,8 +11,7 @@ import Expenses.Effects
 import Expenses.Effects.Ntfy qualified as Ntfy
 import Expenses.Server.Routes.GetBudget (BudgetInfo (..), getBudgetHandler)
 import Log
-import Text.Printf (printf)
-import Types (FECents)
+import Util qualified
 
 budgetCheckJob ::
   forall es.
@@ -34,18 +33,15 @@ budgetCheckJob' = do
   pushConfig <- asks @Env (.config.budget.pushNotifications)
   budgetInfo <- getBudgetHandler
   today <- utctDay <$> Time.currentTime
-  let remaining = budgetInfo.monthlyLimitCents - budgetInfo.actualSpendingToDateCents
-  logInfo_ [i|[Cron] Budget check done: #{formatEuros remaining}€ left to spend this month, sending push notification.|]
+  let remaining = Util.centsToEuros budgetInfo.remainingCents
+  logInfo_ [i|[Cron] Budget check done: #{remaining}€ left to spend this month, sending push notification.|]
+
   -- Clear notifications and send a new one.
   -- NOTE: instead of "clear + send", we could just update an existing nofication, but that wouldn't make the phone ring/vibrate.
   Ntfy.clearNotifications
   Ntfy.sendNotification
     Ntfy.Notification
       { title = [i|Budget update: #{formatTime defaultTimeLocale "%a, %-d %b" today}|]
-      , message = [i|You have #{formatEuros remaining}€ left to spend this month.|]
+      , message = [i|You have #{remaining}€ left to spend this month.|]
       , clickUrl = pushConfig.openUrl
       }
-
-formatEuros :: FECents -> Text
-formatEuros cents =
-  toText @String $ printf "%.2f" (fromIntegral @FECents @Double cents / 100)
