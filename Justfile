@@ -194,6 +194,9 @@ rpi-overwrite-data:
 rpi-sync:
     curl -v -X POST "http://{{ remote }}:8082/sync" -H "Cf-Access-Authenticated-User-Email: diogo.filipe.acastro@gmail.com"
 
+rpi-push-notifications:
+    curl -v -X POST "http://{{ remote }}:8082/budget-check" -H "Cf-Access-Authenticated-User-Email: diogo.filipe.acastro@gmail.com"
+
 ##############################################################
 # Raspberry Pi - Public demo page
 ##############################################################
