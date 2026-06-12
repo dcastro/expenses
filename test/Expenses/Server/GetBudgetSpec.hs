@@ -170,8 +170,6 @@ spec_getBudgetHandler = it "returns correct budget info for the current month" d
   let sortTxs = sortBy (comparing (.transactionId))
   sortTxs (V.toList resp.transactions) `shouldBe` sortTxs expectedTxs
   resp.monthlyLimitCents `shouldBe` 850_00
-  -- we're halfway through the month, so we expect to have spent half of the monthly limit by now
-  resp.expectedSpendingToDateCents `shouldBe` 425_00
   resp.actualSpendingToDateCents `shouldBe` 100_00
-  resp.overUnderCents `shouldBe` -325_00
+  resp.remainingCents `shouldBe` 750_00
   resp.tagGroupStats `shouldBe` expectedTagGroupStats

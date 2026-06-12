@@ -107,17 +107,13 @@ renderSummary _state info =
             (Utils.centsToEuros info.monthlyLimitCents)
             Nothing
         , renderStat
-            "Expected spending to date"
-            (Utils.centsToEuros info.expectedSpendingToDateCents)
-            Nothing
-        , renderStat
-            "Actual spending to date"
+            "Spent"
             (Utils.centsToEuros info.actualSpendingToDateCents)
             Nothing
         , renderStat
-            "Over / Under expected spending"
-            (overUnderStr info.overUnderCents)
-            (Just $ overUnderClass info.overUnderCents)
+            "Remaining"
+            (Utils.centsToEuros info.remainingCents)
+            (Just $ remainingClass info.remainingCents)
         ]
     ]
 
@@ -131,15 +127,10 @@ renderStat label value extraClass =
         ]
     ]
 
-overUnderStr :: Int -> String
-overUnderStr cents
-  | cents > 0 = "+" <> Utils.centsToEuros cents
-  | otherwise = Utils.centsToEuros cents
-
-overUnderClass :: Int -> String
-overUnderClass cents
-  | cents < 0 = "has-text-success"
-  | cents > 0 = "has-text-danger"
+remainingClass :: Int -> String
+remainingClass cents
+  | cents > 0 = "has-text-success"
+  | cents < 0 = "has-text-danger"
   | otherwise = ""
 
 filteredTransactions :: State -> Array API.TransactionItem
