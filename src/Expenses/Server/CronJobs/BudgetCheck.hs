@@ -33,6 +33,8 @@ budgetCheckJob' = do
   budgetInfo <- getBudgetHandler
   let remaining = budgetInfo.monthlyLimitCents - budgetInfo.actualSpendingToDateCents
   logInfo_ [i|[Cron] Budget check done: #{formatEuros remaining}€ left to spend this month, sending push notification.|]
+  -- Clear notifications and send a new one.
+  -- NOTE: instead of "clear + send", we could just update an existing nofication, but that wouldn't make the phone ring/vibrate.
   Ntfy.clearNotifications
   Ntfy.sendNotification
     Ntfy.Notification
