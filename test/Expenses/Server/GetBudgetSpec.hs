@@ -113,9 +113,8 @@ spec_getBudgetHandler = it "returns correct budget info for the current month" d
             , includeAllTxsFromAccounts = Set.fromList ["bank1"]
             , pushNotifications =
                 PushNotificationsConfig
-                  { cronSchedule = "30 9 */2 * *"
+                  { cronSchedule = "30 9 */5 * *"
                   , openUrl = "http://expenses.example.com/#/budget"
-                  , thresholdCents = 100_00
                   }
             }
   conn <- Util.mkInMemoryDbConn

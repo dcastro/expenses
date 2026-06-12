@@ -33,17 +33,14 @@ instance FromJSON BudgetTagGroup where
 data PushNotificationsConfig = PushNotificationsConfig
   { cronSchedule :: Text
   , openUrl :: Text
-  , thresholdCents :: FECents
   }
   deriving stock (Eq, Show)
 
 instance FromJSON PushNotificationsConfig where
   parseJSON = withObject "PushNotificationsConfig" \o -> do
-    cronSchedule <- o .:? "cronSchedule" .!= "30 9 */2 * *"
+    cronSchedule <- o .:? "cronSchedule" .!= "30 9 */5 * *"
     openUrl <- o .: "openUrl"
-    thresholdEur <- o .: "thresholdEuros" :: Parser Double
-    let thresholdCents = FECents $ round (thresholdEur * 100)
-    pure PushNotificationsConfig{cronSchedule, openUrl, thresholdCents}
+    pure PushNotificationsConfig{cronSchedule, openUrl}
 
 data BudgetConfig = BudgetConfig
   { tagGroups :: [BudgetTagGroup]
