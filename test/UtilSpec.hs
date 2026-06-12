@@ -76,7 +76,7 @@ unit_getIsExpense = do
                 , includeAllTxsFromAccounts = mempty
                 , pushNotifications =
                     PushNotificationsConfig
-                      { cronSchedule = "30 9 */5 * *"
+                      { cronSchedule = ""
                       , openUrl = ""
                       }
                 }

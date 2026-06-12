@@ -20,7 +20,7 @@ import Expenses.Server.Routes.GetTransactions (TransactionItem (..))
 import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
 import Expenses.Server.Utils (MapAsList (..))
 import Expenses.Test.Util qualified as Util
-import Log (LogLevel (..), mkBulkLogger)
+import Log (LogLevel (..))
 import Test.Hspec (Spec, it)
 import Test.Hspec.Expectations.Pretty (shouldBe)
 import Types
@@ -113,8 +113,8 @@ spec_getBudgetHandler = it "returns correct budget info for the current month" d
             , includeAllTxsFromAccounts = Set.fromList ["bank1"]
             , pushNotifications =
                 PushNotificationsConfig
-                  { cronSchedule = "30 9 */5 * *"
-                  , openUrl = "http://expenses.example.com/#/budget"
+                  { cronSchedule = ""
+                  , openUrl = ""
                   }
             }
   conn <- Util.mkInMemoryDbConn
@@ -135,8 +135,6 @@ spec_getBudgetHandler = it "returns correct budget info for the current month" d
     testRows = [tx1, tx2, tx3, tx4, tx5]
     expectedTxs = [tx1, tx2, tx3] <&> \tx -> GetTransactions.convertRowToItem tx
 
-  nullLogger <- mkBulkLogger "null" (\_ -> pure ()) (pure ())
-
   forM_ testRows \row ->
     SQL.useConnection (\c -> Db.insertTransactionJoinedRow c row)
       & SQL.runSQLiteSync conn
@@ -149,7 +147,7 @@ spec_getBudgetHandler = it "returns correct budget info for the current month" d
       & Time.runFrozenTime frozenTime
       & runReader env
       & runConcurrent
-      & runLog "test" nullLogger LogAttention
+      & runLog "test" mempty LogAttention
       & runEff
 
   let expectedTagGroupStats =

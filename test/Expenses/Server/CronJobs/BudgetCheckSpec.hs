@@ -18,7 +18,7 @@ import Expenses.Effects.Ntfy (Notification (..), Ntfy (..))
 import Expenses.Server.CronJobs.BudgetCheck (budgetCheckJob)
 import Expenses.Server.Env
 import Expenses.Test.Util qualified as Util
-import Log (LogLevel (..), mkBulkLogger)
+import Log (LogLevel (..))
 import Test.Hspec (Spec, describe, it)
 import Test.Hspec.Expectations.Pretty (shouldBe)
 import Types
@@ -68,12 +68,11 @@ runBudgetCheckJob frozenTime txRows = do
             , includeAllTxsFromAccounts = Set.empty
             , pushNotifications =
                 PushNotificationsConfig
-                  { cronSchedule = "30 9 */5 * *"
+                  { cronSchedule = ""
                   , openUrl = testOpenUrl
                   }
             }
   conn <- Util.mkInMemoryDbConn
-  nullLogger <- mkBulkLogger "null" (\_ -> pure ()) (pure ())
   callsRef <- newIORef []
 
   forM_ txRows \row ->
@@ -88,7 +87,7 @@ runBudgetCheckJob frozenTime txRows = do
     & runNtfyMock callsRef
     & runReader env
     & runConcurrent
-    & runLog "test" nullLogger LogAttention
+    & runLog "test" mempty LogAttention
     & runEff
 
   readIORef callsRef
