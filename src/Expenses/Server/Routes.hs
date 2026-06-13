@@ -93,7 +93,7 @@ data PrivateAPI mode = PrivateAPI
   , allAccounts :: mode :- "accounts" :> Get '[JSON] [Text]
   , syncStatus :: mode :- "sync-status" :> Get '[JSON] GetSyncStatus.SyncStatusResponse
   , getAvailableDateRange :: mode :- "dates" :> Get '[JSON] DateRange
-  , budget :: mode :- "budget" :> Get '[JSON] GetBudget.BudgetInfo
+  , budget :: mode :- "budget" :> RequiredParam "month" Month :> Get '[JSON] GetBudget.BudgetInfo
   }
   deriving stock (Generic)
 

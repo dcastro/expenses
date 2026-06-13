@@ -280,6 +280,7 @@ render state =
             Budget.component
             { isAdmin: state.isAdmin
             , allTags: state.allTags
+            , minMonth: state.minMonth
             }
       , HtmlUtils.displayIf (Routes.isModalOpen state.currentRoute) $
           HH.slot

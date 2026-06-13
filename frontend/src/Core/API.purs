@@ -122,10 +122,10 @@ triggerSync = do
     <#> statusCodeIs 204
   pure unit
 
-getBudget :: Aff BudgetInfo
-getBudget = do
+getBudget :: YearMonth -> Aff BudgetInfo
+getBudget month = do
   baseUrl <- liftEffect HtmlUtils.apiBaseUrl
-  get (baseUrl <> "budget")
+  get (baseUrl <> "budget?month=" <> YM.formatYearMonth month)
     <#> statusCodeIs 200
     <#> decodeJson
 

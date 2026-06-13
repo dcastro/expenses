@@ -5,7 +5,8 @@ import Control.Lens
 import CustomPrelude
 import Data.Map.Strict qualified as Map
 import Data.Set qualified as Set
-import Data.Time (Day, UTCTime (..), fromGregorian, secondsToDiffTime)
+import Data.Time (Day, fromGregorian)
+import Data.Time.Calendar.Month (pattern YearMonth)
 import Data.Vector qualified as V
 import Database qualified as Db
 import Effectful
@@ -99,11 +100,7 @@ specMkBudgetTagGroupStats = it "groups transactions by tag group" do
   totalGroupSpending `shouldBe` totalSpending
 
 specGetBudgetHandler :: Spec
-specGetBudgetHandler = it "returns correct budget info for the current month" do
-  -- Get the budget info for 2026-06-15
-  let
-    frozenTime = UTCTime (fromGregorian 2026 6 15) (secondsToDiffTime 0)
-
+specGetBudgetHandler = it "returns correct budget info for the requested month" do
   env <-
     Util.mkTestEnv <&> \env ->
       env
@@ -132,7 +129,7 @@ specGetBudgetHandler = it "returns correct budget info for the current month" do
     tx2 = mkRow "tx2" (fromGregorian 2026 6 10) "some-other-bank" (Just "go out") 20_00
     -- Tx3 matches the date and account name filter (but not the tag filter), so it's included.
     tx3 = mkRow "tx3" (fromGregorian 2026 6 3) "bank1" (Just "some-other-tag") 30_00
-    -- tx4 is in May, so it's excluded by the date filter
+    -- tx4 is in May, so it's excluded by the date filter.
     tx4 = mkRow "tx4" (fromGregorian 2026 5 15) "bank1" (Just "groceries") 10_00
     -- tx5 matches the date filter but not the tag or account filters, so it's excluded.
     tx5 = mkRow "tx5" (fromGregorian 2026 6 3) "some-other-bank" (Just "some-other-tag") 30_00
@@ -146,9 +143,9 @@ specGetBudgetHandler = it "returns correct budget info for the current month" do
       & runEff
 
   resp <-
-    getBudgetHandler
+    getBudgetHandler (YearMonth 2026 6)
       & SQL.runSQLiteSync conn
-      & Time.runFrozenTime frozenTime
+      & Time.runTime
       & runReader env
       & runConcurrent
       & runLog "test" mempty LogAttention
