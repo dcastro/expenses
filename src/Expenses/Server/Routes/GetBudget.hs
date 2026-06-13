@@ -5,15 +5,13 @@ import CustomPrelude
 import Data.Aeson.TH (defaultOptions, deriveToJSON)
 import Data.Map.Strict qualified as Map
 import Data.Set qualified as Set
-import Data.Time (toGregorian, utctDay)
 import Data.Time qualified as Time
-import Data.Time.Calendar.Month (Month, pattern YearMonth)
+import Data.Time.Calendar.Month (Month)
 import Data.Vector.Algorithms qualified as V
 import Database (SearchParams (..))
 import Database qualified as Db
 import Effectful
 import Effectful.Reader.Static (asks)
-import Effectful.Time qualified as Time
 import Expenses.Effects
 import Expenses.NonEmptyText qualified as NET
 import Expenses.Server.Routes.GetTransactions (TransactionItem (..))
@@ -47,16 +45,9 @@ $( mconcat
 
 getBudgetHandler ::
   (Reader Env :> es, SQLite :> es, Time :> es, Log :> es) =>
-  Maybe Month ->
+  Month ->
   Eff es BudgetInfo
-getBudgetHandler maybeMonth = do
-  month <- case maybeMonth of
-    Just month -> pure month
-    Nothing -> do
-      today <- utctDay <$> Time.currentTime
-      let (year, monthOfYear, _) = toGregorian today
-      pure $ YearMonth year monthOfYear
-
+getBudgetHandler month = do
   config <- asks @Env (.config)
   let budgetGroups = config.budget.tagGroups
   let monthlyLimit = budgetGroups <&> (.limitCents) & sum

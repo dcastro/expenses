@@ -2,7 +2,8 @@ module Expenses.Server.CronJobs.BudgetCheck where
 
 import Config qualified
 import CustomPrelude
-import Data.Time (defaultTimeLocale, formatTime, utctDay)
+import Data.Time (defaultTimeLocale, formatTime, toGregorian, utctDay)
+import Data.Time.Calendar.Month (pattern YearMonth)
 import Effectful
 import Effectful.Exception qualified as Eff
 import Effectful.Reader.Static (asks)
@@ -31,8 +32,9 @@ budgetCheckJob' ::
 budgetCheckJob' = do
   logInfo_ "[Cron] Starting budget check job."
   pushConfig <- asks @Env (.config.budget.pushNotifications)
-  budgetInfo <- getBudgetHandler Nothing
   today <- utctDay <$> Time.currentTime
+  let (year, monthOfYear, _) = toGregorian today
+  budgetInfo <- getBudgetHandler (YearMonth year monthOfYear)
   let remaining = Util.centsToEuros budgetInfo.remainingCents
   logInfo_ [i|[Cron] Budget check done: #{remaining}€ left to spend this month, sending push notification.|]
 
