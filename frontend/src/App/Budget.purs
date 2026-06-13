@@ -22,11 +22,19 @@ import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties (InputType(..))
 import Halogen.HTML.Properties as HP
+import Halogen.Query.Event as QE
 import Halogen.Subscription as HS
 import HtmlUtils (classes')
 import HtmlUtils as HtmlUtils
 import Type.Proxy (Proxy(..))
+import Utils (whenJust)
 import Utils as Utils
+import Web.Event.Event as E
+import Web.HTML as HTML
+import Web.HTML.HTMLDocument as HTMLDocument
+import Web.HTML.Window as Window
+import Web.UIEvent.KeyboardEvent as KE
+import Web.UIEvent.KeyboardEvent.EventTypes as KET
 
 type Slot id = forall query. H.Slot query Void id
 
@@ -62,6 +70,7 @@ data Action
   | TagGroupSelected (Maybe TagGroupName)
   | MonthSelectionChanged String
   | HandleTransactionsUpdated TransactionsTable.Output
+  | HandleKey H.SubscriptionId KE.KeyboardEvent
 
 component :: forall q m. MonadAff m => H.Component q Input Output m
 component =
@@ -191,6 +200,12 @@ handleAction = case _ of
       \maybeGroup -> HS.notify listener (TagGroupSelected (Null.toMaybe maybeGroup))
     _sub <- H.subscribe emitter
     H.modify_ _ { budgetInfo = Just budgetInfo, loading = false, chart = Just chart }
+    document <- H.liftEffect $ Window.document =<< HTML.window
+    H.subscribe' \sid ->
+      QE.eventListener
+        KET.keyup
+        (HTMLDocument.toEventTarget document)
+        (map (HandleKey sid) <<< KE.fromEvent)
 
   TagGroupSelected maybeGroup ->
     H.modify_ _ { selectedTagGroup = maybeGroup }
@@ -203,6 +218,25 @@ handleAction = case _ of
         refreshBudget
 
   HandleTransactionsUpdated TransactionsTable.TransactionsUpdated ->
+    refreshBudget
+
+  HandleKey _sid ev -> do
+    isTargettingInputElement <- H.liftEffect $ HtmlUtils.isInputElement (KE.toEvent ev)
+    unless isTargettingInputElement do
+      case KE.key ev of
+        "q" -> changeMonth ev \s -> s.selectedMonth >>= \m -> YM.prevMonth m s.minMonth
+        "e" -> changeMonth ev \s -> do
+          m <- s.selectedMonth
+          maxM <- s.maxMonth
+          YM.nextMonth m maxM
+        _ -> pure unit
+
+changeMonth :: forall m. MonadAff m => KE.KeyboardEvent -> (State -> Maybe YearMonth) -> H.HalogenM State Action Slots Void m Unit
+changeMonth ev getNextMonth = do
+  state <- H.get
+  whenJust (getNextMonth state) \ym -> do
+    H.liftEffect $ E.preventDefault (KE.toEvent ev)
+    H.modify_ _ { selectedMonth = Just ym }
     refreshBudget
 
 -- Re-fetch the budget info for the selected month and refresh the chart.
