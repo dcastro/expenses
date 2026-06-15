@@ -23,8 +23,7 @@ extra-deps:
 
   - universum-1.8.2.2 # universum is not in LTS 24 yet.
 
-  - git: https://github.com/dcastro/sqlite-simple-effectful
-    commit: 36e9fc990d362efb8c2e98d48c5eac9b92657992
+  - sqlite-simple-effectful-0.1.0.0
 
   # packages missing from nightly stack
   - cryptonite-0.30

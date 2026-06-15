@@ -35,15 +35,23 @@ budgetCheckJob' = do
   today <- utctDay <$> Time.currentTime
   let (year, monthOfYear, _) = toGregorian today
   budgetInfo <- getBudgetHandler (YearMonth year monthOfYear)
-  let remaining = Util.centsToEuros budgetInfo.remainingCents
+
+  let remainingCents = budgetInfo.remainingCents
+  let remaining = Util.centsToEuros remainingCents
   logInfo_ [i|[Cron] Budget check done: #{remaining}€ left to spend this month, sending push notification.|]
 
   -- Clear notifications and send a new one.
   -- NOTE: instead of "clear + send", we could just update an existing nofication, but that wouldn't make the phone ring/vibrate.
+  let message =
+        if budgetInfo.remainingCents >= 0
+          then
+            [i|You have #{Util.centsToEuros remainingCents}€ left to spend this month.|]
+          else
+            [i|You are #{Util.centsToEuros $ abs remainingCents}€ OVER your budget this month.|]
   Ntfy.clearNotifications
   Ntfy.sendNotification
     Ntfy.Notification
       { title = [i|Budget update: #{formatTime defaultTimeLocale "%a, %-d %b" today}|]
-      , message = [i|You have #{remaining}€ left to spend this month.|]
+      , message = message
       , clickUrl = pushConfig.openUrl
       }

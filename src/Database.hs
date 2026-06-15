@@ -443,7 +443,7 @@ replaceEquivChars =
 getAllTags :: (SQLite :> es) => Connection -> Eff es [TagName]
 getAllTags conn = do
   coerce @(_ _ [Only TagName]) @(_ _ [TagName]) $
-    SQL.query_ @_ @(Only TagName)
+    SQL.query_ @(Only TagName)
       conn
       [sql|
         SELECT DISTINCT(tag)
@@ -459,7 +459,7 @@ getAllTags conn = do
 getAllAccounts :: (SQLite :> es) => Connection -> Eff es [Text]
 getAllAccounts conn = do
   coerce $
-    SQL.query_ @_ @(Only Text)
+    SQL.query_ @(Only Text)
       conn
       [sql|
         SELECT DISTINCT(account)
