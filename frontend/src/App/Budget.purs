@@ -117,6 +117,7 @@ render state =
             { transactions: filteredTransactions state
             , isAdmin: state.isAdmin
             , allTags: state.allTags
+            , showBudgetOverride: true
             }
             HandleTransactionsUpdated
         ]
@@ -145,6 +146,7 @@ renderCandidateSection state slotId heading txs =
           { transactions: txs
           , isAdmin: state.isAdmin
           , allTags: state.allTags
+          , showBudgetOverride: true
           }
           HandleTransactionsUpdated
       ]

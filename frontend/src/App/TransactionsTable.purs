@@ -55,6 +55,8 @@ type Input =
   { transactions :: Array TransactionItem
   , isAdmin :: Boolean
   , allTags :: Array TagName
+  -- | Whether to show the "include in / exclude from budget" menu items (used in the Budget UI).
+  , showBudgetOverride :: Boolean
   }
 
 type State =
@@ -64,6 +66,7 @@ type State =
   -- Details about the transaction whose menu is open.
   , menuOpened :: Maybe OpenMenuState
   , isAdmin :: Boolean
+  , showBudgetOverride :: Boolean
 
   -- Determines whether we're currently displaying a modal for selecting the tag for a transaction
   , isSelectingTagFor :: Maybe TransactionItem
@@ -91,6 +94,8 @@ data Action
   | CloseMenu
   | CopyIdToClipboard TransactionId
   | MarkAsNonExpense TransactionItem
+  -- | Set (`Just`) or clear (`Nothing`) the item's budget override.
+  | SetBudgetOverride TransactionItem (Maybe Boolean)
   | SetTransactionDetails TransactionItem FocusEvent.FocusEvent
   -- Tag Modal
   | OpenSelectTagModal TransactionItem
@@ -111,7 +116,7 @@ component =
     }
 
 initState :: Input -> State
-initState { transactions, isAdmin, allTags } =
+initState { transactions, isAdmin, allTags, showBudgetOverride } =
   let
     sorted = Sorting.defaultSorted
   in
@@ -119,6 +124,7 @@ initState { transactions, isAdmin, allTags } =
     , sorted
     , menuOpened: Nothing
     , isAdmin
+    , showBudgetOverride
     , isSelectingTagFor: Nothing
     , allTags
     , splitModal: Nothing
@@ -348,10 +354,46 @@ renderTransaction state tx =
                             else
                               []
                           )
+                        <>
+                          ( if state.isAdmin && state.showBudgetOverride then
+                              [ HH.hr [ classes' "dropdown-divider" ] ]
+                                <> renderBudgetOverrideItems tx
+                            else
+                              []
+                          )
                   ]
               ]
           ]
     ]
+
+-- | Menu items to set/clear a transaction item's budget override.
+-- | Which items are shown depends on the current override state.
+renderBudgetOverrideItems :: forall w. TransactionItem -> Array (HH.HTML w Action)
+renderBudgetOverrideItems tx =
+  let
+    includeItem =
+      HH.a
+        [ classes' "dropdown-item"
+        , HE.onClick \_ -> SetBudgetOverride tx (Just true)
+        ]
+        [ HH.text "Include in budget" ]
+    excludeItem =
+      HH.a
+        [ classes' "dropdown-item"
+        , HE.onClick \_ -> SetBudgetOverride tx (Just false)
+        ]
+        [ HH.text "Exclude from budget" ]
+    clearItem =
+      HH.a
+        [ classes' "dropdown-item"
+        , HE.onClick \_ -> SetBudgetOverride tx Nothing
+        ]
+        [ HH.text "Clear budget override" ]
+  in
+    case tx.budgetOverride of
+      Nothing -> [ includeItem, excludeItem ]
+      Just true -> [ excludeItem, clearItem ]
+      Just false -> [ includeItem, clearItem ]
 
 handleAction :: forall m. MonadAff m => Action -> H.HalogenM State Action Slots Output m Unit
 handleAction =
@@ -437,6 +479,13 @@ handleAction =
         }
       H.raise $ TransactionsUpdated
       Console.log $ "[Transactions] Marked transaction as non-expense: " <> tx.transactionId
+
+    SetBudgetOverride tx override -> do
+      _ <- H.liftAff $ case override of
+        Just value -> API.setBudgetOverride tx.transactionId tx.itemIndex value
+        Nothing -> API.unsetBudgetOverride tx.transactionId tx.itemIndex
+      H.raise $ TransactionsUpdated
+      Console.log $ "[Transactions] Updated budget override for transaction: " <> tx.transactionId
 
     SetTransactionDetails tx focusEv -> do
       newDetails <-

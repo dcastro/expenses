@@ -254,6 +254,7 @@ render state =
             { transactions: filterTransactions state
             , isAdmin: state.isAdmin
             , allTags: state.allTags
+            , showBudgetOverride: false
             }
             TransactionsTableUpdated
         ]
