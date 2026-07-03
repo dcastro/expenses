@@ -34,18 +34,21 @@ data TransactionJoinedRow = TransactionJoinedRow
   , itemAmountCents :: BECents
   , tag :: Maybe TagName
   , details :: Text
+  , budgetOverride :: Maybe Bool
+  -- ^ Overrides whether this item is part of the budget:
+  --   Nothing -> default matching rules; Just True -> always include; Just False -> always exclude.
   }
   deriving stock (Show, Generic)
   deriving anyclass (NFData)
 
 instance FromRow TransactionJoinedRow where
   fromRow =
-    TransactionJoinedRow <$> field <*> field <*> field <*> field <*> field <*> field <*> field <*> field <*> field <*> field
+    TransactionJoinedRow <$> field <*> field <*> field <*> field <*> field <*> field <*> field <*> field <*> field <*> field <*> field
 
 selectJoinedRows :: Text
 selectJoinedRows =
   [i|
-    SELECT id, account, date, desc, total_amount_cents, is_expense, item_index, item_amount_cents, tag, details
+    SELECT id, account, date, desc, total_amount_cents, is_expense, item_index, item_amount_cents, tag, details, budget_override
     FROM transactions t JOIN transaction_items ti ON t.id = ti.transaction_id
   |]
 
@@ -608,8 +611,36 @@ updateDetails conn txId idx newDetails = do
       |]
     (newDetails, txId, idx)
 
+getBudgetOverride :: (SQLite :> es) => Connection -> Text -> Int -> Eff es (Maybe Bool)
+getBudgetOverride conn txId idx = do
+  rows <-
+    SQL.query
+      conn
+      [sql|
+          SELECT budget_override
+          FROM transaction_items
+          WHERE transaction_id = ? AND item_index = ?
+        |]
+      (txId, idx)
+  case rows of
+    [Only override] -> pure override
+    [] -> Eff.die [i|getBudgetOverride: transaction item not found for #{txId} (#{idx})|]
+    _ -> Eff.die [i|getBudgetOverride: unexpected number of rows for #{txId} (#{idx})|]
+
+-- | Sets (or, with `Nothing`, clears) the budget override for a transaction item.
+setBudgetOverride :: (SQLite :> es) => Connection -> Text -> Int -> Maybe Bool -> Eff es ()
+setBudgetOverride conn txId idx override = do
+  SQL.execute
+    conn
+    [sql|
+        UPDATE transaction_items
+        SET budget_override = ?
+        WHERE transaction_id = ? AND item_index = ?
+      |]
+    (override, txId, idx)
+
 insertTransactionJoinedRow :: (SQLite :> es) => Connection -> TransactionJoinedRow -> Eff es ()
-insertTransactionJoinedRow conn TransactionJoinedRow{transactionId, account, date, desc, totalAmountCents, isExpense, itemIndex, itemAmountCents, tag, details} = do
+insertTransactionJoinedRow conn TransactionJoinedRow{transactionId, account, date, desc, totalAmountCents, isExpense, itemIndex, itemAmountCents, tag, details, budgetOverride} = do
   SQL.withTransaction conn do
     SQL.execute
       conn
@@ -621,10 +652,10 @@ insertTransactionJoinedRow conn TransactionJoinedRow{transactionId, account, dat
     SQL.execute
       conn
       [sql|
-          INSERT INTO transaction_items (transaction_id, item_index, item_amount_cents, tag, details, is_expense)
-          VALUES (?, ?, ?, ?, ?, ?)
+          INSERT INTO transaction_items (transaction_id, item_index, item_amount_cents, tag, details, is_expense, budget_override)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
         |]
-      (transactionId, itemIndex, itemAmountCents, tag, details, isExpense)
+      (transactionId, itemIndex, itemAmountCents, tag, details, isExpense, budgetOverride)
 
 ----------------------------------------------------------------------------
 -- Utils

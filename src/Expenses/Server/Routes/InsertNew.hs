@@ -68,6 +68,7 @@ mkTransactionItem transactionId NewTransactionItem{account, date, desc, totalAmo
       , -- defaults
         itemIndex = 0
       , itemAmountCents = totalAmountCents
+      , budgetOverride = Nothing
       }
 
 mkEventLogAction :: Admin %1 -> UTCTime %1 -> Text -> NewTransactionItem %1 -> EventLog.Action

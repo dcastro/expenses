@@ -54,6 +54,9 @@ data TransactionItem = TransactionItem
   , itemAmountCents :: FECents
   , tag :: Maybe TagName
   , details :: Text
+  , budgetOverride :: Maybe Bool
+  -- ^ Overrides whether this item is part of the budget:
+  --   Nothing -> default matching rules; Just True -> always include; Just False -> always exclude.
   }
   deriving stock (Show, Eq)
 
@@ -127,6 +130,7 @@ convertRowToItem
     , itemAmountCents
     , tag
     , details
+    , budgetOverride
     } =
     TransactionItem
       { transactionId = transactionId
@@ -139,10 +143,11 @@ convertRowToItem
       , itemAmountCents = toFE itemAmountCents
       , tag = tag
       , details = details
+      , budgetOverride = budgetOverride
       }
 
 convertItemToRow :: TransactionItem %1 -> Db.TransactionJoinedRow
-convertItemToRow TransactionItem{transactionId, itemIndex, account, date, desc, totalAmountCents, isExpense, itemAmountCents, tag, details} =
+convertItemToRow TransactionItem{transactionId, itemIndex, account, date, desc, totalAmountCents, isExpense, itemAmountCents, tag, details, budgetOverride} =
   Db.TransactionJoinedRow
     { transactionId = transactionId
     , account = account
@@ -154,6 +159,7 @@ convertItemToRow TransactionItem{transactionId, itemIndex, account, date, desc, 
     , itemAmountCents = toBE itemAmountCents
     , tag = tag
     , details = details
+    , budgetOverride = budgetOverride
     }
 
 mkTagStats :: FECents -> [(TagName, [TransactionItem])] -> ([TagStats], FECents)

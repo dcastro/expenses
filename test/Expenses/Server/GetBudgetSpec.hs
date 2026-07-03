@@ -43,6 +43,7 @@ mkItem txId date tag amt =
     , itemAmountCents = amt
     , tag
     , details = ""
+    , budgetOverride = Nothing
     }
 
 mkRow :: Text -> Day -> Text -> Maybe TagName -> FECents -> Db.TransactionJoinedRow
@@ -58,6 +59,7 @@ mkRow txId date accountName tag amt =
     , itemAmountCents = toBE amt
     , tag
     , details = ""
+    , budgetOverride = Nothing
     }
 
 specMkBudgetTagGroupStats :: Spec

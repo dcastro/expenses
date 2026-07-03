@@ -17,6 +17,7 @@ CREATE TABLE
     details TEXT,
     created_on DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
     is_expense BOOLEAN NOT NULL,
+    budget_override BOOLEAN,
     UNIQUE (transaction_id, item_index)
   );
 
@@ -46,6 +47,7 @@ SELECT
   ti.tag,
   ti.details,
   ti.is_expense,
+  ti.budget_override,
   ti.item_index,
   t.created_on AS transaction_created_on,
   ti.created_on AS item_created_on

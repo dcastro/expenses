@@ -496,6 +496,7 @@
     "transactions": [
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-04",
             "desc": "TRF MB WAY P  CELIA TERESA MARTINS SOUSA LIMA",
             "details": "",
@@ -508,6 +509,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-04",
             "desc": "COMPRA 7765 BIODIVERSUS,LDA ARCOZELO",
             "details": "",
@@ -520,6 +522,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-04",
             "desc": "COMPRA 7765 ALE-HOP GAIA VILA NOVA DE GAIA",
             "details": "headphones for Clara",
@@ -532,6 +535,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-04",
             "desc": "COMPRA 5447 AUCHAN GONDOMAR RIO TINTO",
             "details": "",
@@ -544,6 +548,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-04",
             "desc": "COMPRA 5447 CENTRO PORTO 4350-414 PORTO",
             "details": "hotwheels track for Benji",
@@ -556,6 +561,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-04",
             "desc": "COMPRA 7765 MERCADONA GONDOMAR",
             "details": "",
@@ -568,6 +574,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-04",
             "desc": "DD COMPANHIA DE S 00681327982    PT79100587",
             "details": "",
@@ -580,6 +587,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-05",
             "desc": "DD APRIL PORTUGAL 00717087687-01 PT28826381",
             "details": "",
@@ -592,6 +600,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-05",
             "desc": "COMPRA 5447 UBER EATS HELP.UBER.COMNH",
             "details": "",
@@ -604,6 +613,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-05",
             "desc": "COMPRA 7765 Google Play Apps Dublin IE",
             "details": "andoku 3",
@@ -616,6 +626,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-05",
             "desc": "TRF P  Joana Galhardo",
             "details": "",
@@ -628,6 +639,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-05",
             "desc": "COMPRA 5447 MO 0000-000 FANZERES",
             "details": "",
@@ -640,6 +652,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-05",
             "desc": "COMPRA 5447 CONTINENTE FANZERES 4420-570 GONDOM",
             "details": "",
@@ -652,6 +665,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-05",
             "desc": "COMPRA 5447 MERCADONA GONDOMAR",
             "details": "",
@@ -664,6 +678,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-07",
             "desc": "DD Aguas de Gondo 00276742459    PT92187571",
             "details": "",
@@ -676,6 +691,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-07",
             "desc": "COMPRA 7765 AMAZON RV3S742Z4 LUXEMBOURG LU",
             "details": "Sawyer bike",
@@ -688,6 +704,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-07",
             "desc": "TRF P  Carlos Gomes",
             "details": "",
@@ -700,6 +717,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-07",
             "desc": "COMPRA 5447 PINGO DOCE RIO TINTORIO CONTACTLESS",
             "details": "",
@@ -712,6 +730,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-07",
             "desc": "COMPRA 5447 MERCADONA GONDOMAR",
             "details": "",
@@ -724,6 +743,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-08",
             "desc": "COMPRA 7765 NOS CINEMAS PQ NASCERIO TINTO",
             "details": "",
@@ -736,6 +756,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-08",
             "desc": "DD Amnistia Inter 00046364722    Amnistia Inter",
             "details": "",
@@ -748,6 +769,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-08",
             "desc": "COMPRA 7765 AMZN Mktp ES RV9YK2Y14 800-279-6620",
             "details": "hose adapter",
@@ -760,6 +782,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-11",
             "desc": "COMPRA 7765 ALDI RIO TINTO RIO TINTO",
             "details": "",
@@ -772,6 +795,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-11",
             "desc": "DD SOLINCA CLASSI 00029752649    PT40100528",
             "details": "",
@@ -784,6 +808,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-11",
             "desc": "DD SOLINCA CLASSI 00029752649    PT40100528",
             "details": "",
@@ -796,6 +821,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-11",
             "desc": "COMPRA 5447 MERCADONA GONDOMAR",
             "details": "",
@@ -808,6 +834,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-13",
             "desc": "COMPRA 7765 UBER EATS HELP.UBER.COMNL",
             "details": "",
@@ -820,6 +847,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-13",
             "desc": "COMPRA 7765 WELLS.PT SRA DA HORA",
             "details": "contact lenses",
@@ -832,6 +860,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-14",
             "desc": "COMPRA 5447 FARMACIA MAGALHAES FANZERES",
             "details": "",
@@ -844,6 +873,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-14",
             "desc": "COMPRA 5447 MERCADONA GONDOMAR",
             "details": "",
@@ -856,6 +886,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-15",
             "desc": "COMPRA 7765 EUPAGO- INST PAG LDAPORTO",
             "details": "Raspberry Pi Zero 2WH, SC0721, mauser.pt",
@@ -868,6 +899,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-15",
             "desc": "DD MEDIS     SAUDE    DI56118629 02173395474AGO",
             "details": "",
@@ -880,6 +912,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-18",
             "desc": "TRF MB WAY P  ISABEL MARIA GONCALVES FERREIRA R",
             "details": "",
@@ -892,6 +925,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-18",
             "desc": "DD LUZBOA         30005168943    PT98111652",
             "details": "",
@@ -904,6 +938,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-18",
             "desc": "COMPRA 7765 CHURRASQ PRESTIGE S COSME",
             "details": "",
@@ -916,6 +951,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-19",
             "desc": "COMPRA 7765 AMZN Mktp ES RM2HF72P4 800-279-6620",
             "details": "super glue loctite",
@@ -928,6 +964,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-19",
             "desc": "COMPRA 7765 PAVILHAO DA AGUA PORTO",
             "details": "Pavilhão da água, Parque da Cidade",
@@ -940,6 +977,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-19",
             "desc": "COMPRA 7765 CENTRAL RIO NIF 514817879",
             "details": "",
@@ -952,6 +990,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-19",
             "desc": "COMPRA 7765 MERCADONA GONDOMAR",
             "details": "",
@@ -964,6 +1003,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-20",
             "desc": "DD SOLINCA CLASSI 00029752649    PT40100528",
             "details": "",
@@ -976,6 +1016,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-20",
             "desc": "DD SOLINCA CLASSI 00029752649    PT40100528",
             "details": "",
@@ -988,6 +1029,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-20",
             "desc": "COMPRA 7765 CONTINENTE PAY Portugal PT",
             "details": "",
@@ -1000,6 +1042,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-20",
             "desc": "COMPRA 7765 NETFLIX.COM 866-579-7172 NL",
             "details": "",
@@ -1012,6 +1055,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-20",
             "desc": "COMPRA 7765 REST AVO ARNALDO MATOSINHOS",
             "details": "restaurant Avô Arnaldo",
@@ -1024,6 +1068,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-21",
             "desc": "COMPRA 7765 CNT PAY CONTINENTE Portugal PT",
             "details": "",
@@ -1036,6 +1081,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-21",
             "desc": "COMPRA 7765 WOO LISBOA PT",
             "details": "",
@@ -1048,6 +1094,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-21",
             "desc": "COMPRA 7765 PAO CLUB FANZERES",
             "details": "",
@@ -1060,6 +1107,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-21",
             "desc": "COMPRA 7765 CONFEITARIA DEL RIO RIO TINTO",
             "details": "",
@@ -1072,6 +1120,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-21",
             "desc": "COMPRA 5447 MERCADONA GONDOMAR",
             "details": "",
@@ -1084,6 +1133,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-22",
             "desc": "DD VODAFONE PORTU 07863903358    PT10100649",
             "details": "",
@@ -1096,6 +1146,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-22",
             "desc": "COMPRA 7765 NEONIA PORTO",
             "details": "Museum Neónia",
@@ -1108,6 +1159,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-22",
             "desc": "COMPRA 7765 EUPAGO - INST DE PORTO",
             "details": "case for the raspberry pi",
@@ -1120,6 +1172,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-25",
             "desc": "COMPRA 7765 SEA LIFE PORTO QUEIJO-OCEAN.PORTO",
             "details": "sea life",
@@ -1132,6 +1185,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-25",
             "desc": "COMPRA 7765 SEA LIFE PORTO QUEIJO-OCEAN.PORTO",
             "details": "sea life",
@@ -1144,6 +1198,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-25",
             "desc": "COMPRA 7765 MERLIN ENTERTAINMENT4100-237 PORTO",
             "details": "stuffed penguin and turtle from Sea Life",
@@ -1156,6 +1211,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-25",
             "desc": "TRF MB WAY P  M INES P FONSECA",
             "details": "",
@@ -1168,6 +1224,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-25",
             "desc": "COMPRA 7765 DISA GONDOMAR BAGUIM DO MONTE",
             "details": "",
@@ -1180,6 +1237,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-25",
             "desc": "COMPRA 7765 LIDL AGRADECE 4435-030 RIO TINTO",
             "details": "",
@@ -1192,6 +1250,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-25",
             "desc": "COMPRA 5447 MERCADONA GONDOMAR",
             "details": "",
@@ -1204,6 +1263,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-25",
             "desc": "COMPRA 5447 WELL S VALBON VALBON",
             "details": "fenistil, bepanthene, isdin baby naturals",
@@ -1216,6 +1276,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-25",
             "desc": "COMPRA 5447 CONTINENTE GONDOMAR 0000-000 GONDOM",
             "details": "",
@@ -1228,6 +1289,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-25",
             "desc": "COMPRA 5447 MERCADONA GONDOMAR",
             "details": "",
@@ -1240,6 +1302,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-27",
             "desc": "COMPRA 7765 LIDL AGRADECE 4435-000-BAGUIM MON",
             "details": "",
@@ -1252,6 +1315,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-29",
             "desc": "COMPRA 5447 CONFEITARIA PRIMAZIAPORTO",
             "details": "",
@@ -1264,6 +1328,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-08-29",
             "desc": "COMPRA 7765 WOO LISBOA PT",
             "details": "",
@@ -1276,6 +1341,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-01",
             "desc": "DD COMPANHIA DE S 00681327982    PT79100587",
             "details": "",
@@ -1288,6 +1354,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-01",
             "desc": "DD EDP GAS SERVI. 99765159381    PT64116976",
             "details": "",
@@ -1300,6 +1367,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-02",
             "desc": "CRED. 7765 AMAZON RS8NA53U4 LUXEMBOURG",
             "details": "refund: hose adapter",
@@ -1312,6 +1380,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-02",
             "desc": "DD APRIL PORTUGAL 00717087687-01 PT28826381",
             "details": "",
@@ -1324,6 +1393,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-02",
             "desc": "COMPRA 7765 AMZN Mktp ES R49VS7IN4 800-279-6620",
             "details": "backpack",
@@ -1336,6 +1406,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-03",
             "desc": "DD SOLINCA CLASSI 00029752649    PT40100528",
             "details": "",
@@ -1348,6 +1419,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-03",
             "desc": "DD SOLINCA CLASSI 00029752649    PT40100528",
             "details": "",
@@ -1360,6 +1432,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-03",
             "desc": "COMPRA 7765 ALDI RIO TINTO RIO TINTO",
             "details": "",
@@ -1372,6 +1445,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-04",
             "desc": "COMPRA 7765 UBER EATS HELP.UBER.COMNL",
             "details": "",
@@ -1384,6 +1458,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-04",
             "desc": "COMPRA 5447 AUCHAN GONDOMAR RIO TINTO",
             "details": "",
@@ -1396,6 +1471,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-05",
             "desc": "COMPRA 7765 AMZN Mktp ES RK29G09Q4 800-279-6620",
             "details": "name tags",
@@ -1408,6 +1484,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-05",
             "desc": "TRF P  Joana Galhardo",
             "details": "",
@@ -1420,6 +1497,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-05",
             "desc": "TRF P  Carlos Gomes",
             "details": "",
@@ -1432,6 +1510,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-05",
             "desc": "COMPRA 5447 PINGO DOCE RIO TINTORIO TINTO",
             "details": "",
@@ -1444,6 +1523,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-08",
             "desc": "TRF P  O CAMINHAR JARDIM INFANCIA LDA",
             "details": "school insurance",
@@ -1456,6 +1536,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-08",
             "desc": "COMPRA 7765 MERCADONA GONDOMAR",
             "details": "",
@@ -1468,6 +1549,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-08",
             "desc": "DD Amnistia Inter 00046364722    Amnistia Inter",
             "details": "",
@@ -1480,6 +1562,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-08",
             "desc": "DD Aguas de Gondo 00276742459    PT92187571",
             "details": "",
@@ -1492,6 +1575,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-09",
             "desc": "TRF P  O CAMINHAR JARDIM INFANCIA LDA",
             "details": "",
@@ -1504,6 +1588,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-09",
             "desc": "COMPRA 7765 Restaurante O Cardeal B CONTACTLESS",
             "details": "",
@@ -1516,6 +1601,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-10",
             "desc": "COMPRA 5447 E LECLERC VALONGO VALONGO",
             "details": "Lego Duplo, Mickey set",
@@ -1528,6 +1614,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-11",
             "desc": "COMPRA 7765 PROJETOS DE GENTE 4470-139 MAIA",
             "details": "pediatrician",
@@ -1540,6 +1627,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-11",
             "desc": "COMPRA 5447 LIDL AGRADECE 4435-000-BAGUIM MON",
             "details": "",
@@ -1552,6 +1640,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-12",
             "desc": "COMPRA 7765 UBER TRIP HELP.UBER.COMNL",
             "details": "",
@@ -1564,6 +1653,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-12",
             "desc": "COMPRA 5447 FARMACIA MAGALHAES FANZERES",
             "details": "shampoo",
@@ -1576,6 +1666,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-12",
             "desc": "MEDIS-PAG SERVICOS 25254B1003861826",
             "details": "pediatrician",
@@ -1588,6 +1679,7 @@
         },
         {
             "account": "Cash",
+            "budgetOverride": null,
             "date": "2025-09-13",
             "desc": "",
             "details": "medieval fair",
@@ -1600,6 +1692,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-15",
             "desc": "DD MEDIS     SAUDE    DI56118629 02173395474SET",
             "details": "",
@@ -1612,6 +1705,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-17",
             "desc": "DD SOLINCA CLASSI 00029752649    PT40100528",
             "details": "",
@@ -1624,6 +1718,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-17",
             "desc": "DD SOLINCA CLASSI 00029752649    PT40100528",
             "details": "",
@@ -1636,6 +1731,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-17",
             "desc": "DD LUZBOA         30005168943    PT98111652",
             "details": "",
@@ -1648,6 +1744,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-17",
             "desc": "COMPRA 5447 ADIDASPT WWW.ADIDAS.PT LISBON",
             "details": "trainers for Sónia",
@@ -1660,6 +1757,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-17",
             "desc": "COMPRA 5447 EU.LOVEVERY.COM AMSTERDAM NH",
             "details": "",
@@ -1672,6 +1770,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-17",
             "desc": "COMPRA 5447 O GORDO DA FRUTA - FBAGUIM DO MONTE",
             "details": "",
@@ -1684,6 +1783,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-17",
             "desc": "COMPRA 5447 ESTRELAS E VIOLETAS DESCONOCIDO",
             "details": "",
@@ -1696,6 +1796,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-17",
             "desc": "COMPRA 5447 CONTINENTE FANZERES 4420-570 GONDOM",
             "details": "",
@@ -1708,6 +1809,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-17",
             "desc": "COMPRA 5447 WELLS SAUDE 3800-042 GONDOMAR",
             "details": "",
@@ -1720,6 +1822,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-18",
             "desc": "COMPRA 5447 WELL S RIO TINTO RIO TINTO",
             "details": "",
@@ -1732,6 +1835,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-18",
             "desc": "COMPRA 5447 CONTINENTE RIO TINTO4435-096 RIO TI",
             "details": "",
@@ -1744,6 +1848,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-19",
             "desc": "COMPRA 7765 NETFLIX.COM 866-579-7172 NL",
             "details": "",
@@ -1756,6 +1861,7 @@
         },
         {
             "account": "Universo",
+            "budgetOverride": null,
             "date": "2025-09-20",
             "desc": "",
             "details": "",
@@ -1768,6 +1874,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-22",
             "desc": "COMPRA 7765 HOSPITAL CUF PORTO SPORTO",
             "details": "emergency care for David",
@@ -1780,6 +1887,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-22",
             "desc": "TRF MB WAY P  ALICE PINTO U LDA",
             "details": "",
@@ -1792,6 +1900,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-22",
             "desc": "COMPRA 5447 LIDL AGRADECE 4435-000-BAGUIM MON",
             "details": "",
@@ -1804,6 +1913,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-23",
             "desc": "COMPRA 7765 WOO LISBOA PT",
             "details": "",
@@ -1816,6 +1926,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-23",
             "desc": "COMPRA 5447 CONTINENTE 4435-665 BAG MONTE",
             "details": "",
@@ -1828,6 +1939,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-24",
             "desc": "DD VODAFONE PORTU 07863903358    PT10100649",
             "details": "",
@@ -1840,6 +1952,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-24",
             "desc": "COMPRA 5447 LIDL AGRADECE 4435-000-BAGUIM MON",
             "details": "",
@@ -1852,6 +1965,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-25",
             "desc": "COMPRA 5447 NEXT LEICESTER",
             "details": "clothes for David",
@@ -1864,6 +1978,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-25",
             "desc": "COMPRA 5447 AUCHAN GONDOMAR RIO TINTO",
             "details": "",
@@ -1876,6 +1991,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-26",
             "desc": "COMPRA 7765 AMZN Mktp ES B72LR3BH5 800-279-6620",
             "details": "leggings, tshirts",
@@ -1888,6 +2004,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-29",
             "desc": "COMPRA 7765 MERCADONA GONDOMAR",
             "details": "",
@@ -1900,6 +2017,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-29",
             "desc": "COMPRA 7765 MERCADONA GONDOMAR",
             "details": "",
@@ -1912,6 +2030,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-29",
             "desc": "COMPRA 5447 LIDL AGRADECE 4435-000-BAGUIM MON",
             "details": "",
@@ -1924,6 +2043,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-30",
             "desc": "COMPRA 7765 UBER EATS HELP.UBER.COMNL",
             "details": "",
@@ -1936,6 +2056,7 @@
         },
         {
             "account": "Millennium",
+            "budgetOverride": null,
             "date": "2025-09-30",
             "desc": "COMPRA 7765 WOO LISBOA PT",
             "details": "",

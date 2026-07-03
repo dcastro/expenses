@@ -51,6 +51,7 @@ mkRow txId date tag amt =
     , itemAmountCents = toBE amt
     , tag
     , details = ""
+    , budgetOverride = Nothing
     }
 
 testOpenUrl :: Text

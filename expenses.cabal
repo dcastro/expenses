@@ -159,7 +159,6 @@ library
     , universum
     , unordered-containers
     , uuid
-    , vector-algorithms
     , wai
     , wai-app-static
     , wai-cors
@@ -181,6 +180,7 @@ executable db-migrations
       M08_MoveIsExpenseColumn
       M09_AddSyncAccountStatus
       M10_RenameOrdenadoToIncome
+      M11_AddBudgetOverride
       Paths_expenses
   hs-source-dirs:
       db-migrations

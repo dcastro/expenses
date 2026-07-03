@@ -5,15 +5,12 @@ import CustomPrelude
 import Data.Aeson.TH (defaultOptions, deriveToJSON)
 import Data.Map.Strict qualified as Map
 import Data.Set qualified as Set
-import Data.Time qualified as Time
-import Data.Time.Calendar.Month (Month)
-import Data.Vector.Algorithms qualified as V
-import Database (SearchParams (..))
+import Data.Time.Calendar.Month (Month, pattern MonthDay)
+import Data.Time.Calendar.Month qualified as Month
 import Database qualified as Db
 import Effectful
 import Effectful.Reader.Static (asks)
 import Expenses.Effects
-import Expenses.NonEmptyText qualified as NET
 import Expenses.Server.Routes.GetTransactions (TransactionItem (..))
 import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
 import Expenses.Server.Utils (MapAsList (..))
@@ -44,7 +41,7 @@ $( mconcat
  )
 
 getBudgetHandler ::
-  (Reader Env :> es, SQLite :> es, Time :> es, Log :> es) =>
+  (Reader Env :> es, SQLite :> es) =>
   Month ->
   Eff es BudgetInfo
 getBudgetHandler month = do
@@ -68,37 +65,42 @@ getBudgetHandler month = do
       , tagGroupStats = MapAsList tagGroupStats
       }
 
+-- | All transaction items in the given month, as frontend items.
+monthTxs ::
+  (SQLite :> es) =>
+  Month ->
+  Eff es [TransactionItem]
+monthTxs month = do
+  let dayStart = MonthDay month 1
+  let dayEnd = MonthDay (Month.addMonths 1 month) 1
+  rows <- useConnection \conn -> Db.getTransactionsByDate conn dayStart dayEnd
+  pure $ (\row -> GetTransactions.convertRowToItem row) <$> rows
+
+{- | Whether a transaction item counts towards the budget.
+
+Honours the `budgetOverride`: `Just True` always includes, `Just False` always
+excludes. When there's no override, the item counts iff it's an expense that
+matches both a budget account AND a budget tag.
+-}
+isCountedInBudget :: Set Text -> Set TagName -> TransactionItem -> Bool
+isCountedInBudget budgetAccounts budgetTags tx =
+  case tx.budgetOverride of
+    Just override -> override
+    Nothing -> tx.isExpense && matchesTag && matchesAccount
+ where
+  matchesTag = maybe False (`Set.member` budgetTags) tx.tag
+  matchesAccount = tx.account `Set.member` budgetAccounts
+
 findMatchingTxs ::
-  (Reader Env :> es, SQLite :> es, Time :> es, Log :> es) =>
+  (Reader Env :> es, SQLite :> es) =>
   Month ->
   Eff es (Vector TransactionItem)
 findMatchingTxs month = do
   config <- asks @Env (.config)
-
-  let budgetTags = concatMap (.tags) config.budget.tagGroups
-
-  let thisMonth = month & Time.formatTime Time.defaultTimeLocale "%m-%Y" & toText
-
-  useConnection \conn -> do
-    let mkSearchParams account tag =
-          Db.SearchParams
-            { allFields = Db.StringParams [] []
-            , transactionId = Nothing
-            , date = Just $ Db.Contains $ NET.unsafeFromText thisMonth
-            , account
-            , desc = Db.StringParams [] []
-            , amount = Nothing
-            , tag
-            , notes = Db.StringParams [] []
-            , isExpense = Just True
-            }
-    matchingTxs <- forM (Set.toList config.budget.includeAllTxsFromAccounts) \accountName ->
-      Db.search conn (mkSearchParams (Just accountName) (Just (Db.SomeTags budgetTags)))
-
-    pure $
-      mconcat matchingTxs
-        <&> (\tx -> GetTransactions.convertRowToItem tx)
-        & V.nubBy (comparing (.transactionId) <> comparing (.itemIndex))
+  let budgetTags = Set.fromList $ concatMap (.tags) config.budget.tagGroups
+  let budgetAccounts = config.budget.includeAllTxsFromAccounts
+  txs <- monthTxs month
+  pure $ fromList $ filter (isCountedInBudget budgetAccounts budgetTags) txs
 
 mkBudgetTagGroupStats :: [Config.BudgetTagGroup] -> Vector TransactionItem -> Map TagGroupName BudgetTagGroupStats
 mkBudgetTagGroupStats groups txs =

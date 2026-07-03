@@ -40,6 +40,7 @@ specMkGroupStats = it "calculates group and tag stats" do
         , tag = tag
         , details = "details"
         , itemIndex = 0
+        , budgetOverride = Nothing
         }
 
     expected =

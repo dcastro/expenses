@@ -124,6 +124,7 @@ type TransactionItem =
   , itemAmountCents :: Int
   , tag :: Maybe TagName
   , details :: String
+  , budgetOverride :: Maybe Boolean
   }
 
 type TransactionId = String
