@@ -125,11 +125,11 @@ specGetBudgetHandler = it "returns correct budget info for the requested month" 
   let
     -- The endpoint returns txs that match the date filter (06-2026) AND the tag filter AND the account name filter.
     --
-    -- Tx1 matches the tag filter, the account name filter, and the date filter, so it's included in the results.
+    -- Tx1 matches the tag filter, the account name filter, and the date filter, so it's counted in the budget.
     tx1 = mkRow "tx1" (fromGregorian 2026 6 5) "bank1" (Just "groceries") 50_00
-    -- Tx2 matches the date and tag filter, but not the account name filter, so it's excluded.
+    -- Tx2 matches the date and tag filter, but not the account name filter, so it's a "tag only" candidate.
     tx2 = mkRow "tx2" (fromGregorian 2026 6 10) "some-other-bank" (Just "go out") 20_00
-    -- Tx3 matches the date and account name filter, but not the tag filter, so it's excluded.
+    -- Tx3 matches the date and account name filter, but not the tag filter, so it's an "account only" candidate.
     tx3 = mkRow "tx3" (fromGregorian 2026 6 3) "bank1" (Just "some-other-tag") 30_00
     -- tx4 matches the tag and account name filter, but it's in May, so it's excluded by the date filter.
     tx4 = mkRow "tx4" (fromGregorian 2026 5 15) "bank1" (Just "groceries") 10_00
@@ -137,6 +137,8 @@ specGetBudgetHandler = it "returns correct budget info for the requested month" 
     tx5 = mkRow "tx5" (fromGregorian 2026 6 3) "some-other-bank" (Just "some-other-tag") 30_00
     testRows = [tx1, tx2, tx3, tx4, tx5]
     expectedTxs = [tx1] <&> \tx -> GetTransactions.convertRowToItem tx
+    expectedTagOnlyTxs = [tx2] <&> \tx -> GetTransactions.convertRowToItem tx
+    expectedAccountOnlyTxs = [tx3] <&> \tx -> GetTransactions.convertRowToItem tx
 
   forM_ testRows \row ->
     SQL.useConnection (\c -> Db.insertTransactionJoinedRow c row)
@@ -174,3 +176,5 @@ specGetBudgetHandler = it "returns correct budget info for the requested month" 
   resp.actualSpendingToDateCents `shouldBe` 50_00
   resp.remainingCents `shouldBe` 800_00
   resp.tagGroupStats `shouldBe` expectedTagGroupStats
+  sortTxs (V.toList resp.tagOnlyTransactions) `shouldBe` sortTxs expectedTagOnlyTxs
+  sortTxs (V.toList resp.accountOnlyTransactions) `shouldBe` sortTxs expectedAccountOnlyTxs

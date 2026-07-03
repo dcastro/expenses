@@ -31,6 +31,10 @@ data BudgetInfo = BudgetInfo
   -- ^ How much of the monthly budget is left to spend.
   , transactions :: Vector TransactionItem
   , tagGroupStats :: MapAsList TagGroupName BudgetTagGroupStats
+  , tagOnlyTransactions :: Vector TransactionItem
+  -- ^ Expenses that match a budget tag but not a budget account (candidates to include).
+  , accountOnlyTransactions :: Vector TransactionItem
+  -- ^ Expenses from a budget account but with no budget tag (candidates to include).
   }
   deriving stock (Show, Eq)
 
@@ -48,8 +52,13 @@ getBudgetHandler month = do
   config <- asks @Env (.config)
   let budgetGroups = config.budget.tagGroups
   let monthlyLimit = budgetGroups <&> (.limitCents) & sum
+  let budgetTags = Set.fromList $ concatMap (.tags) budgetGroups
+  let budgetAccounts = config.budget.includeAllTxsFromAccounts
 
-  txs <- findMatchingTxs month
+  allTxs <- monthTxs month
+  let txs = fromList $ filter (isCountedInBudget budgetAccounts budgetTags) allTxs
+  let tagOnlyTransactions = fromList $ filter (isTagOnly budgetAccounts budgetTags) allTxs
+  let accountOnlyTransactions = fromList $ filter (isAccountOnly budgetAccounts budgetTags) allTxs
 
   let actualSpendingToDateCents = txs <&> (.itemAmountCents) & sum
   let remainingCents = monthlyLimit - actualSpendingToDateCents
@@ -63,6 +72,8 @@ getBudgetHandler month = do
       , transactions = txs
       , actualSpendingToDateCents
       , tagGroupStats = MapAsList tagGroupStats
+      , tagOnlyTransactions
+      , accountOnlyTransactions
       }
 
 -- | All transaction items in the given month, as frontend items.
@@ -76,6 +87,12 @@ monthTxs month = do
   rows <- useConnection \conn -> Db.getTransactionsByDate conn dayStart dayEnd
   pure $ (\row -> GetTransactions.convertRowToItem row) <$> rows
 
+matchesTag :: Set TagName -> TransactionItem -> Bool
+matchesTag budgetTags tx = maybe False (`Set.member` budgetTags) tx.tag
+
+matchesAccount :: Set Text -> TransactionItem -> Bool
+matchesAccount budgetAccounts tx = tx.account `Set.member` budgetAccounts
+
 {- | Whether a transaction item counts towards the budget.
 
 Honours the `budgetOverride`: `Just True` always includes, `Just False` always
@@ -86,21 +103,27 @@ isCountedInBudget :: Set Text -> Set TagName -> TransactionItem -> Bool
 isCountedInBudget budgetAccounts budgetTags tx =
   case tx.budgetOverride of
     Just override -> override
-    Nothing -> tx.isExpense && matchesTag && matchesAccount
- where
-  matchesTag = maybe False (`Set.member` budgetTags) tx.tag
-  matchesAccount = tx.account `Set.member` budgetAccounts
+    Nothing -> tx.isExpense && matchesTag budgetTags tx && matchesAccount budgetAccounts tx
 
-findMatchingTxs ::
-  (Reader Env :> es, SQLite :> es) =>
-  Month ->
-  Eff es (Vector TransactionItem)
-findMatchingTxs month = do
-  config <- asks @Env (.config)
-  let budgetTags = Set.fromList $ concatMap (.tags) config.budget.tagGroups
-  let budgetAccounts = config.budget.includeAllTxsFromAccounts
-  txs <- monthTxs month
-  pure $ fromList $ filter (isCountedInBudget budgetAccounts budgetTags) txs
+{- | An expense that matches a budget tag but not a budget account, with no
+override set — a candidate the user might want to include in the budget.
+-}
+isTagOnly :: Set Text -> Set TagName -> TransactionItem -> Bool
+isTagOnly budgetAccounts budgetTags tx =
+  isNothing tx.budgetOverride
+    && tx.isExpense
+    && matchesTag budgetTags tx
+    && not (matchesAccount budgetAccounts tx)
+
+{- | An expense from a budget account but with no budget tag, with no override
+set — a candidate the user might want to include in the budget.
+-}
+isAccountOnly :: Set Text -> Set TagName -> TransactionItem -> Bool
+isAccountOnly budgetAccounts budgetTags tx =
+  isNothing tx.budgetOverride
+    && tx.isExpense
+    && matchesAccount budgetAccounts tx
+    && not (matchesTag budgetTags tx)
 
 mkBudgetTagGroupStats :: [Config.BudgetTagGroup] -> Vector TransactionItem -> Map TagGroupName BudgetTagGroupStats
 mkBudgetTagGroupStats groups txs =

@@ -39,7 +39,7 @@ import Web.UIEvent.KeyboardEvent.EventTypes as KET
 type Slot id = forall query. H.Slot query Void id
 
 type Slots =
-  ( transactionsTable :: TransactionsTable.Slot Unit
+  ( transactionsTable :: TransactionsTable.Slot String
   )
 
 _transactionsTable = Proxy :: Proxy "transactionsTable"
@@ -112,7 +112,7 @@ render state =
     , HH.section [ classes' "section is-fullheight" ]
         [ HH.slot
             _transactionsTable
-            unit
+            "main"
             TransactionsTable.component
             { transactions: filteredTransactions state
             , isAdmin: state.isAdmin
@@ -120,7 +120,34 @@ render state =
             }
             HandleTransactionsUpdated
         ]
+    , HtmlUtils.displayWhenJust state.budgetInfo \info ->
+        renderCandidateSection state "tag-only"
+          "Matches a budget tag, but not a budget account"
+          info.tagOnlyTransactions
+    , HtmlUtils.displayWhenJust state.budgetInfo \info ->
+        renderCandidateSection state "account-only"
+          "From a budget account, but has no budget tag"
+          info.accountOnlyTransactions
     ]
+
+-- | Renders a list of "candidate" transactions (those matching only tags or only
+-- | accounts). Hidden entirely when there are none.
+renderCandidateSection :: forall m. MonadAff m => State -> String -> String -> Array API.TransactionItem -> H.ComponentHTML Action Slots m
+renderCandidateSection state slotId heading txs =
+  if Arr.null txs then HH.text ""
+  else
+    HH.section [ classes' "section is-fullheight" ]
+      [ HH.h5 [ classes' "title is-5 has-text-centered" ] [ HH.text heading ]
+      , HH.slot
+          _transactionsTable
+          slotId
+          TransactionsTable.component
+          { transactions: txs
+          , isAdmin: state.isAdmin
+          , allTags: state.allTags
+          }
+          HandleTransactionsUpdated
+      ]
 
 renderMonthPicker :: forall m. State -> H.ComponentHTML Action Slots m
 renderMonthPicker state =

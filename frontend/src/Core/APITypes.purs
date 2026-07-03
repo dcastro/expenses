@@ -314,4 +314,6 @@ type BudgetInfo =
   , transactions :: Array TransactionItem
   , actualSpendingToDateCents :: Int
   , tagGroupStats :: Map TagGroupName BudgetTagGroupStats
+  , tagOnlyTransactions :: Array TransactionItem
+  , accountOnlyTransactions :: Array TransactionItem
   }
