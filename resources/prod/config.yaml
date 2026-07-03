@@ -221,6 +221,7 @@ tagPatterns:
       - [' ALDI RIO TINTO']
       - ['BIODIVERSUS'] # Mercadinho Biológico em Gondomar
       - ['CELIA TERESA MARTINS'] # Mercadinho Biológico em Gondomar
+      - ['SABORES E UTILIDADES'] #  frutaria à beira de casa dos meus pais
       - ['Sabores E Utilidades4510 552 Fanzeres'] #  frutaria à beira de casa dos meus pais
       - ['COMPRA SABORES E UT 9164904/02'] #  frutaria à beira de casa dos meus pais
       - ['TRF MB WAY P       6180'] # cesto de vegetais de A Quintinha
@@ -243,7 +244,7 @@ tagPatterns:
       - ['BURGUER KING']
       - ['BK CHAVES BAGUIM DO MON']
       - ['CHURRASQ PRESTIGE'] # Churrasqueira Prestige, ao lado da casa da Cristina em Gondomar
-      - ['CHURRASQUEIRA FANZERES'] # Churrasqueira Pigalle, na Carvalha
+      - ['CHURRASQUEIRA', 'FANZERES'] # Churrasqueira Pigalle, na Carvalha
       - ['CENTRAL RIO NIF 514817879'] # Churrasqueira Central Rio Tinto
   - tag: go out
     contains:
