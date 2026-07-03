@@ -8,7 +8,7 @@ import Expenses.Server.CronJobs.BudgetCheck qualified as BudgetCheck
 import Servant (NoContent (..))
 
 runBudgetCheckHandler ::
-  (Reader Env :> es, SQLite :> es, Time :> es, Log :> es, Ntfy :> es) =>
+  (Reader Env :> es, Nordigen :> es, Time :> es, Log :> es, Ntfy :> es) =>
   Eff es NoContent
 runBudgetCheckHandler = do
   R.asks @Env (.demoMode) >>= \case

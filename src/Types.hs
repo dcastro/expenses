@@ -168,8 +168,15 @@ newtype NewTokenResponse = NewTokenResponse
   }
 
 newtype BalancesResponse = BalancesResponse
-  { balances :: J.Array
+  { balances :: [Balance]
   }
+
+data Balance = Balance
+  { balanceAmount :: Amount
+  , balanceType :: Text
+  -- ^ e.g. "interimAvailable", "expected", "closingBooked". See the GoCardless docs.
+  }
+  deriving stock (Show, Eq, Generic)
 
 newtype DetailsResponse = DetailsResponse
   { account :: J.Object
@@ -219,6 +226,7 @@ $( mconcat
      , deriveJSON defaultOptions ''ApiTransaction
      , deriveJSON defaultOptions ''Amount
      , deriveJSON defaultOptions ''NewTokenResponse
+     , deriveJSON defaultOptions ''Balance
      , deriveJSON defaultOptions ''BalancesResponse
      , deriveJSON defaultOptions ''DetailsResponse
      , deriveJSON defaultOptions ''InstitutionInfo

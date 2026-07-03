@@ -181,6 +181,7 @@ tests:
       - sqlite-simple
       - vector
       - lens
+      - servant-auth-client
     ghc-options:
       - -Wno-x-partial
       - -threaded

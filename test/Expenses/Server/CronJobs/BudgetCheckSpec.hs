@@ -5,26 +5,26 @@ import Control.Lens
 import CustomPrelude
 import Data.Aeson qualified as J
 import Data.Set qualified as Set
-import Data.Time (Day, UTCTime (..), fromGregorian, secondsToDiffTime)
-import Database qualified as Db
+import Data.Time (UTCTime (..), fromGregorian, secondsToDiffTime)
 import Effectful
-import Effectful.Concurrent (runConcurrent)
 import Effectful.Dispatch.Dynamic (interpret)
 import Effectful.Log (runLog)
 import Effectful.Reader.Static (runReader)
-import Effectful.SQLite.Simple qualified as SQL
 import Effectful.Time qualified as Time
+import Expenses.Effects.Nordigen (Nordigen (..))
 import Expenses.Effects.Ntfy (Notification (..), Ntfy (..))
-import Expenses.Server.CronJobs.BudgetCheck (budgetCheckJob)
+import Expenses.Server.CronJobs.BudgetCheck (budgetCheckJob, pickSpendableBalance)
 import Expenses.Server.Env
 import Expenses.Test.Util qualified as Util
 import Log (LogLevel (..))
+import Servant.Auth.Client qualified as SA
 import Test.Syd (Spec, describe, it, shouldBe)
 import Types
 
 spec :: Spec
 spec = do
   specBudgetCheckJob
+  specPickSpendableBalance
   specPushNotificationsConfig
 
 -- | Records every Ntfy call instead of hitting the real API.
@@ -38,60 +38,51 @@ runNtfyMock callsRef = interpret \_ -> \case
   ClearNotifications -> modifyIORef' callsRef (<> [Cleared])
   SendNotification notification -> modifyIORef' callsRef (<> [Sent notification])
 
-mkRow :: Text -> Day -> Maybe TagName -> FECents -> Db.TransactionJoinedRow
-mkRow txId date tag amt =
-  Db.TransactionJoinedRow
-    { transactionId = txId
-    , account = "bank"
-    , date
-    , desc = "desc"
-    , totalAmountCents = toBE amt
-    , isExpense = True
-    , itemIndex = 0
-    , itemAmountCents = toBE amt
-    , tag
-    , details = ""
-    , budgetOverride = Nothing
-    }
+-- | Answers `getBalances` from the given account-id -> balance map, instead of hitting the real API.
+runNordigenMock :: (Text -> BalancesResponse) -> Eff (Nordigen ': es) a -> Eff es a
+runNordigenMock balancesFor = interpret \_ -> \case
+  Login -> pure $ SA.Token "test-token"
+  GetBalances _ accountId -> pure $ balancesFor accountId
+  _ -> error "runNordigenMock: unexpected Nordigen call"
+
+mkAccount :: Text -> Text -> InstitutionAccountInfo
+mkAccount accountName accountId =
+  InstitutionAccountInfo{accountName, accountId, flipSign = False}
+
+mkBalance :: Text -> Text -> Balance
+mkBalance amount balanceType =
+  Balance{balanceAmount = Amount{amount, currency = "EUR"}, balanceType}
 
 testOpenUrl :: Text
 testOpenUrl = "http://expenses.example.com/#/budget"
 
-{- | Runs the budget check job at the given (frozen) time,
-against a db containing the given transactions,
-and returns the Ntfy calls made.
+{- | Runs the budget check job at the given (frozen) time, with the given budget
+accounts, resolving each account's balance via the given map. Returns the Ntfy calls made.
 -}
-runBudgetCheckJob :: UTCTime -> [Db.TransactionJoinedRow] -> IO [NtfyCall]
-runBudgetCheckJob frozenTime txRows = do
-  -- Monthly limit: 600€.
+runBudgetCheckJob :: UTCTime -> [InstitutionAccountInfo] -> (Text -> BalancesResponse) -> IO [NtfyCall]
+runBudgetCheckJob frozenTime budgetAccounts balancesFor = do
   env <-
     Util.mkTestEnv <&> \env ->
       env
+        & config . institutions
+          .~ [InstitutionInfo{institutionId = "inst", accounts = budgetAccounts}]
         & config . budget
           .~ BudgetConfig
-            { tagGroups = [Config.BudgetTagGroup{name = "Groceries", tags = ["groceries"], limitCents = 600_00}]
-            , includeAllTxsFromAccounts = Set.fromList ["bank"]
+            { tagGroups = []
+            , includeAllTxsFromAccounts = Set.fromList $ (.accountName) <$> budgetAccounts
             , pushNotifications =
                 PushNotificationsConfig
                   { cronSchedule = ""
                   , openUrl = testOpenUrl
                   }
             }
-  conn <- Util.mkInMemoryDbConn
   callsRef <- newIORef []
 
-  forM_ txRows \row ->
-    SQL.useConnection (\c -> Db.insertTransactionJoinedRow c row)
-      & SQL.runSQLiteSync conn
-      & runConcurrent
-      & runEff
-
   budgetCheckJob
-    & SQL.runSQLiteSync conn
+    & runNordigenMock balancesFor
     & Time.runFrozenTime frozenTime
     & runNtfyMock callsRef
     & runReader env
-    & runConcurrent
     & runLog "test" mempty LogAttention
     & runEff
 
@@ -101,9 +92,9 @@ specBudgetCheckJob :: Spec
 specBudgetCheckJob = describe "budgetCheckJob" do
   let midMonth = UTCTime (fromGregorian 2026 6 15) (secondsToDiffTime 0)
 
-  it "clears notifications and sends a new one with the remaining budget" do
-    -- 100.20€ spent out of the 600€ monthly limit.
-    calls <- runBudgetCheckJob midMonth [mkRow "tx1" (fromGregorian 2026 6 5) (Just "groceries") 100_20]
+  it "reports the budget account's balance as the amount left to spend" do
+    let balances _ = BalancesResponse [mkBalance "499.80" "interimAvailable"]
+    calls <- runBudgetCheckJob midMonth [mkAccount "Moey" "acc-1"] balances
     calls
       `shouldBe` [ Cleared
                  , Sent
@@ -114,18 +105,38 @@ specBudgetCheckJob = describe "budgetCheckJob" do
                        }
                  ]
 
-  it "reports a negative amount when the monthly limit has been exceeded" do
-    -- 600.20€ spent out of the 600€ monthly limit.
-    calls <- runBudgetCheckJob midMonth [mkRow "tx1" (fromGregorian 2026 6 5) (Just "groceries") 600_20]
+  it "sums the balances across all budget accounts" do
+    let balances = \case
+          "acc-1" -> BalancesResponse [mkBalance "100.00" "interimAvailable"]
+          "acc-2" -> BalancesResponse [mkBalance "50.20" "interimAvailable"]
+          _ -> BalancesResponse []
+    calls <- runBudgetCheckJob midMonth [mkAccount "Moey" "acc-1", mkAccount "Revolut" "acc-2"] balances
     calls
       `shouldBe` [ Cleared
                  , Sent
                      Notification
                        { title = "Budget update: Mon, 15 Jun"
-                       , message = "You have -0.20€ left to spend this month."
+                       , message = "You have 150.20€ left to spend this month."
                        , clickUrl = testOpenUrl
                        }
                  ]
+
+specPickSpendableBalance :: Spec
+specPickSpendableBalance = describe "pickSpendableBalance" do
+  it "prefers the interimAvailable balance" do
+    let resp =
+          BalancesResponse
+            [ mkBalance "10.00" "closingBooked"
+            , mkBalance "20.00" "interimAvailable"
+            ]
+    ((.amount) <$> pickSpendableBalance resp) `shouldBe` Just "20.00"
+
+  it "falls back to whatever balance is present" do
+    let resp = BalancesResponse [mkBalance "33.00" "somethingElse"]
+    ((.amount) <$> pickSpendableBalance resp) `shouldBe` Just "33.00"
+
+  it "returns Nothing when there are no balances" do
+    ((.amount) <$> pickSpendableBalance (BalancesResponse [])) `shouldBe` Nothing
 
 specPushNotificationsConfig :: Spec
 specPushNotificationsConfig = describe "PushNotificationsConfig" do

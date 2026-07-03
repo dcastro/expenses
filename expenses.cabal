@@ -413,6 +413,7 @@ test-suite test
     , log-base
     , log-effectful
     , monad-time-effectful
+    , servant-auth-client
     , servant-server
     , sqlite-simple
     , sqlite-simple-effectful
