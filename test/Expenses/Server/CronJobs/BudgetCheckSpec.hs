@@ -69,7 +69,7 @@ runBudgetCheckJob frozenTime txRows = do
         & config . budget
           .~ BudgetConfig
             { tagGroups = [Config.BudgetTagGroup{name = "Groceries", tags = ["groceries"], limitCents = 600_00}]
-            , includeAllTxsFromAccounts = Set.empty
+            , includeAllTxsFromAccounts = Set.fromList ["bank"]
             , pushNotifications =
                 PushNotificationsConfig
                   { cronSchedule = ""

@@ -56,10 +56,8 @@ budget:
     # Every 5 days, at 9:30am
     cronSchedule: '30 9 */5 * *'
     openUrl: http://expenses.diogocastro.com/#/budget
-  # The budget calculations will include any txs that have one of the tags listed below
-  # OR are from one of the accounts listed below.
-  #
-  # Txs that match an account name but not any of the listed tags will be included in the "Other" tag group.
+  # The budget calculations will only include txs that BOTH have one of the tags listed below
+  # AND are from one of the accounts listed below.
   tagGroups:
     - name: Groceries
       tags: [groceries]
@@ -76,7 +74,8 @@ budget:
         - pharmacy
         - home
         - fuel
-  includeAllTxsFromAccounts: []
+  includeAllTxsFromAccounts:
+    - Millennium
 
 # Transactions with these tags are marked as "not an expense".
 notExpenses: []

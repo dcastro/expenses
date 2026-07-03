@@ -121,20 +121,20 @@ specGetBudgetHandler = it "returns correct budget info for the requested month" 
   conn <- Util.mkInMemoryDbConn
 
   let
-    -- The endpoint returns txs that match the date filter (06-2026) AND (EITHER the tag filter OR the account name filter).
+    -- The endpoint returns txs that match the date filter (06-2026) AND the tag filter AND the account name filter.
     --
     -- Tx1 matches the tag filter, the account name filter, and the date filter, so it's included in the results.
     tx1 = mkRow "tx1" (fromGregorian 2026 6 5) "bank1" (Just "groceries") 50_00
-    -- Tx2 matches the date and tag filter (but not the account name filter), so it's included.
+    -- Tx2 matches the date and tag filter, but not the account name filter, so it's excluded.
     tx2 = mkRow "tx2" (fromGregorian 2026 6 10) "some-other-bank" (Just "go out") 20_00
-    -- Tx3 matches the date and account name filter (but not the tag filter), so it's included.
+    -- Tx3 matches the date and account name filter, but not the tag filter, so it's excluded.
     tx3 = mkRow "tx3" (fromGregorian 2026 6 3) "bank1" (Just "some-other-tag") 30_00
-    -- tx4 is in May, so it's excluded by the date filter.
+    -- tx4 matches the tag and account name filter, but it's in May, so it's excluded by the date filter.
     tx4 = mkRow "tx4" (fromGregorian 2026 5 15) "bank1" (Just "groceries") 10_00
     -- tx5 matches the date filter but not the tag or account filters, so it's excluded.
     tx5 = mkRow "tx5" (fromGregorian 2026 6 3) "some-other-bank" (Just "some-other-tag") 30_00
     testRows = [tx1, tx2, tx3, tx4, tx5]
-    expectedTxs = [tx1, tx2, tx3] <&> \tx -> GetTransactions.convertRowToItem tx
+    expectedTxs = [tx1] <&> \tx -> GetTransactions.convertRowToItem tx
 
   forM_ testRows \row ->
     SQL.useConnection (\c -> Db.insertTransactionJoinedRow c row)
@@ -155,13 +155,13 @@ specGetBudgetHandler = it "returns correct budget info for the requested month" 
         MapAsList $
           Map.fromList
             [ ("Groceries", BudgetTagGroupStats{spentToDateCents = 50_00, limitCents = 650_00, tags = [Just "groceries"]})
-            , ("Go out", BudgetTagGroupStats{spentToDateCents = 20_00, limitCents = 100_00, tags = [Just "go out"]})
+            , ("Go out", BudgetTagGroupStats{spentToDateCents = 0, limitCents = 100_00, tags = [Just "go out"]})
             ,
               ( "Other"
               , BudgetTagGroupStats
-                  { spentToDateCents = 30_00
+                  { spentToDateCents = 0
                   , limitCents = 100_00
-                  , tags = [Just "home", Just "electronics", Just "some-other-tag"]
+                  , tags = [Just "home", Just "electronics"]
                   }
               )
             ]
@@ -169,6 +169,6 @@ specGetBudgetHandler = it "returns correct budget info for the requested month" 
   let sortTxs = sortBy (comparing (.transactionId))
   sortTxs (V.toList resp.transactions) `shouldBe` sortTxs expectedTxs
   resp.monthlyLimitCents `shouldBe` 850_00
-  resp.actualSpendingToDateCents `shouldBe` 100_00
-  resp.remainingCents `shouldBe` 750_00
+  resp.actualSpendingToDateCents `shouldBe` 50_00
+  resp.remainingCents `shouldBe` 800_00
   resp.tagGroupStats `shouldBe` expectedTagGroupStats

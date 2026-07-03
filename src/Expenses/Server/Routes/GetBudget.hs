@@ -92,13 +92,11 @@ findMatchingTxs month = do
             , notes = Db.StringParams [] []
             , isExpense = Just True
             }
-    taggedTxs <- Db.search conn (mkSearchParams Nothing (Just (Db.SomeTags budgetTags)))
-
-    extraTxs <- forM (Set.toList config.budget.includeAllTxsFromAccounts) \accountName ->
-      Db.search conn (mkSearchParams (Just accountName) Nothing)
+    matchingTxs <- forM (Set.toList config.budget.includeAllTxsFromAccounts) \accountName ->
+      Db.search conn (mkSearchParams (Just accountName) (Just (Db.SomeTags budgetTags)))
 
     pure $
-      mconcat (taggedTxs : extraTxs)
+      mconcat matchingTxs
         <&> (\tx -> GetTransactions.convertRowToItem tx)
         & V.nubBy (comparing (.transactionId) <> comparing (.itemIndex))
 
