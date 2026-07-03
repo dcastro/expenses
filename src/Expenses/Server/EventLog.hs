@@ -21,6 +21,7 @@ data ActionType
   = UpdateTag UpdateTag
   | UpdateIsExpense UpdateIsExpense
   | UpdateDetails UpdateDetails
+  | UpdateBudgetOverride UpdateBudgetOverride
   | NewTx NewTx
   | AddItem AddedItem
   | RemoveItem RemovedItem
@@ -38,6 +39,11 @@ data UpdateIsExpense = MkUpdateIsExpense
 data UpdateDetails = MkUpdateDetails
   { old :: Text
   , new :: Text
+  }
+
+data UpdateBudgetOverride = MkUpdateBudgetOverride
+  { old :: Maybe Bool
+  , new :: Maybe Bool
   }
 
 data NewTx = MkNewTx
@@ -81,6 +87,8 @@ encoding
         encUpdate "UpdateIsExpense" username ts transactionId transactionDesc itemIndex old new
       UpdateDetails (MkUpdateDetails{old, new}) ->
         encUpdate "UpdateDetails" username ts transactionId transactionDesc itemIndex old new
+      UpdateBudgetOverride (MkUpdateBudgetOverride{old, new}) ->
+        encUpdate "UpdateBudgetOverride" username ts transactionId transactionDesc itemIndex old new
       NewTx (MkNewTx{account, date, totalAmountCents, isExpense, tag, details}) -> do
         Linear.pairs
           ( Linear.mconcat

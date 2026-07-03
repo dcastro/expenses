@@ -19,6 +19,7 @@ import Expenses.Server.Options (ServerOptions (..))
 import Expenses.Server.Options qualified as Opt
 import Expenses.Server.Routes.AllAccounts qualified as AllAccounts
 import Expenses.Server.Routes.AllTags qualified as AllTags
+import Expenses.Server.Routes.BudgetOverride qualified as BudgetOverride
 import Expenses.Server.Routes.GetAvailableDateRange (DateRange)
 import Expenses.Server.Routes.GetAvailableDateRange qualified as GetAvailableDateRange
 import Expenses.Server.Routes.GetBudget qualified as GetBudget
@@ -116,6 +117,23 @@ data AdminAPI mode = AdminAPI
           :> "split"
           :> ReqBody '[JSON] [GetTransactions.NewShortTransactionItem]
           :> PostNoContent
+  , setBudgetOverride ::
+      mode
+        :- "transactions"
+          :> Capture "transactionId" Text
+          :> "items"
+          :> Capture "itemIndex" Int
+          :> "budget-override"
+          :> ReqBody '[JSON] BudgetOverride.SetBudgetOverride
+          :> Put '[JSON] GetTransactions.TransactionItem
+  , unsetBudgetOverride ::
+      mode
+        :- "transactions"
+          :> Capture "transactionId" Text
+          :> "items"
+          :> Capture "itemIndex" Int
+          :> "budget-override"
+          :> Delete '[JSON] GetTransactions.TransactionItem
   , runSync :: mode :- "sync" :> PostNoContent
   , runBudgetCheck :: mode :- "budget-check" :> PostNoContent
   , renewRequisition ::
@@ -282,6 +300,8 @@ mkServer resourcesDir =
           { modifyTransaction = ModifyTransaction.modifyTransactionHandler admin
           , insertTransaction = InsertNew.insertTransactionHandler admin
           , splitTransactionItems = SplitTransactionItems.splitTransactionItemsHandler admin
+          , setBudgetOverride = BudgetOverride.setBudgetOverrideHandler admin
+          , unsetBudgetOverride = BudgetOverride.unsetBudgetOverrideHandler admin
           , runSync = RunSync.runSyncHandler
           , runBudgetCheck = RunBudgetCheck.runBudgetCheckHandler
           , renewRequisition = RenewRequisition.renewRequisitionHandler admin

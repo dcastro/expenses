@@ -38,6 +38,7 @@ library
       Expenses.Server.Routes
       Expenses.Server.Routes.AllAccounts
       Expenses.Server.Routes.AllTags
+      Expenses.Server.Routes.BudgetOverride
       Expenses.Server.Routes.GetAvailableDateRange
       Expenses.Server.Routes.GetBudget
       Expenses.Server.Routes.GetSyncStatus
@@ -330,6 +331,7 @@ test-suite test
   main-is: Spec.hs
   other-modules:
       Expenses.DatabaseSpec
+      Expenses.Server.BudgetOverrideSpec
       Expenses.Server.CronJobs.BudgetCheckSpec
       Expenses.Server.GetBudgetSpec
       Expenses.Server.GetTransactionsSpec

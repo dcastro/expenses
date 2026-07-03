@@ -92,6 +92,27 @@ updateTransaction body = do
     <#> statusCodeIs 200
     <#> decodeJson
 
+-- | Sets the budget override (include/exclude) for a transaction item.
+setBudgetOverride :: TransactionId -> Int -> Boolean -> Aff TransactionItem
+setBudgetOverride transactionId itemIndex override = do
+  baseUrl <- liftEffect HtmlUtils.apiBaseUrl
+  let reqBody = RequestBody.json $ J.encodeJson { budgetOverride: override }
+  put (Just reqBody) (baseUrl <> budgetOverrideUrl transactionId itemIndex)
+    <#> statusCodeIs 200
+    <#> decodeJson
+
+-- | Clears the budget override for a transaction item, reverting to the default rules.
+unsetBudgetOverride :: TransactionId -> Int -> Aff TransactionItem
+unsetBudgetOverride transactionId itemIndex = do
+  baseUrl <- liftEffect HtmlUtils.apiBaseUrl
+  delete (baseUrl <> budgetOverrideUrl transactionId itemIndex)
+    <#> statusCodeIs 200
+    <#> decodeJson
+
+budgetOverrideUrl :: TransactionId -> Int -> URL
+budgetOverrideUrl transactionId itemIndex =
+  "transactions/" <> transactionId <> "/items/" <> show itemIndex <> "/budget-override"
+
 getTransactionItems :: TransactionId -> Aff (Array ShortTransactionItem)
 getTransactionItems transactionId = do
   baseUrl <- liftEffect HtmlUtils.apiBaseUrl
@@ -157,6 +178,14 @@ post body url =
     , url = url
     , responseFormat = AJ.json
     , content = body
+    }
+
+delete :: URL -> Aff (Either Error (Response J.Json))
+delete url =
+  AW.request AJ.defaultRequest
+    { method = Left DELETE
+    , url = url
+    , responseFormat = AJ.json
     }
 
 statusCodeIs :: forall a. Int -> Either Error (Response a) -> Response a
