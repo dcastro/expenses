@@ -66,6 +66,9 @@ renewRequisition institutionId body = do
         , userLanguage = "EN"
         }
 
+  let reqId = created.id
+  logInfo_ [i|Created requisition for institution #{institutionId} with ID #{reqId}|]
+
   pure
     RenewRequisitionResponse
       { id = created.id
