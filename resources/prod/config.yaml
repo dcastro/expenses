@@ -21,11 +21,14 @@ institutions:
       - accountName: 'Activo'
         accountId: '8b683d99-56cf-4cf5-bb05-7fd182877f9a'
         flipSign: false
-  # - institutionId: 'CETELEM_CETMPTP1XXX'
-  #   accounts:
-  #     - accountName: 'Black'
-  #       accountId: '9e01653c-1c47-450f-89b5-6f90766424df'
-  #       flipSign: true
+  - institutionId: 'CETELEM_CETMPTP1XXX'
+    accounts:
+      - accountName: 'Black'
+        accountId: '9e01653c-1c47-450f-89b5-6f90766424df'
+        flipSign: true
+      - accountName: 'CaetanoGo'
+        accountId: '6556104c-e208-42d4-a744-845d0e5e656d'
+        flipSign: true
 
 allTagGroups:
   Groceries:
@@ -187,6 +190,7 @@ tagPatterns:
       - ['TRF MB WAY P       5181']
       - ['Trf MB WAY 910415181']
       - ['TRF MB WAY P  ALICE PINTO']
+      - ['Trf imediata ALICE PINTO']
       - ['VISAGISME']
       - ['TRF MB WAY P  ISABEL MARIA GONCALVES'] # Cabeleireiro Alter Ego, D. Isabel, onde o David corta o cabelo
   - tag: limpeza da casa
@@ -227,7 +231,6 @@ tagPatterns:
       - ['TRF MB WAY P       6180'] # cesto de vegetais de A Quintinha
       - ['TRF MB WAY P  MARTA BEATRIZ LOPES MARQUES'] # cesto de vegetais de A Quintinha
       - ['TRF MB WAY P  VITOR JOSE SA MARQUES'] # cesto de vegetais de A Quintinha
-      - ['Devolução % Compras Acumuladas'] # Cartão Black
   - tag: takeaway
     contains:
       - ['uber', 'eats']
@@ -302,6 +305,7 @@ tagPatterns:
       - ['TRF P  Diogo Millennium']
       - ['LEV ATM']
       - ['DD UNIVERSO']
+      - ['Pagamento de Mensalidade']
       - ['IPS/', 'ENG DIOGO FILIP'] # transfers from Millennium to Moey
       - ['TRF P  Moey'] # transfers from Millennium to Moey
   - tag: investments

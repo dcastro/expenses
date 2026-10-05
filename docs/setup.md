@@ -9,6 +9,7 @@
   - [Add / Renew bank logins](#add--renew-bank-logins)
   - [Running migrations](#running-migrations)
   - [Adding new tags](#adding-new-tags)
+  - [Troubleshooting](#troubleshooting)
 
 
 # Setup
@@ -176,3 +177,46 @@ just restore-backup 2026-06-02_13-25-58
 
 To register a new tag, add it to either the `allTagGroups` or the `ungroupedTags` sections in the config.
 It'll then show up in the tag selection dropdown.
+
+
+## Troubleshooting
+
+The auth page for the Cetelem bank has a bug.
+The "Aceitar" button to proceed after selecting a bank account is never enabled.
+
+
+It's a CSP issue, the binding of the "Aceitar" button is an inline script that's never run.
+
+To work around the issue, paste this in Chrome's dev console:
+
+```
+(() => {
+  const btn   = document.querySelector('.approveBtn');
+  const boxes = [...document.querySelectorAll("#accounts-table input[type='checkbox']")];
+  const form  = document.querySelector('#dataModal form');
+  const tbody = document.querySelector('#dataModal .selectedData');
+
+  // Enable "Aceitar" when one or more accounts are selected
+  const refresh = () => { btn.disabled = !boxes.some(b => b.checked); };
+  boxes.forEach(b => b.addEventListener('change', refresh));
+  refresh();
+
+  // Do the same as the blocked script: fill the confirmation table and add "approvalData" to the form
+  btn.addEventListener('click', () => {
+    const checked = boxes.filter(b => b.checked);
+    tbody.innerHTML = checked
+      .map(b => `<tr><td></td><td><strong>${b.getAttribute('accountlabel')}</strong></td><td></td><td></td></tr>`)
+      .join('');
+    form.querySelector("input[name='approvalData']")?.remove();
+    const input = document.createElement('input');
+    input.type  = 'hidden';
+    input.name  = 'approvalData';
+    input.value = checked.map(b => {
+      const ref = document.querySelector(`[accountrefid='${b.id}']`);
+      return ref.getAttribute('accountreftype') + '|' + ref.getAttribute('accountref');
+    }).join(',');
+    form.appendChild(input);
+    console.log('approvalData =', input.value);
+  });
+})();
+```
