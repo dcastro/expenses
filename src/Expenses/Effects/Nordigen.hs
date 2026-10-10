@@ -1,10 +1,11 @@
 {-# OPTIONS_GHC -Wno-unticked-promoted-constructors #-}
 
 module Expenses.Effects.Nordigen (
-  Nordigen,
+  Nordigen (..),
   runNordigen,
   login,
   getTransactions,
+  getBalances,
   createRequisition,
   listRequisitions,
   deleteRequisition,
@@ -31,6 +32,11 @@ data Nordigen :: Effect where
     -- | Account ID
     Text ->
     Nordigen m Value
+  GetBalances ::
+    SA.Token ->
+    -- | Account ID
+    Text ->
+    Nordigen m T.BalancesResponse
   CreateRequisition ::
     SA.Token ->
     T.CreateRequisitionRequest ->
@@ -63,6 +69,9 @@ runNordigen action = do
     GetTransactions token accountId -> do
       liftIO $ N.runNordigen manager do
         N.getTransactions token accountId
+    GetBalances token accountId -> do
+      liftIO $ N.runNordigen manager do
+        N.getBalances token accountId
     CreateRequisition token req -> do
       liftIO $ N.runNordigen manager do
         N.createRequisition token req

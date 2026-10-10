@@ -79,11 +79,11 @@ getIsExpenseTest = do
               BudgetConfig
                 { tagGroups = []
                 , includeAllTxsFromAccounts = mempty
-                , pushNotifications =
-                    PushNotificationsConfig
-                      { cronSchedule = ""
-                      , openUrl = ""
-                      }
+                }
+          , pushNotifications =
+              PushNotificationsConfig
+                { cronSchedule = ""
+                , openUrl = ""
                 }
           }
   let txIdNormal = "20220121233851916940"

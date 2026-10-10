@@ -1,6 +1,6 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.39.1.
+-- This file has been generated from package.yaml by hpack version 0.39.6.
 --
 -- see: https://github.com/sol/hpack
 
@@ -30,7 +30,7 @@ library
       Expenses.Linear
       Expenses.NonEmptyText
       Expenses.Server.CronJobs
-      Expenses.Server.CronJobs.BudgetCheck
+      Expenses.Server.CronJobs.BalanceCheck
       Expenses.Server.CronJobs.Sync
       Expenses.Server.Env
       Expenses.Server.EventLog
@@ -46,7 +46,7 @@ library
       Expenses.Server.Routes.InsertNew
       Expenses.Server.Routes.ModifyTransaction
       Expenses.Server.Routes.RenewRequisition
-      Expenses.Server.Routes.RunBudgetCheck
+      Expenses.Server.Routes.RunBalanceCheck
       Expenses.Server.Routes.RunSync
       Expenses.Server.Routes.Search
       Expenses.Server.Routes.SplitTransactionItems
@@ -330,7 +330,7 @@ test-suite test
   main-is: Spec.hs
   other-modules:
       Expenses.DatabaseSpec
-      Expenses.Server.CronJobs.BudgetCheckSpec
+      Expenses.Server.CronJobs.BalanceCheckSpec
       Expenses.Server.GetBudgetSpec
       Expenses.Server.GetTransactionsSpec
       Expenses.Test.Util
@@ -411,6 +411,7 @@ test-suite test
     , log-base
     , log-effectful
     , monad-time-effectful
+    , servant-auth-client
     , servant-server
     , sqlite-simple
     , sqlite-simple-effectful

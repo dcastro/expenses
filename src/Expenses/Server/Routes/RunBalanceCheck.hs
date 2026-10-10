@@ -1,20 +1,20 @@
-module Expenses.Server.Routes.RunBudgetCheck where
+module Expenses.Server.Routes.RunBalanceCheck where
 
 import CustomPrelude
 import Effectful
 import Effectful.Reader.Static qualified as R
 import Expenses.Effects
-import Expenses.Server.CronJobs.BudgetCheck qualified as BudgetCheck
+import Expenses.Server.CronJobs.BalanceCheck qualified as BalanceCheck
 import Servant (NoContent (..))
 
-runBudgetCheckHandler ::
-  (Reader Env :> es, SQLite :> es, Time :> es, Log :> es, Ntfy :> es) =>
+runBalanceCheckHandler ::
+  (Reader Env :> es, Time :> es, Log :> es, Nordigen :> es, Ntfy :> es) =>
   Eff es NoContent
-runBudgetCheckHandler = do
+runBalanceCheckHandler = do
   R.asks @Env (.demoMode) >>= \case
     True ->
       -- Don't send real push notifications from the public demo server.
       pure NoContent
     False -> do
-      BudgetCheck.budgetCheckJob
+      BalanceCheck.balanceCheckJob
       pure NoContent

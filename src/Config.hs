@@ -40,7 +40,6 @@ data PushNotificationsConfig = PushNotificationsConfig
 data BudgetConfig = BudgetConfig
   { tagGroups :: [BudgetTagGroup]
   , includeAllTxsFromAccounts :: Set Text
-  , pushNotifications :: PushNotificationsConfig
   }
   deriving stock (Eq, Show, Generic)
   deriving anyclass (FromJSON)
@@ -56,6 +55,7 @@ data AppConfig = AppConfig
   , tagPatterns :: [TagPatternEntry]
   , notExpenses :: [TagName]
   , budget :: BudgetConfig
+  , pushNotifications :: PushNotificationsConfig
   }
   deriving stock (Eq, Show)
 

@@ -53,9 +53,9 @@ Authentication uses Cloudflare Zero Trust JWT (`AuthProtect "cloudflare-auth"`);
 
 Background jobs live in `src/Expenses/Server/CronJobs/` and are scheduled in `src/Expenses/Server/CronJobs.hs` (via `cron`'s `execSchedule`):
 - **Sync** — syncs transactions from Nordigen; schedule from `cronSchedule` in the config.
-- **BudgetCheck** — sends a push notification (via ntfy.sh, through the `Ntfy` effect) saying how much of the monthly budget is left; schedule from `budget.pushNotifications.cronSchedule`.
+- **BalanceCheck** — fetches the balance of each account with `notifyBalance: true` (under `institutions > accounts` in the config) and sends a push notification (via ntfy.sh, through the `Ntfy` effect) with one line per account; schedule from `pushNotifications.cronSchedule`.
 
-Cron jobs run in `CronM` (see `runCronM` in `src/Expenses/Effects.hs`). Admin routes exist to trigger them manually (e.g. `RunSync`, `RunBudgetCheck`).
+Cron jobs run in `CronM` (see `runCronM` in `src/Expenses/Effects.hs`). Admin routes exist to trigger them manually (e.g. `RunSync`, `RunBalanceCheck`).
 
 ### Currency Amounts — Important Invariant
 

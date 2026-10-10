@@ -28,7 +28,7 @@ import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
 import Expenses.Server.Routes.InsertNew qualified as InsertNew
 import Expenses.Server.Routes.ModifyTransaction qualified as ModifyTransaction
 import Expenses.Server.Routes.RenewRequisition qualified as RenewRequisition
-import Expenses.Server.Routes.RunBudgetCheck qualified as RunBudgetCheck
+import Expenses.Server.Routes.RunBalanceCheck qualified as RunBalanceCheck
 import Expenses.Server.Routes.RunSync qualified as RunSync
 import Expenses.Server.Routes.Search qualified as Search
 import Expenses.Server.Routes.SplitTransactionItems qualified as SplitTransactionItems
@@ -117,7 +117,7 @@ data AdminAPI mode = AdminAPI
           :> ReqBody '[JSON] [GetTransactions.NewShortTransactionItem]
           :> PostNoContent
   , runSync :: mode :- "sync" :> PostNoContent
-  , runBudgetCheck :: mode :- "budget-check" :> PostNoContent
+  , runBalanceCheck :: mode :- "balance-check" :> PostNoContent
   , renewRequisition ::
       mode
         :- "institutions"
@@ -283,7 +283,7 @@ mkServer resourcesDir =
           , insertTransaction = InsertNew.insertTransactionHandler admin
           , splitTransactionItems = SplitTransactionItems.splitTransactionItemsHandler admin
           , runSync = RunSync.runSyncHandler
-          , runBudgetCheck = RunBudgetCheck.runBudgetCheckHandler
+          , runBalanceCheck = RunBalanceCheck.runBalanceCheckHandler
           , renewRequisition = RenewRequisition.renewRequisitionHandler admin
           }
     , health = pure "OK"

@@ -168,8 +168,17 @@ newtype NewTokenResponse = NewTokenResponse
   }
 
 newtype BalancesResponse = BalancesResponse
-  { balances :: J.Array
+  { balances :: [Balance]
   }
+  deriving stock (Show, Eq)
+
+-- https://developer.gocardless.com/bank-account-data/balance
+data Balance = Balance
+  { balanceAmount :: Amount
+  , -- E.g. "closingBooked", "interimAvailable", "expected".
+    balanceType :: Text
+  }
+  deriving stock (Show, Eq)
 
 newtype DetailsResponse = DetailsResponse
   { account :: J.Object
@@ -187,6 +196,8 @@ data InstitutionAccountInfo = InstitutionAccountInfo
   , -- Credit accounts show transactions as positive numbers, and debit accounts as negative numbers.($)
     -- For credit accounts, we should set `flip sign = true`.
     flipSign :: Bool
+  , -- When true, the balance of this account is included in the "Balance update" push notification.
+    notifyBalance :: Bool
   }
   deriving stock (Eq, Show)
 
@@ -220,6 +231,7 @@ $( mconcat
      , deriveJSON defaultOptions ''Amount
      , deriveJSON defaultOptions ''NewTokenResponse
      , deriveJSON defaultOptions ''BalancesResponse
+     , deriveJSON defaultOptions ''Balance
      , deriveJSON defaultOptions ''DetailsResponse
      , deriveJSON defaultOptions ''InstitutionInfo
      , deriveJSON defaultOptions ''InstitutionAccountInfo

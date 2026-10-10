@@ -11,24 +11,29 @@ institutions:
       - accountName: 'Millennium'
         accountId: '8ec90740-af12-4abc-b12c-3a4cf08af69d'
         flipSign: false
+        notifyBalance: false
   - institutionId: 'CAIXA_CENTRAL_DE_CREDITO_AGRICOLA_CCCMPTPL'
     accounts:
       - accountName: 'Moey'
         accountId: '909fc097-248d-48e5-8665-3e00430935ce'
         flipSign: false
+        notifyBalance: true
   - institutionId: 'BANCOACTIVOBANK_ACTVPTPL'
     accounts:
       - accountName: 'Activo'
         accountId: '8b683d99-56cf-4cf5-bb05-7fd182877f9a'
         flipSign: false
+        notifyBalance: false
   - institutionId: 'CETELEM_CETMPTP1XXX'
     accounts:
       - accountName: 'Black'
         accountId: '9e01653c-1c47-450f-89b5-6f90766424df'
         flipSign: true
+        notifyBalance: false
       - accountName: 'CaetanoGo'
         accountId: '6556104c-e208-42d4-a744-845d0e5e656d'
         flipSign: true
+        notifyBalance: false
 
 allTagGroups:
   Groceries:
@@ -316,11 +321,12 @@ tagPatterns:
       - ['23021632430'] # seg social
       - ['PAG.IGCP']
 
+pushNotifications:
+  # Every 5 days, at 9:30am
+  cronSchedule: '30 9 */5 * *'
+  openUrl: http://expenses.diogocastro.com/#/budget
+
 budget:
-  pushNotifications:
-    # Every 5 days, at 9:30am
-    cronSchedule: '30 9 */5 * *'
-    openUrl: http://expenses.diogocastro.com/#/budget
   # The budget calculations will include any txs that have one of the tags listed below
   # OR are from one of the accounts listed below.
   #
