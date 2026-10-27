@@ -131,7 +131,8 @@ rpi-build:
 
 # Deploy the built package to the Raspberry Pi,
 # updates the nix profile,
-# and restarts the systemd service.
+# restarts the systemd service,
+# and deletes old nix generations and unused store paths.
 
 rpi-deploy:
     #!/usr/bin/env bash
@@ -159,6 +160,7 @@ rpi-deploy:
       sudo find $BUNDLE_PATH/bin/ -type f -exec touch {} + ;\
       sudo systemctl restart expenses-manager ;\
       sudo systemctl restart expenses-manager-demo ;\
+      nix-collect-garbage -d ;\
       "
 
 rpi-setup-service env_file:
