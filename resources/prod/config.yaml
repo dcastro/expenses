@@ -169,6 +169,7 @@ tagPatterns:
       - ['TRF P  Carlos Gomes']
       - ['Netflix.com']
       - ['NETFLIX INTERNATIONAL']
+      - ['DISNEY PLUS']
   - tag: three
     contains:
       - ['WWW.THREE.CO.UK']
