@@ -8,6 +8,7 @@
   - [Configure Raspberry Pi connect](#configure-raspberry-pi-connect)
   - [Add / Renew bank logins](#add--renew-bank-logins)
   - [Running migrations](#running-migrations)
+  - [Run locally with prod data](#run-locally-with-prod-data)
   - [Adding new tags](#adding-new-tags)
   - [Troubleshooting](#troubleshooting)
 
@@ -171,6 +172,14 @@ just commit-migration
 # If a migration goes wrong for some reason and we need to rollback:
 just restore-latest-backup
 just restore-backup 2026-06-02_13-25-58
+```
+
+
+## Run locally with prod data
+
+```sh
+just restore-dev-app-dir
+just run
 ```
 
 ## Adding new tags
