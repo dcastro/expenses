@@ -34,18 +34,19 @@ data TransactionJoinedRow = TransactionJoinedRow
   , itemAmountCents :: BECents
   , tag :: Maybe TagName
   , details :: Text
+  , detailsSuggestion :: Maybe Text
   }
   deriving stock (Show, Generic)
   deriving anyclass (NFData)
 
 instance FromRow TransactionJoinedRow where
   fromRow =
-    TransactionJoinedRow <$> field <*> field <*> field <*> field <*> field <*> field <*> field <*> field <*> field <*> field
+    TransactionJoinedRow <$> field <*> field <*> field <*> field <*> field <*> field <*> field <*> field <*> field <*> field <*> field
 
 selectJoinedRows :: Text
 selectJoinedRows =
   [i|
-    SELECT id, account, date, desc, total_amount_cents, is_expense, item_index, item_amount_cents, tag, details
+    SELECT id, account, date, desc, total_amount_cents, is_expense, item_index, item_amount_cents, tag, details, details_suggestion
     FROM transactions t JOIN transaction_items ti ON t.id = ti.transaction_id
   |]
 
@@ -75,16 +76,17 @@ data TransactionItemRow = TransactionItemRow
   , tag :: Maybe TagName
   , details :: Text
   , isExpense :: Bool
+  , detailsSuggestion :: Maybe Text
   }
   deriving stock (Show)
 
 instance FromRow TransactionItemRow where
   fromRow =
-    TransactionItemRow <$> field <*> field <*> field <*> field <*> field <*> field
+    TransactionItemRow <$> field <*> field <*> field <*> field <*> field <*> field <*> field
 
 instance ToRow TransactionItemRow where
-  toRow TransactionItemRow{transactionId, itemIndex, itemAmountCents, tag, details, isExpense} =
-    toRow (transactionId, itemIndex, itemAmountCents, tag, details, isExpense)
+  toRow TransactionItemRow{transactionId, itemIndex, itemAmountCents, tag, details, isExpense, detailsSuggestion} =
+    toRow (transactionId, itemIndex, itemAmountCents, tag, details, isExpense, detailsSuggestion)
 
 data SyncAccountStatusRow = SyncAccountStatusRow
   { accountId :: Text
@@ -137,9 +139,9 @@ updateExistingRecord conn txRecord =
       conn
       [sql|
         INSERT INTO transaction_items
-          (transaction_id, item_index, item_amount_cents, tag, details, is_expense)
+          (transaction_id, item_index, item_amount_cents, tag, details, is_expense, details_suggestion)
         VALUES
-          (?, ?, ?, ?, ?, ?)
+          (?, ?, ?, ?, ?, ?, ?)
       |]
       txItemRows
 
@@ -158,7 +160,7 @@ getTransactionById conn transactionId =
       lift $
         SQL.query
           conn
-          "SELECT transaction_id, item_index, item_amount_cents, tag, details, is_expense FROM transaction_items WHERE transaction_id = ?"
+          "SELECT transaction_id, item_index, item_amount_cents, tag, details, is_expense, details_suggestion FROM transaction_items WHERE transaction_id = ?"
           (Only transactionId)
 
     pure $ rowsToRecord txRow itemRows
@@ -216,6 +218,7 @@ recordToRows tx =
             , tag = item.tag
             , details = item.details
             , isExpense = item.isExpense
+            , detailsSuggestion = item.detailsSuggestion
             }
       )
       [0 ..]
@@ -238,6 +241,7 @@ rowsToRecord txRow itemRows =
                 , tag = tir.tag
                 , details = tir.details
                 , isExpense = tir.isExpense
+                , detailsSuggestion = tir.detailsSuggestion
                 }
           )
           (sortOn (.itemIndex) itemRows)
@@ -609,7 +613,7 @@ updateDetails conn txId idx newDetails = do
     (newDetails, txId, idx)
 
 insertTransactionJoinedRow :: (SQLite :> es) => Connection -> TransactionJoinedRow -> Eff es ()
-insertTransactionJoinedRow conn TransactionJoinedRow{transactionId, account, date, desc, totalAmountCents, isExpense, itemIndex, itemAmountCents, tag, details} = do
+insertTransactionJoinedRow conn TransactionJoinedRow{transactionId, account, date, desc, totalAmountCents, isExpense, itemIndex, itemAmountCents, tag, details, detailsSuggestion} = do
   SQL.withTransaction conn do
     SQL.execute
       conn
@@ -621,10 +625,10 @@ insertTransactionJoinedRow conn TransactionJoinedRow{transactionId, account, dat
     SQL.execute
       conn
       [sql|
-          INSERT INTO transaction_items (transaction_id, item_index, item_amount_cents, tag, details, is_expense)
-          VALUES (?, ?, ?, ?, ?, ?)
+          INSERT INTO transaction_items (transaction_id, item_index, item_amount_cents, tag, details, is_expense, details_suggestion)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
         |]
-      (transactionId, itemIndex, itemAmountCents, tag, details, isExpense)
+      (transactionId, itemIndex, itemAmountCents, tag, details, isExpense, detailsSuggestion)
 
 ----------------------------------------------------------------------------
 -- Utils

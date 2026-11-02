@@ -39,6 +39,7 @@ specMkGroupStats = it "calculates group and tag stats" do
         , itemAmountCents = amt
         , tag = tag
         , details = "details"
+        , detailsSuggestion = Nothing
         , itemIndex = 0
         }
 

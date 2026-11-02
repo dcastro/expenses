@@ -207,26 +207,29 @@ mkEventLogAction
     , itemAmountCents
     , tag
     , details
+    , detailsSuggestion
     } = do
     -- Ignore `itemAmountCents`, it's always equal to `totalAmountCents`.
     liftConsume itemAmountCents do
-      EventLog.Action
-        { username = admin
-        , ts = now
-        , transactionId = transactionId
-        , transactionDesc = desc
-        , itemIndex = itemIndex
-        , actionType =
-            EventLog.NewTx
-              EventLog.MkNewTx
-                { account = account
-                , date = date
-                , totalAmountCents = totalAmountCents
-                , isExpense = isExpense
-                , tag = tag
-                , details = details
-                }
-        }
+      -- Ignore `detailsSuggestion`, new txs don't have a suggestion yet.
+      liftConsume detailsSuggestion do
+        EventLog.Action
+          { username = admin
+          , ts = now
+          , transactionId = transactionId
+          , transactionDesc = desc
+          , itemIndex = itemIndex
+          , actionType =
+              EventLog.NewTx
+                EventLog.MkNewTx
+                  { account = account
+                  , date = date
+                  , totalAmountCents = totalAmountCents
+                  , isExpense = isExpense
+                  , tag = tag
+                  , details = details
+                  }
+          }
 
 apiToRow :: AppConfig -> InstitutionAccountInfo -> ApiTransaction -> Db.TransactionJoinedRow
 apiToRow config acc tx = do
@@ -244,6 +247,7 @@ apiToRow config acc tx = do
     , itemAmountCents = txAmount
     , tag
     , details = ""
+    , detailsSuggestion = Nothing
     }
  where
   pickTag :: Text -> Maybe TagName

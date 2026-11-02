@@ -216,6 +216,7 @@ data TransactionItemRecord = TransactionItemRecord
   , tag :: Maybe TagName
   , details :: Text
   , isExpense :: Bool
+  , detailsSuggestion :: Maybe Text
   }
   deriving stock (Show, Eq)
 

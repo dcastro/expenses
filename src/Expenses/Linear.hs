@@ -7,7 +7,7 @@ import CustomPrelude as Prelude
 import Data.Aeson qualified as J
 import Data.Monoid.Linear as Linear
 import Data.Time (Day, UTCTime (..))
-import Data.Unrestricted.Linear (Consumable, Movable)
+import Data.Unrestricted.Linear (Consumable (..), Movable)
 import Prelude.Linear qualified as Linear
 import Unsafe.Linear qualified as Unsafe
 import Unsafe.Linear qualified as UnsafeLinear
@@ -36,6 +36,14 @@ instance (LinearToJSON a) => LinearToJSON (Maybe a)
 
 (.=) :: (LinearToJSON v) => J.Key -> v %1 -> J.Series
 (.=) key = Unsafe.toLinear ((J..=) key)
+
+----------------------------------------------------------------------------
+-- Linear utils
+----------------------------------------------------------------------------
+
+-- `Text` is an immutable value, so it's safe to drop it.
+instance Consumable Text where
+  consume = Unsafe.toLinear \_ -> ()
 
 liftMove :: (Movable a) => a %1 -> (a -> r) %1 -> r
 liftMove x f =

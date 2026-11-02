@@ -7,6 +7,7 @@ import Effectful.Log
 import Effectful.Time qualified as Time
 import Expenses.Effects
 import Expenses.Effects.EventLog qualified as EventLog
+import Expenses.Linear (liftConsume)
 import Expenses.Server.EventLog qualified as EventLog
 import Expenses.Server.Routes.GetTransactions (NewShortTransactionItem (..))
 import Expenses.Server.Utils (throwJsonError)
@@ -26,8 +27,10 @@ splitTransactionItemsHandler admin transactionId splitItems = do
         (throwJsonError err404 [i|Transaction not found: #{transactionId}|])
         pure
 
-  -- Update record
-  let updatedRecord = originalRecord{items = splitItems <&> \i -> mkTransactionItem i}
+  -- Update record.
+  -- The suggestion is for the whole transaction, so every new item gets a copy of it.
+  let suggestion = originalRecord.items & mapMaybe (.detailsSuggestion) & safeHead
+  let updatedRecord = originalRecord{items = splitItems <&> \i -> mkTransactionItem suggestion i}
 
   -- Sanity check: the sum of all items' amounts should match the total amount
   let
@@ -69,13 +72,14 @@ splitTransactionItemsHandler admin transactionId splitItems = do
             }
       pure NoContent
 
-mkTransactionItem :: NewShortTransactionItem %1 -> TransactionItemRecord
-mkTransactionItem NewShortTransactionItem{itemAmountCents, details, tag, isExpense} =
+mkTransactionItem :: Maybe Text -> NewShortTransactionItem %1 -> TransactionItemRecord
+mkTransactionItem detailsSuggestion NewShortTransactionItem{itemAmountCents, details, tag, isExpense} =
   TransactionItemRecord
     { itemAmountCents = toBE itemAmountCents
     , tag = Just tag
     , details
     , isExpense
+    , detailsSuggestion
     }
 
 mkAddedActionType :: NewShortTransactionItem %1 -> EventLog.ActionType
@@ -89,11 +93,13 @@ mkAddedActionType NewShortTransactionItem{itemAmountCents, details, tag, isExpen
       }
 
 mkRemovedActionType :: TransactionItemRecord %1 -> EventLog.ActionType
-mkRemovedActionType TransactionItemRecord{itemAmountCents, tag, details, isExpense} =
-  EventLog.RemoveItem
-    EventLog.MkRemovedItem
-      { itemAmountCents
-      , tag
-      , details
-      , isExpense
-      }
+mkRemovedActionType TransactionItemRecord{itemAmountCents, tag, details, isExpense, detailsSuggestion} =
+  -- The event log doesn't record suggestions of removed items.
+  liftConsume detailsSuggestion do
+    EventLog.RemoveItem
+      EventLog.MkRemovedItem
+        { itemAmountCents
+        , tag
+        , details
+        , isExpense
+        }

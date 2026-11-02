@@ -17,6 +17,7 @@ CREATE TABLE
     details TEXT,
     created_on DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
     is_expense BOOLEAN NOT NULL,
+    details_suggestion TEXT,
     UNIQUE (transaction_id, item_index)
   );
 
@@ -45,6 +46,7 @@ SELECT
   CAST(ti.item_amount_cents as REAL) / 100 as item_amount,
   ti.tag,
   ti.details,
+  ti.details_suggestion,
   ti.is_expense,
   ti.item_index,
   t.created_on AS transaction_created_on,

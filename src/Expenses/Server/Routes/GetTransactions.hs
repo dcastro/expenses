@@ -54,6 +54,7 @@ data TransactionItem = TransactionItem
   , itemAmountCents :: FECents
   , tag :: Maybe TagName
   , details :: Text
+  , detailsSuggestion :: Maybe Text
   }
   deriving stock (Show, Eq)
 
@@ -127,6 +128,7 @@ convertRowToItem
     , itemAmountCents
     , tag
     , details
+    , detailsSuggestion
     } =
     TransactionItem
       { transactionId = transactionId
@@ -139,10 +141,11 @@ convertRowToItem
       , itemAmountCents = toFE itemAmountCents
       , tag = tag
       , details = details
+      , detailsSuggestion = detailsSuggestion
       }
 
 convertItemToRow :: TransactionItem %1 -> Db.TransactionJoinedRow
-convertItemToRow TransactionItem{transactionId, itemIndex, account, date, desc, totalAmountCents, isExpense, itemAmountCents, tag, details} =
+convertItemToRow TransactionItem{transactionId, itemIndex, account, date, desc, totalAmountCents, isExpense, itemAmountCents, tag, details, detailsSuggestion} =
   Db.TransactionJoinedRow
     { transactionId = transactionId
     , account = account
@@ -154,6 +157,7 @@ convertItemToRow TransactionItem{transactionId, itemIndex, account, date, desc, 
     , itemAmountCents = toBE itemAmountCents
     , tag = tag
     , details = details
+    , detailsSuggestion = detailsSuggestion
     }
 
 mkTagStats :: FECents -> [(TagName, [TransactionItem])] -> ([TagStats], FECents)
