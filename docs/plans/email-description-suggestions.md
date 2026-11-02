@@ -16,7 +16,6 @@
 - [11. Tests](#11-tests)
 - [12. Setup documentation](#12-setup-documentation)
 - [13. Order of work](#13-order-of-work)
-- [Open questions](#open-questions)
 - [Spike results](#spike-results)
 - [Other approaches](#other-approaches)
 - [Future improvements](#future-improvements)
@@ -46,6 +45,7 @@ suggestion as it is, or approve it and then edit it.
 | Data model | A new nullable column `transaction_items.details_suggestion`. No status column. |
 | Provenance | A new `AddSuggestion` entry in the event log. It records the email subject, sender and date. |
 | Language | Item names stay in the language of the email. Claude does not translate them. |
+| Model | `sonnet` (`suggestions.claudeModel` in the config). |
 | Tag suggestions | Not now. See [Future improvements](#future-improvements). |
 | Review page | Expense and non-expense transactions from the last 6 months (hardcoded). |
 | Multi-line details | All the pages that show details can show more than one line. |
@@ -547,26 +547,15 @@ Add a section to `docs/setup.md`.
 
 Make sure that the code compiles without warnings and that the tests pass after each step.
 
-1. **Spike on the RPi.** Run one `claude -p` manually with the flags from
-   [5. Claude effect](#5-claude-effect), the Amazon email and a fake transaction. Record:
-   - The name of the structured output field in the JSON output.
-   - The memory use (`/usr/bin/time -v`) and the duration. The RPi Zero 2 has 512 MB of RAM. If
-     the memory is not sufficient, add swap or choose an approach from
-     [Other approaches](#other-approaches).
-   - The quality of the item names. Change the prompt if necessary.
-2. DB migrations, Haskell types, the `detailsSuggestion` API field, and the copy on split.
+1. ✅ **Done.** Spike on the RPi. See [Spike results](#spike-results).
+2. ✅ **Done** (the migration is not run yet). DB migration, Haskell types, the
+   `detailsSuggestion` API field, and the copy on split.
 3. Frontend: details cell and Review page. To test, set a suggestion in the dev DB manually.
 4. `Claude` effect, prompt, validation, and their tests.
 5. Gmail client, `Gmail` effect, and their tests.
 6. "Connect Gmail" routes and the Accounts page section.
 7. Sync job integration and the `AddSuggestion` event.
 8. Setup documentation. Deploy.
-
-## Open questions
-
-1. Model: `sonnet` or `haiku`? In the spike, both gave correct results. The test was small, so it
-   cannot show a difference in quality. Recommendation: start with `sonnet`. It is a config value,
-   so it is easy to change.
 
 ## Spike results
 
