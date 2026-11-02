@@ -12,7 +12,7 @@ and add it to the `_transactions_with_items` view.
 
 `NULL` means the item has no suggestion.
 
-Ran on: not yet.
+Ran on: 2026-11-02.
 just run-migration 11 true
 -}
 migrate :: Connection -> IO ()
