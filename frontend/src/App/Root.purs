@@ -7,6 +7,7 @@ import App.Budget as Budget
 import App.MonthRange as MonthRange
 import App.NewTransactionModal as NewTransactionModal
 import App.Routes (AppRoute(..))
+import App.Review as Review
 import App.Routes as Routes
 import App.SearchTransactionsTable as Search
 import App.SingleMonth as SingleMonth
@@ -47,6 +48,7 @@ type Slots =
   , search :: Search.Slot Unit
   , accounts :: Accounts.Slot Unit
   , budget :: Budget.Slot Unit
+  , review :: Review.Slot Unit
   , newTransactionModal :: NewTransactionModal.Slot Unit
   )
 
@@ -55,6 +57,7 @@ _monthRange = Proxy :: Proxy "monthRange"
 _search = Proxy :: Proxy "search"
 _accounts = Proxy :: Proxy "accounts"
 _budget = Proxy :: Proxy "budget"
+_review = Proxy :: Proxy "review"
 _newTransactionModal = Proxy :: Proxy "newTransactionModal"
 
 type Input =
@@ -149,6 +152,7 @@ render state =
     searchRoute = Routes.mkSearchAppRoute state.cachedSearchRoute false -- Navigate to the Search route, preserving the last tag params.
     accountsRoute = Routes.Accounts Routes.defaultModalFlag
     budgetRoute = Routes.Budget Routes.defaultModalFlag
+    reviewRoute = Routes.Review Routes.defaultModalFlag
     newTransactionRoute = Routes.setModalOpen true state.currentRoute
     routeToHref route = "#" <> RouteDuplex.print Routes.routeCodec route
   in
@@ -197,6 +201,12 @@ render state =
                         , HE.onClick (HandleNavClick budgetRoute)
                         ]
                         [ HH.text "Budget" ]
+                    , HH.a
+                        [ classes' $ "navbar-item is-tab" # HtmlUtils.addClassIf (Routes.isReviewRoute state.currentRoute) "is-active"
+                        , HP.href (routeToHref reviewRoute)
+                        , HE.onClick (HandleNavClick reviewRoute)
+                        ]
+                        [ HH.text "Review" ]
                     , HH.a
                         [ classes' $ "navbar-item is-tab" # HtmlUtils.addClassIf (Routes.isAccountsRoute state.currentRoute) "is-active"
                         , HP.href (routeToHref accountsRoute)
@@ -282,6 +292,14 @@ render state =
             , allTags: state.allTags
             , minMonth: state.minMonth
             }
+      , HtmlUtils.displayIf (Routes.isReviewRoute state.currentRoute) $
+          HH.slot_
+            _review
+            unit
+            Review.component
+            { isAdmin: state.isAdmin
+            , allTags: state.allTags
+            }
       , HtmlUtils.displayIf (Routes.isModalOpen state.currentRoute) $
           HH.slot
             _newTransactionModal
@@ -360,7 +378,8 @@ handleAction = case _ of
               state <- H.get
               handleAction $ NavigateTo $ Routes.mkSearchAppRoute state.cachedSearchRoute false
             Search _ -> handleAction $ NavigateTo Routes.defaultBudgetRoute
-            Budget _ -> handleAction $ NavigateTo (Routes.Accounts Routes.defaultModalFlag)
+            Budget _ -> handleAction $ NavigateTo (Routes.Review Routes.defaultModalFlag)
+            Review _ -> handleAction $ NavigateTo (Routes.Accounts Routes.defaultModalFlag)
             Accounts _ -> handleAction $ NavigateTo Routes.defaultSingleMonthRoute
         _ -> pure unit
     pure unit

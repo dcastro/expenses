@@ -184,6 +184,28 @@ getTransactionsByDate conn startDate endDate = do
     )
     (startDate, endDate)
 
+{- | Returns the transaction items, on or after the given date, that the user still has to review.
+I.e., items that either:
+  * don't have a tag, or
+  * don't have details, but have a suggestion.
+-}
+getReviewTransactions :: (SQLite :> es) => Connection -> Day -> Eff es [TransactionJoinedRow]
+getReviewTransactions conn startDate = do
+  SQL.query
+    conn
+    ( Query
+        [i|
+          #{selectJoinedRows}
+          WHERE date >= ?
+            AND (
+              tag IS NULL
+              OR (COALESCE(details, '') = '' AND details_suggestion IS NOT NULL)
+            )
+          ORDER BY date DESC, id, item_index
+        |]
+    )
+    (Only startDate)
+
 getTransactionsMonthRange :: (SQLite :> es) => Connection -> Eff es (Maybe (Month, Month))
 getTransactionsMonthRange conn = do
   rows :: [(Maybe Day, Maybe Day)] <-

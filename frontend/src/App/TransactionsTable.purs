@@ -2,6 +2,7 @@ module App.TransactionsTable where
 
 import Prelude
 
+import App.DetailsCell as DetailsCell
 import App.SelectTag as SelectTag
 import App.SplitTransactionModal as SplitTransactionModal
 import Core.API as API
@@ -13,7 +14,6 @@ import Core.Sorting as Sorting
 import Data.Array as Arr
 import Data.Maybe (Maybe(..))
 import Data.Ord.Down (Down(..))
-import Data.String as Str
 import Data.Tuple.Nested ((/\))
 import Effect.Aff.Class (class MonadAff)
 import Effect.Class.Console as Console
@@ -29,23 +29,22 @@ import Type.Prelude (Proxy(..))
 import Utils (whenJust)
 import Utils as Utils
 import Web.Clipboard as Clip
-import Web.DOM.Node as DOMNode
 import Web.Event.Event as E
 import Web.HTML as HTML
 import Web.HTML.HTMLDocument as HTMLDocument
-import Web.HTML.HTMLElement as HTMLElement
 import Web.HTML.Window as Window
-import Web.UIEvent.FocusEvent as FocusEvent
 import Web.UIEvent.MouseEvent as ME
 import Web.UIEvent.MouseEvent.EventTypes as MET
 
 type Slots =
   ( selectTag :: SelectTag.Slot Unit
   , splitTransactionModal :: SplitTransactionModal.Slot Unit
+  , detailsCell :: DetailsCell.Slot API.TransactionItemId
   )
 
 _selectTag = Proxy :: Proxy "selectTag"
 _splitTransactionModal = Proxy :: Proxy "splitTransactionModal"
+_detailsCell = Proxy :: Proxy "detailsCell"
 
 type Slot id = forall query. H.Slot query Output id
 
@@ -91,7 +90,7 @@ data Action
   | CloseMenu
   | CopyIdToClipboard TransactionId
   | MarkAsNonExpense TransactionItem
-  | SetTransactionDetails TransactionItem FocusEvent.FocusEvent
+  | HandleDetailsCell DetailsCell.Output
   -- Tag Modal
   | OpenSelectTagModal TransactionItem
   | HandleSelectTagOutput TransactionItem SelectTag.Output
@@ -249,7 +248,7 @@ displaySortIcon thisColumn sorted =
 
   fontSize = "font-size: 24px;"
 
-renderTransaction :: forall w. State -> TransactionItem -> HH.HTML w Action
+renderTransaction :: forall m. MonadAff m => State -> TransactionItem -> H.ComponentHTML Action Slots m
 renderTransaction state tx =
   HH.tr []
     [ HH.td
@@ -286,16 +285,12 @@ renderTransaction state tx =
               [ HH.em [ HP.style "color: #888;" ] [ HH.text "No tag" ] ]
     , HH.td
         []
-        [ if state.isAdmin then
-            HH.div
-              [ classes' "is-clickable"
-              , HH.attr (HH.AttrName "contenteditable") "plaintext-only"
-              , HP.prop (HH.PropName "textContent") tx.details
-              , HE.onBlur \ev -> SetTransactionDetails tx ev
-              ]
-              []
-          else
-            HH.text tx.details
+        [ HH.slot
+            _detailsCell
+            { txId: tx.transactionId, itemIndex: tx.itemIndex }
+            DetailsCell.component
+            { tx, isAdmin: state.isAdmin }
+            HandleDetailsCell
         ]
     , HH.td
         []
@@ -438,27 +433,8 @@ handleAction =
       H.raise $ TransactionsUpdated
       Console.log $ "[Transactions] Marked transaction as non-expense: " <> tx.transactionId
 
-    SetTransactionDetails tx focusEv -> do
-      newDetails <-
-        H.liftEffect $
-          focusEv
-            # FocusEvent.toEvent
-            # E.target
-            # Utils.unsafeFromJust "Failed to get focus event's target"
-            # HTMLElement.fromEventTarget
-            # Utils.unsafeFromJust "Failed to get HTMLElement from event target"
-            # HTMLElement.toNode
-            # DOMNode.textContent
-            <#> Str.trim
-      _ <- H.liftAff $ API.updateTransaction
-        { transactionId: tx.transactionId
-        , itemIndex: tx.itemIndex
-        , actionType: API.ModifyDetails
-            { details: newDetails
-            }
-        }
+    HandleDetailsCell (DetailsCell.DetailsUpdated _) ->
       H.raise $ TransactionsUpdated
-      Console.log $ "[Transactions] Updated details for transaction: " <> tx.transactionId
 
     OpenSelectTagModal txItemId -> do
       H.modify_ _ { isSelectingTagFor = Just txItemId }

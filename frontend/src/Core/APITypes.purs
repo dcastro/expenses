@@ -124,6 +124,9 @@ type TransactionItem =
   , itemAmountCents :: Int
   , tag :: Maybe TagName
   , details :: String
+  -- A description suggested by Claude, based on the user's e-mails.
+  -- Ignored when `details` is not empty.
+  , detailsSuggestion :: Maybe String
   }
 
 type TransactionId = String

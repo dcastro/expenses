@@ -4,6 +4,7 @@ import Prelude
 
 import App.Routes (AppRoute)
 import App.Routes as Routes
+import App.DetailsCell as DetailsCell
 import App.SelectTag as SelectTag
 import App.SplitTransactionModal as SplitTransactionModal
 import Choices as Choices
@@ -20,7 +21,6 @@ import Data.Foldable (sum)
 import Data.Function (on)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Ord.Down (Down(..))
-import Data.String as Str
 import Data.Tuple.Nested ((/\))
 import Effect.Aff.Class (class MonadAff)
 import Effect.Class (class MonadEffect)
@@ -44,13 +44,10 @@ import Type.Prelude (Proxy(..))
 import Utils (whenJust)
 import Utils as Utils
 import Web.Clipboard as Clip
-import Web.DOM.Node as DOMNode
 import Web.Event.Event as E
 import Web.HTML as HTML
 import Web.HTML.HTMLDocument as HTMLDocument
-import Web.HTML.HTMLElement as HTMLElement
 import Web.HTML.Window as Window
-import Web.UIEvent.FocusEvent as FocusEvent
 import Web.UIEvent.MouseEvent as ME
 import Web.UIEvent.MouseEvent.EventTypes as MET
 
@@ -106,10 +103,12 @@ If you change one, we must change them all.
 type Slots =
   ( selectTag :: SelectTag.Slot Unit
   , splitTransactionModal :: SplitTransactionModal.Slot Unit
+  , detailsCell :: DetailsCell.Slot API.TransactionItemId
   )
 
 _selectTag = Proxy :: Proxy "selectTag"
 _splitTransactionModal = Proxy :: Proxy "splitTransactionModal"
+_detailsCell = Proxy :: Proxy "detailsCell"
 
 type Slot id = forall q. H.Slot q Output id
 
@@ -173,7 +172,7 @@ data Action
   | SetTransactionIsExpense TransactionItem Boolean
   | OpenSelectTagModal TransactionItem
   | HandleSelectTagOutput TransactionItem SelectTag.Output
-  | SetTransactionDetails TransactionItem FocusEvent.FocusEvent
+  | HandleDetailsCell DetailsCell.Output
   | OpenSplitTransaction TransactionItem
   | HandleSplitModal SplitTransactionModal.Output
 
@@ -464,7 +463,7 @@ displaySortIcon thisColumn sorted =
 
   fontSize = "font-size: 24px;"
 
-renderTransaction :: forall w. State -> Boolean -> TransactionItem -> HH.HTML w Action
+renderTransaction :: forall m. MonadAff m => State -> Boolean -> TransactionItem -> H.ComponentHTML Action Slots m
 renderTransaction state lastInGroup tx =
   HH.tr [ classes' $ if lastInGroup then "last_in_group" else "" ]
     [ HH.td
@@ -501,16 +500,12 @@ renderTransaction state lastInGroup tx =
               [ HH.em [ HP.style "color: #888;" ] [ HH.text "No tag" ] ]
     , HH.td
         []
-        [ if state.isAdmin then
-            HH.div
-              [ classes' "is-clickable"
-              , HH.attr (HH.AttrName "contenteditable") "plaintext-only"
-              , HP.prop (HH.PropName "textContent") tx.details
-              , HE.onBlur \ev -> SetTransactionDetails tx ev
-              ]
-              []
-          else
-            HH.text tx.details
+        [ HH.slot
+            _detailsCell
+            { txId: tx.transactionId, itemIndex: tx.itemIndex }
+            DetailsCell.component
+            { tx, isAdmin: state.isAdmin }
+            HandleDetailsCell
         ]
     , HH.td
         []
@@ -774,26 +769,8 @@ handleAction =
           Console.log $ "[Search] Updated tag for txs:"
           Console.log $ " - " <> show updatedTx
 
-    SetTransactionDetails tx focusEv -> do
-      newDetails <-
-        H.liftEffect $
-          focusEv
-            # FocusEvent.toEvent
-            # E.target
-            # Utils.unsafeFromJust "Failed to get focus event's target"
-            # HTMLElement.fromEventTarget
-            # Utils.unsafeFromJust "Failed to get HTMLElement from event target"
-            # HTMLElement.toNode
-            # DOMNode.textContent
-            <#> Str.trim
+    HandleDetailsCell (DetailsCell.DetailsUpdated updatedTx) -> do
       state <- H.get
-      updatedTx <- H.liftAff $ API.updateTransaction
-        { transactionId: tx.transactionId
-        , itemIndex: tx.itemIndex
-        , actionType: API.ModifyDetails
-            { details: newDetails
-            }
-        }
       H.modify_ _ { transactions = replaceTransactions state.sorted state.transactions updatedTx }
 
       Console.log $ "[Search] Updated details for tx:"

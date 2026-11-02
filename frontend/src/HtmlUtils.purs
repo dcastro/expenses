@@ -71,6 +71,9 @@ displayWhenJust m f =
 
 foreign import _log :: forall a. a -> Effect Unit
 
+-- | Moves the text cursor to the end of the element's content (e.g. a `contenteditable` element).
+foreign import moveCursorToEnd :: HTMLElement.HTMLElement -> Effect Unit
+
 jsLog :: forall a. a -> Effect Unit
 jsLog cd = do
   _log cd

@@ -31,6 +31,7 @@ data AppRoute
   | Search SearchAppRoute
   | Accounts ModalFlag
   | Budget ModalFlag
+  | Review ModalFlag
 
 derive instance Eq AppRoute
 derive instance Generic AppRoute _
@@ -59,6 +60,7 @@ routeCodec = root $ sum
   , "Search": "search" / searchParamsCodec
   , "Accounts": "accounts" / modalParams
   , "Budget": "budget" / modalParams
+  , "Review": "review" / modalParams
   }
   where
   modalParams :: RouteDuplex' ModalFlag
@@ -107,6 +109,11 @@ isBudgetRoute = case _ of
   Budget _ -> true
   _ -> false
 
+isReviewRoute :: AppRoute -> Boolean
+isReviewRoute = case _ of
+  Review _ -> true
+  _ -> false
+
 isModalOpen :: AppRoute -> Boolean
 isModalOpen = case _ of
   SingleMonth flag -> flag.newTx
@@ -114,6 +121,7 @@ isModalOpen = case _ of
   Search record -> record.newTx
   Accounts flag -> flag.newTx
   Budget flag -> flag.newTx
+  Review flag -> flag.newTx
 
 setModalOpen :: Boolean -> AppRoute -> AppRoute
 setModalOpen isOpen = case _ of
@@ -122,6 +130,7 @@ setModalOpen isOpen = case _ of
   Search record -> Search (record { newTx = isOpen })
   Accounts flag -> Accounts (flag { newTx = isOpen })
   Budget flag -> Budget (flag { newTx = isOpen })
+  Review flag -> Review (flag { newTx = isOpen })
 
 getSearchRoute :: AppRoute -> Maybe SearchRoute
 getSearchRoute = case _ of

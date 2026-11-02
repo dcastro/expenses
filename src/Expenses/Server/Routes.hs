@@ -22,6 +22,7 @@ import Expenses.Server.Routes.AllTags qualified as AllTags
 import Expenses.Server.Routes.GetAvailableDateRange (DateRange)
 import Expenses.Server.Routes.GetAvailableDateRange qualified as GetAvailableDateRange
 import Expenses.Server.Routes.GetBudget qualified as GetBudget
+import Expenses.Server.Routes.GetReviewTransactions qualified as GetReviewTransactions
 import Expenses.Server.Routes.GetSyncStatus qualified as GetSyncStatus
 import Expenses.Server.Routes.GetTransactionItems qualified as GetTransactionItems
 import Expenses.Server.Routes.GetTransactions qualified as GetTransactions
@@ -77,6 +78,11 @@ data PrivateAPI mode = PrivateAPI
           :> RequiredParam "start" Month
           :> RequiredParam "end" Month
           :> Get '[JSON] GetTransactions.GetTransactions
+  , reviewTransactions ::
+      mode
+        :- "transactions"
+          :> "review"
+          :> Get '[JSON] [GetTransactions.TransactionItem]
   , getTransactionItems ::
       mode
         :- "transactions"
@@ -268,6 +274,7 @@ mkServer resourcesDir =
     { private = \username ->
         PrivateAPI
           { transactions = GetTransactions.getTransactionsHandler
+          , reviewTransactions = GetReviewTransactions.getReviewTransactionsHandler
           , getTransactionItems = GetTransactionItems.getTransactionItemsHandler
           , search = Search.searchHandler
           , isAdmin = isAdminHandler username

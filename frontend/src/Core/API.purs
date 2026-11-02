@@ -40,6 +40,14 @@ getTransactions from to = do
     <#> statusCodeIs 200
     <#> decodeJson
 
+-- | Transactions from the last 6 months without a tag, or with a pending suggestion.
+getReviewTransactions :: Aff (Array TransactionItem)
+getReviewTransactions = do
+  baseUrl <- liftEffect HtmlUtils.apiBaseUrl
+  get (baseUrl <> "transactions/review")
+    <#> statusCodeIs 200
+    <#> decodeJson
+
 search :: RawSearchParams -> Aff (Array TransactionItem)
 search params = do
   baseUrl <- liftEffect HtmlUtils.apiBaseUrl
