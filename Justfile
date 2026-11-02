@@ -105,6 +105,10 @@ run-migration idx run_backup:
     "$BIN" ./migrations/expenses.db {{ idx }}
     "$BIN" ./resources/test-app-dir/expenses.db {{ idx }}
 
+    # Run the tests.
+    # Migrations may affect the output of the golden tests, so reset them.
+    just test-accept
+
 [confirm]
 commit-migration:
     # We have to stop the service before overwriting the db, otherwise opens connections might continue reading from the old db file.
