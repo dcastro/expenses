@@ -550,7 +550,7 @@ Make sure that the code compiles without warnings and that the tests pass after 
 1. ✅ **Done.** Spike on the RPi. See [Spike results](#spike-results).
 2. ✅ **Done** (the migration is not run yet). DB migration, Haskell types, the
    `detailsSuggestion` API field, and the copy on split.
-3. Frontend: details cell and Review page. To test, set a suggestion in the dev DB manually.
+3. ✅ **Done.** Frontend: details cell and Review page, and the `GET /transactions/review` route.
 4. `Claude` effect, prompt, validation, and their tests.
 5. Gmail client, `Gmail` effect, and their tests.
 6. "Connect Gmail" routes and the Accounts page section.
