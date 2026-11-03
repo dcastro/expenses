@@ -294,7 +294,12 @@ claude -p \
 - Working directory: an empty directory, `<app-dir>/claude-workdir/`. Then Claude Code does not
   find a `CLAUDE.md`.
 - Use a timeout (for example 10 minutes). If the timeout occurs, kill the process and throw.
-- If the exit code is not 0, throw an error that contains stderr.
+  - The interpreter sends SIGTERM itself on a timeout. `typed-process`'s cleanup only sends it
+    after it cancels its waiting thread, and that thread is blocked in a foreign call
+    (`waitForProcess`), so the cleanup alone waits until `claude` exits by itself.
+- If the exit code is not 0, throw an error that contains stderr, and the reason from stdout.
+  With an invalid token, `claude` exits with 1, stderr is empty, and stdout has
+  `"is_error": true` with the reason in `result`.
 - Decode stdout. If `is_error` is `true`, throw. Return the `structured_output` field (the spike
   confirmed this name). The `result` field contains the same JSON as a string.
 - Log the duration and the usage from the output.
@@ -551,7 +556,9 @@ Make sure that the code compiles without warnings and that the tests pass after 
 2. ✅ **Done** (the migration is not run yet). DB migration, Haskell types, the
    `detailsSuggestion` API field, and the copy on split.
 3. ✅ **Done.** Frontend: details cell and Review page, and the `GET /transactions/review` route.
-4. `Claude` effect, prompt, validation, and their tests.
+4. ✅ **Done.** `Claude` effect, prompt, validation, and their tests. The interpreter takes
+   `ClaudeSettings` (executable, token, working dir, timeout) as an argument, so the config, `Env`
+   and effect-stack changes move to the steps that first use them (5 to 7).
 5. Gmail client, `Gmail` effect, and their tests.
 6. "Connect Gmail" routes and the Accounts page section.
 7. Sync job integration and the `AddSuggestion` event.
