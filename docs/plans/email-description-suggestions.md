@@ -559,7 +559,16 @@ Make sure that the code compiles without warnings and that the tests pass after 
 4. ✅ **Done.** `Claude` effect, prompt, validation, and their tests. The interpreter takes
    `ClaudeSettings` (executable, token, working dir, timeout) as an argument, so the config, `Env`
    and effect-stack changes move to the steps that first use them (5 to 7).
-5. Gmail client, `Gmail` effect, and their tests.
+5. ✅ **Done.** Gmail client (`src/Gmail.hs`), `Gmail` effect, `fetchEmails` and `toEmail`
+   (`src/Expenses/Gmail.hs`), and their tests. Differences from section 3:
+   - `runGmail` takes `GmailSettings` (client ID and secret) as an argument.
+   - `ExchangeAuthCode` also takes the redirect URI. `ListMessages` returns one page;
+     `fetchEmails` follows the pages, and takes the maximum number of e-mails as an argument.
+   - `RefreshToken` and `AccessToken` don't show their value. The interpreter removes the request
+     headers (with the access token) from Servant's errors.
+   - `toEmail` also decodes ISO-8859-1 / windows-1252 bodies, from the part's `Content-Type`.
+   - The Gmail fixtures are hand-written. A call to Google with fake credentials confirmed the
+     hosts, the paths, the Bearer header, and the form encoding (both returned 401).
 6. "Connect Gmail" routes and the Accounts page section.
 7. Sync job integration and the `AddSuggestion` event.
 8. Setup documentation. Deploy.
