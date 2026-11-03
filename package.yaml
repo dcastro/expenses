@@ -156,6 +156,8 @@ library:
     - monad-time-effectful
     - sqlite-simple-effectful
     - vector-algorithms
+    - typed-process
+    - process
 
 tests:
   test:
@@ -183,6 +185,10 @@ tests:
       - sqlite-simple
       - vector
       - lens
+      - bytestring
+      - directory
+      - filepath
+      - temporary
     ghc-options:
       - -Wno-x-partial
       - -threaded

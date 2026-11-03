@@ -23,10 +23,12 @@ library
       CustomPrelude
       Database
       Expenses.Effects
+      Expenses.Effects.Claude
       Expenses.Effects.EventLog
       Expenses.Effects.NextUUID
       Expenses.Effects.Nordigen
       Expenses.Effects.Ntfy
+      Expenses.Email
       Expenses.Linear
       Expenses.NonEmptyText
       Expenses.Server.CronJobs
@@ -52,6 +54,7 @@ library
       Expenses.Server.Routes.Search
       Expenses.Server.Routes.SplitTransactionItems
       Expenses.Server.Utils
+      Expenses.Suggestions
       Nordigen
       Types
       Util
@@ -146,6 +149,7 @@ library
     , monad-time-effectful
     , mtl
     , optparse-applicative
+    , process
     , regex-tdfa
     , servant
     , servant-auth
@@ -157,6 +161,7 @@ library
     , template-haskell
     , text
     , time
+    , typed-process
     , universum
     , unordered-containers
     , uuid
@@ -332,11 +337,13 @@ test-suite test
   main-is: Spec.hs
   other-modules:
       Expenses.DatabaseSpec
+      Expenses.Effects.ClaudeSpec
       Expenses.Server.CronJobs.BalanceCheckSpec
       Expenses.Server.GetBudgetSpec
       Expenses.Server.GetReviewTransactionsSpec
       Expenses.Server.GetTransactionsSpec
       Expenses.Server.SplitTransactionItemsSpec
+      Expenses.SuggestionsSpec
       Expenses.Test.Util
       UtilSpec
       Paths_expenses
@@ -407,10 +414,13 @@ test-suite test
       aeson
     , aeson-pretty
     , base
+    , bytestring
     , containers
+    , directory
     , effectful
     , effectful-core
     , expenses
+    , filepath
     , lens
     , log-base
     , log-effectful
@@ -420,6 +430,7 @@ test-suite test
     , sqlite-simple
     , sqlite-simple-effectful
     , sydtest
+    , temporary
     , text
     , time
     , universum

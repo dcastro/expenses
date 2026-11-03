@@ -7,6 +7,8 @@ import Config qualified
 import CustomPrelude
 import Data.Aeson (ToJSON (..))
 import Data.Aeson qualified as J
+import Data.Aeson.KeyMap qualified as KM
+import Data.ByteString.Lazy qualified as BSL
 import Data.Text qualified as T
 import Data.Text.IO qualified as TIO
 import Database (Contains (..), DoesNotContain (..), IsGTE (..), IsLT (..))
@@ -62,3 +64,11 @@ mkInMemoryDbConn = do
 mkTestConfig :: IO AppConfig
 mkTestConfig = do
   Config.loadAppConfig "./resources/test-app-dir/config.yaml"
+
+-- | Reads the `structured_output` field of a `claude -p --output-format json` fixture.
+readStructuredOutput :: FilePath -> IO J.Value
+readStructuredOutput path = do
+  bs <- BSL.readFile path
+  case J.eitherDecode bs of
+    Right (J.Object o) | Just v <- KM.lookup "structured_output" o -> pure v
+    _ -> error [i|No `structured_output` in #{path}|]
