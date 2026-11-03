@@ -1,0 +1,31 @@
+{
+  "id": "18f1a2b3c4d5e900",
+  "threadId": "18f1a2b3c4d5e900",
+  "payload": {
+    "partId": "",
+    "mimeType": "text/plain",
+    "filename": "",
+    "headers": [
+      {
+        "name": "From",
+        "value": "ZARA <noreply@zara.com>"
+      },
+      {
+        "name": "Subject",
+        "value": "Encomenda"
+      },
+      {
+        "name": "Date",
+        "value": "Sat, 1 Nov 2026 10:00:00 +0000"
+      },
+      {
+        "name": "Content-Type",
+        "value": "text/plain; charset=\"ISO-8859-1\""
+      }
+    ],
+    "body": {
+      "size": 40,
+      "data": "Q2Fs52FzIGRlIGdhbmdhIFNsaW0gRml0ClByZedvOiAyOSw5MCBFVVIK"
+    }
+  }
+}

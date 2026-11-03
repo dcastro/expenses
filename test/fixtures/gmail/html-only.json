@@ -1,0 +1,31 @@
+{
+  "id": "18f1a2b3c4d5e700",
+  "threadId": "18f1a2b3c4d5e700",
+  "payload": {
+    "partId": "",
+    "mimeType": "text/html",
+    "filename": "",
+    "headers": [
+      {
+        "name": "From",
+        "value": "Amazon.es <auto-confirm@amazon.es>"
+      },
+      {
+        "name": "Content-Type",
+        "value": "text/html; charset=utf-8"
+      },
+      {
+        "name": "subject",
+        "value": "A sua encomenda Amazon.es"
+      },
+      {
+        "name": "date",
+        "value": "Wed, 29 Oct 2026 09:40:51 +0000"
+      }
+    ],
+    "body": {
+      "size": 479,
+      "data": "PCFET0NUWVBFIGh0bWw-PGh0bWw-PGhlYWQ-PHRpdGxlPkVuY29tZW5kYTwvdGl0bGU-PHN0eWxlPi54IHsgY29sb3I6IHJlZDsgfTwvc3R5bGU-PC9oZWFkPgo8Ym9keT48ZGl2IHN0eWxlPSJkaXNwbGF5Om5vbmUiPlByw6ktdmlzdWFsaXphw6fDo28mIzgyMDM7Jnp3bmo7JiM4NDc7Jnp3bmo7JiM4NDc7PC9kaXY-CjxzY3JpcHQ-dmFyIHRyYWNraW5nID0gMTs8L3NjcmlwdD4KPHRhYmxlPjx0cj48dGQ-T2JyaWdhZG8gcGVsYSBzdWEgZW5jb21lbmRhLDwvdGQ-PHRkPkRpb2dvITwvdGQ-PC90cj48L3RhYmxlPgo8cD5DYWJvJm5ic3A7VVNCLUMgcGFyYSBVU0ItQyAybSwgQ2FycmVnYW1lbnRvIFLDoXBpZG8gMTAwVyBQRCAmYW1wOyBOeWxvbjxicj5RdWFudGlkYWRlOiAxPC9wPgo8cD4xMiw0OSZuYnNwO-KCrDwvcD4KCgo8ZGl2PiAgIFRvdGFsICAgZGEgICBlbmNvbWVuZGE6ICAgMTIsNDkg4oKsICAgPC9kaXY-PC9ib2R5PjwvaHRtbD4"
+    }
+  }
+}

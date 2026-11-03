@@ -1,0 +1,107 @@
+{
+  "id": "18f1a2b3c4d5e6f7",
+  "threadId": "18f1a2b3c4d5e6f7",
+  "labelIds": [
+    "INBOX",
+    "CATEGORY_UPDATES"
+  ],
+  "snippet": "Chega amanhã Diogo - Rio Tinto",
+  "internalDate": "1793210724000",
+  "payload": {
+    "partId": "",
+    "mimeType": "multipart/mixed",
+    "filename": "",
+    "headers": [
+      {
+        "name": "From",
+        "value": "Amazon.es <confirmar-envio@amazon.es>"
+      },
+      {
+        "name": "Subject",
+        "value": "Chega amanhã: \"JOYIN Kit de Slime para Festas...\" e mais 1 artigo"
+      },
+      {
+        "name": "Date",
+        "value": "Tue, 28 Oct 2026 18:12:04 +0000"
+      },
+      {
+        "name": "To",
+        "value": "someone@gmail.com"
+      }
+    ],
+    "body": {
+      "size": 0
+    },
+    "parts": [
+      {
+        "partId": "0",
+        "mimeType": "multipart/alternative",
+        "filename": "",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "multipart/alternative; boundary=\"b2\""
+          }
+        ],
+        "body": {
+          "size": 0
+        },
+        "parts": [
+          {
+            "partId": "0.0",
+            "mimeType": "text/plain",
+            "filename": "",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "text/plain; charset=\"UTF-8\""
+              },
+              {
+                "name": "Content-Transfer-Encoding",
+                "value": "quoted-printable"
+              }
+            ],
+            "body": {
+              "size": 338,
+              "data": "Q2hlZ2EgYW1hbmjDowpEaW9nbyAtIFJpbyBUaW50bwpOLsK6IGRlIHBlZGlkbyA0MDQtNDg5MzI4MC03NjkxNTI4CiAKQWNvbXBhbmhhciBhIGVuY29tZW5kYQogCkpPWUlOIEtpdCBkZSBTbGltZSBwYXJhIEZlc3RhcywgMzYgUGFjb3RlcyBkZSBTbGltZSBkZSBHYWzDoXhpYSBwYXJhIExlbWJyYW5jaW5oYXMgZGUgRmVzdGEgLSBlbMOhc3RpY28sIG7Do28gcGVnYWpvc28sIExpdnJlIGRlIFN1amVpcmEsIEFsw612aW8gZG8gRXN0cmVzc2UsIGUgU2VndXJvIHBhcmEgTWVuaW5hcyBlIE1lbmlub3MKIApWZW5kaWRvIHBvciBKb3lpbiBEaXJlY3QKIApRdWFudGlkYWRlOiAxCiAKMTk5OeKCrAo"
+            }
+          },
+          {
+            "partId": "0.1",
+            "mimeType": "text/html",
+            "filename": "",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "text/html; charset=\"UTF-8\""
+              }
+            ],
+            "body": {
+              "size": 30,
+              "data": "PHA-VGhlIEhUTUwgdmVyc2lvbiwgbm90IHVzZWQuPC9wPg"
+            }
+          }
+        ]
+      },
+      {
+        "partId": "1",
+        "mimeType": "text/plain",
+        "filename": "fatura.txt",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "text/plain; name=\"fatura.txt\""
+          },
+          {
+            "name": "Content-Disposition",
+            "value": "attachment; filename=\"fatura.txt\""
+          }
+        ],
+        "body": {
+          "attachmentId": "ANGjdJ_attachment",
+          "size": 1234
+        }
+      }
+    ]
+  }
+}

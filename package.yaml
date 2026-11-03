@@ -158,6 +158,10 @@ library:
     - vector-algorithms
     - typed-process
     - process
+    - tagsoup
+    - base64
+    - http-api-data
+    - servant-client-core
 
 tests:
   test:
@@ -189,6 +193,7 @@ tests:
       - directory
       - filepath
       - temporary
+      - http-api-data
     ghc-options:
       - -Wno-x-partial
       - -threaded

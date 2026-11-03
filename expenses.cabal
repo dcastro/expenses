@@ -25,10 +25,12 @@ library
       Expenses.Effects
       Expenses.Effects.Claude
       Expenses.Effects.EventLog
+      Expenses.Effects.Gmail
       Expenses.Effects.NextUUID
       Expenses.Effects.Nordigen
       Expenses.Effects.Ntfy
       Expenses.Email
+      Expenses.Gmail
       Expenses.Linear
       Expenses.NonEmptyText
       Expenses.Server.CronJobs
@@ -55,6 +57,7 @@ library
       Expenses.Server.Routes.SplitTransactionItems
       Expenses.Server.Utils
       Expenses.Suggestions
+      Gmail
       Nordigen
       Types
       Util
@@ -128,6 +131,7 @@ library
     , aeson-casing
     , aeson-pretty
     , base >=4.7 && <5
+    , base64
     , bytestring
     , containers
     , cron
@@ -138,6 +142,7 @@ library
     , filepath
     , fmt
     , group-with
+    , http-api-data
     , http-client
     , http-client-tls
     , http-types
@@ -155,9 +160,11 @@ library
     , servant-auth
     , servant-auth-client
     , servant-client
+    , servant-client-core
     , servant-server
     , sqlite-simple
     , sqlite-simple-effectful
+    , tagsoup
     , template-haskell
     , text
     , time
@@ -338,6 +345,7 @@ test-suite test
   other-modules:
       Expenses.DatabaseSpec
       Expenses.Effects.ClaudeSpec
+      Expenses.GmailSpec
       Expenses.Server.CronJobs.BalanceCheckSpec
       Expenses.Server.GetBudgetSpec
       Expenses.Server.GetReviewTransactionsSpec
@@ -421,6 +429,7 @@ test-suite test
     , effectful-core
     , expenses
     , filepath
+    , http-api-data
     , lens
     , log-base
     , log-effectful
