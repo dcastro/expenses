@@ -41,10 +41,6 @@ instance (LinearToJSON a) => LinearToJSON (Maybe a)
 -- Linear utils
 ----------------------------------------------------------------------------
 
--- `Text` is an immutable value, so it's safe to drop it.
-instance Consumable Text where
-  consume = Unsafe.toLinear \_ -> ()
-
 liftMove :: (Movable a) => a %1 -> (a -> r) %1 -> r
 liftMove x f =
   case Linear.move x of

@@ -12,13 +12,6 @@ packages:
   original:
     hackage: group-with-0.2.0.3
 - completed:
-    hackage: lens-5.3.3@sha256:b0dad972e401df9ddb8df98c7153f661c077607bfed83b210fd9508ba6f44f8d,14839
-    pantry-tree:
-      sha256: 8cfccd6f020672c602d0902904bb2ed4bd8f2e8ca35564b8d0ceb06a35223461
-      size: 8405
-  original:
-    hackage: lens-5.3.3
-- completed:
     hackage: log-effectful-1.0.1.0@sha256:79d1c821db1c1d95cf109f813f13a2588e45dbacb5f797eefc200ff7a5984923,2466
     pantry-tree:
       sha256: 5ab7c6b553ea50ce7b6218e86db9ff3632b0482dd00aaf749ebece93b968e0ca
@@ -53,16 +46,9 @@ packages:
       size: 23323
   original:
     hackage: cryptonite-0.30
-- completed:
-    hackage: file-io-0.1.5@sha256:1d68a81fa684d006b1ec73836cebe3de9a54688836915fe3e56a20389846bb4e,3309
-    pantry-tree:
-      sha256: 29b9dc0a18772cb73091b711a5dbda029fe89c1ffb06034b4f54258c4eabfe1b
-      size: 905
-  original:
-    hackage: file-io-0.1.5
 snapshots:
 - completed:
-    sha256: 303c0300d085dad9b9a5d8efc72ddde5425e33c5536c4b0c1632cc46d11cb52c
-    size: 687948
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2025/8/27.yaml
-  original: nightly-2025-08-27
+    sha256: 55ce6162f54be6a7dcf1c80a845df389f10b10620526bdafd4a67f71e7f2c86b
+    size: 781187
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2026/11/3.yaml
+  original: nightly-2026-11-03

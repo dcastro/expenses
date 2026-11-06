@@ -50,6 +50,22 @@
           ps-overlay.overlays.default
 
           haskellNix.overlay
+
+          # Workaround: remove `hgg` from all the Stackage snapshots.
+          # `hgg` has a cabal flag named `3d`, and hackage.nix writes it
+          # without quotes (`3d = false;`), which is not valid Nix.
+          # Evaluation of a snapshot that has `hgg` then fails with a syntax error.
+          # We do not use `hgg`, so it is safe to remove it.
+          (_final: prev: {
+            haskell-nix = prev.haskell-nix // {
+              stackage = builtins.mapAttrs
+                (_name: snapshot: hackage:
+                  let s = snapshot hackage;
+                  in s // { packages = builtins.removeAttrs s.packages [ "hgg" ]; })
+                prev.haskell-nix.stackage;
+            };
+          })
+
           (final: _prev: {
 
             # This overlay adds our project to pkgs
@@ -88,12 +104,15 @@
               # https://github.com/input-output-hk/haskell.nix/issues/2314#issuecomment-3191436890
               # compiler-nix-name = "ghc9102";
 
-              compiler-nix-name = "ghc9122";
+              # Must match the GHC version of the resolver in `stack.yaml`.
+              compiler-nix-name = "ghc9124";
 
               # Workaround for: https://github.com/input-output-hk/haskell.nix/issues/2423
               modules = [{
                 packages.directory.flags.os-string = true;
                 packages.unix.flags.os-string = true;
+                packages.file-io.flags.os-string = true;
+                packages.process.flags.os-string = true;
               }];
 
               # This is used by `nix develop .` to open a shell for use with

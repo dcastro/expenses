@@ -4,7 +4,7 @@
   "devDependencies": {
     "esbuild": "0.24.2",
     "parcel": "2.15.2",
-    "spago": "^0.93.41"
+    "spago": "1.0.5"
   },
   "scripts": {
     "build": "spago build",

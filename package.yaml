@@ -194,11 +194,10 @@ tests:
       - filepath
       - temporary
       - http-api-data
+    build-tools:
+      - sydtest-discover:sydtest-discover
     ghc-options:
       - -Wno-x-partial
       - -threaded
       - -rtsopts
       - -with-rtsopts=-N
-
-build-tools:
-  - sydtest-discover:sydtest-discover
