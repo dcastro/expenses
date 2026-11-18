@@ -170,6 +170,7 @@ tagPatterns:
       - ['Netflix.com']
       - ['NETFLIX INTERNATIONAL']
       - ['DISNEY PLUS']
+      - ['Disney Plus']
   - tag: three
     contains:
       - ['WWW.THREE.CO.UK']
