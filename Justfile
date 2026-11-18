@@ -169,16 +169,21 @@ rpi-setup-service env_file:
     scp ./resources/prod/expenses-manager-rpi.service     dc@{{ remote }}:/home/dc/.local/share/expenses-manager/expenses-manager.service
     scp {{ env_file }}                                      dc@{{ remote }}:/home/dc/.local/share/expenses-manager/override.conf
     scp ./resources/prod/config.yaml                      dc@{{ remote }}:/home/dc/.local/share/expenses-manager/config.yaml
+    scp ./resources/prod/journald@expenses.conf           dc@{{ remote }}:/home/dc/.local/share/expenses-manager/journald@expenses.conf
+    # After we change `journald@expenses.conf`, we restart the journald instance for the `expenses` namespace (if it runs).
+    # If it does not run, systemd starts it with the new config when the service starts.
     ssh {{ remote }} -- " \
       sudo mv /home/dc/.local/share/expenses-manager/expenses-manager.service   /etc/systemd/system/expenses-manager.service;  \
       sudo mkdir -p                                                             /etc/systemd/system/expenses-manager.service.d ; \
       sudo mv /home/dc/.local/share/expenses-manager/override.conf              /etc/systemd/system/expenses-manager.service.d/override.conf ; \
+      sudo mv /home/dc/.local/share/expenses-manager/journald@expenses.conf     /etc/systemd/journald@expenses.conf ; \
       sudo systemctl daemon-reload ; \
+      sudo systemctl try-restart systemd-journald@expenses.service ; \
       sudo systemctl enable expenses-manager ; \
       sudo systemctl restart expenses-manager ; "
 
 rpi-logs:
-    ssh {{ remote }} -- journalctl -u expenses-manager --follow --lines 100
+    ssh {{ remote }} -- journalctl --namespace=expenses -u expenses-manager --follow --lines 100
 
 rpi-event-log:
     ssh {{ remote }} -- "tail -n 50 -F /home/dc/.local/share/expenses-manager/eventlog.jsonl"

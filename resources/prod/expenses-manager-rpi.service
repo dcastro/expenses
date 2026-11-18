@@ -14,6 +14,10 @@ ExecStart=/home/dc/.nix-profile/bin/expenses-manager-server --port 8082 --app-di
 Restart=always
 StandardOutput=journal
 StandardError=journal
+# Send the logs to a separate journal namespace, which keeps them on disk after a reboot.
+# See `journald@expenses.conf`.
+# Read the logs with: journalctl --namespace=expenses -u expenses-manager
+LogNamespace=expenses
 User=dc
 
 
