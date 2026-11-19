@@ -162,6 +162,7 @@ library:
     - base64
     - http-api-data
     - servant-client-core
+    - openapi3
 
 tests:
   test:

@@ -15,8 +15,9 @@ module Expenses.Suggestions (
 ) where
 
 import CustomPrelude
-import Data.Aeson (FromJSON, Value, object, (.=))
+import Data.Aeson (FromJSON, Value, toJSON)
 import Data.Map.Strict qualified as Map
+import Data.OpenApi (ToSchema, toInlinedSchema)
 import Data.Set qualified as Set
 import Data.Text qualified as T
 import Data.Time (Day)
@@ -42,14 +43,14 @@ data Match = Match
   , items :: [Text]
   }
   deriving stock (Show, Eq, Generic)
-  deriving anyclass (FromJSON)
+  deriving anyclass (FromJSON, ToSchema)
 
 -- | Claude's response. See `responseSchema`.
 newtype Matches = Matches
   { matches :: [Match]
   }
   deriving stock (Show, Eq, Generic)
-  deriving anyclass (FromJSON)
+  deriving anyclass (FromJSON, ToSchema)
 
 -- | A valid match: the suggested description for a transaction, and the e-mail it came from.
 data Suggestion = Suggestion
@@ -142,33 +143,14 @@ mkPrompt txs emails =
   intercalateEmails :: [[Text]] -> [Text]
   intercalateEmails = intercalate [""]
 
--- | The JSON schema of Claude's response. See `Matches`.
+{- | The JSON schema of Claude's response, derived from `Matches`.
+
+We inline the schemas of the nested types: `claude --json-schema` expects a self-contained schema,
+without `$ref`s to OpenAPI component definitions.
+-}
 responseSchema :: Value
 responseSchema =
-  object
-    [ "type" .= ("object" :: Text)
-    , "properties"
-        .= object
-          [ "matches"
-              .= object
-                [ "type" .= ("array" :: Text)
-                , "items"
-                    .= object
-                      [ "type" .= ("object" :: Text)
-                      , "properties"
-                          .= object
-                            [ "transactionId" .= stringType
-                            , "emailId" .= stringType
-                            , "items" .= object ["type" .= ("array" :: Text), "items" .= stringType]
-                            ]
-                      , "required" .= ["transactionId", "emailId", "items" :: Text]
-                      ]
-                ]
-          ]
-    , "required" .= ["matches" :: Text]
-    ]
- where
-  stringType = object ["type" .= ("string" :: Text)]
+  toJSON $ toInlinedSchema (Proxy @Matches)
 
 {- | Turns Claude's matches into suggestions. It removes:
   * matches with an unknown transaction or e-mail,
