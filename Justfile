@@ -182,8 +182,10 @@ rpi-setup-service env_file:
       sudo systemctl enable expenses-manager ; \
       sudo systemctl restart expenses-manager ; "
 
+# NOTE: `--follow` shows only the logs from the current boot, even without `--boot`.
+# `--merge` makes it show the logs from all boots.
 rpi-logs:
-    ssh {{ remote }} -- journalctl --namespace=expenses -u expenses-manager --follow --lines 100
+    ssh {{ remote }} -- journalctl --namespace=expenses -u expenses-manager --follow --lines 100 --merge
 
 rpi-event-log:
     ssh {{ remote }} -- "tail -n 50 -F /home/dc/.local/share/expenses-manager/eventlog.jsonl"
